@@ -26,13 +26,13 @@ There is no LLM routing and no model on the device. The answers are deterministi
 
 Also: day of the week, addition, subtraction, multiplication, division, percentages, splitting a bill, tax, length and weight and volume and temperature conversions, uptime, disk, and memory.
 
-**Device control (MQTT).** "turn on the kitchen light" or "turn the porch light off" publishes `ON`/`OFF` to `home/<device>/set`, no LLM. Universal by topic, so it works before you set up a device registry. It needs an MQTT broker reachable from the device; without one it says so plainly instead of failing silently.
+**Device control (MQTT).** It understands the command, not just on and off. It extracts action, device, attribute, and value from plain speech, so "turn on the kitchen light", "dim the bedroom light to 30", "set the thermostat to 72", and "lock the front door" all parse, and it publishes to `home/<device>/...` with no LLM. It remembers the last device, so a follow-up like "turn it off" resolves. Universal by topic, so it works before you set up a device registry; without an MQTT broker it says so plainly instead of failing silently.
 
 ## Suggested trigger words
 
 Set these in the OpenHome dashboard. Pick the ones you want.
 
-`what time`, `what's the time`, `what's the date`, `what day is it`, `calculate`, `what's`, `how much is`, `percent of`, `square root of`, `convert`, `how many`, `tip on`, `tax on`, `split`, `turn on`, `turn off`, `switch on`, `switch off`, `device temperature`, `uptime`, `disk usage`, `memory usage`
+`what time`, `what's the time`, `what's the date`, `what day is it`, `calculate`, `what's`, `how much is`, `percent of`, `square root of`, `convert`, `how many`, `tip on`, `tax on`, `split`, `turn on`, `turn off`, `switch`, `toggle`, `dim`, `set`, `lock`, `unlock`, `open`, `close`, `device temperature`, `uptime`, `disk usage`, `memory usage`
 
 ## How it works
 
