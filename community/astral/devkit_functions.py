@@ -255,6 +255,88 @@ def calc_handle(text: str) -> str | None:
                 return f"{_fmt(a)} divided by {_fmt(b)} is {_fmt(a/b)}."
     return None
 
+
+# ---------------- comprehension: morphology, slots, classify (comprehend.py) ----------------
+
+# device-control verbs
+DEVICE_VERBS = ("turn on", "turn off", "switch on", "switch off", "toggle", "set",
+                "dim", "brighten", "open", "close", "lock", "unlock", "start", "stop")
+_STOP = {"the", "a", "an", "of", "da", "le", "to", "my", "please"}
+
+# R1: a tiny conservative lemmatizer ("lights"->"light", "turning"->"turn"), guarded.
+_IRREG = {"lights": "light", "are": "be", "is": "be", "was": "be", "were": "be",
+          "am": "be", "does": "do", "did": "do", "has": "have", "had": "have",
+          "lives": "live", "leaves": "leave"}
+
+def _lemma(w: str) -> str:
+    if w in _IRREG:
+        return _IRREG[w]
+    if len(w) > 5 and (w.endswith("ing") or w.endswith("ed")):
+        base = w[:-3] if w.endswith("ing") else w[:-2]
+        if len(base) >= 2 and base[-1] == base[-2] and base[-1] not in "aeiou":
+            base = base[:-1]                     # gemination: runn->run, stopp->stop
+        return base
+    if len(w) > 4 and w.endswith("es"):
+        return w[:-2]
+    if len(w) > 3 and w.endswith("s") and not w.endswith("ss"):
+        return w[:-1]
+    return w
+
+def _norm(text: str) -> str:
+    return " ".join(_lemma(w) for w in text.lower().split())
+
+# R2: slot extraction into a structured command.
+_ACTION = {"turn on": "on", "switch on": "on", "start": "on", "open": "open",
+           "turn off": "off", "switch off": "off", "stop": "off", "close": "close",
+           "toggle": "toggle", "set": "set", "dim": "set", "brighten": "set",
+           "lock": "lock", "unlock": "unlock"}
+_ATTR = {"brightness": "brightness", "bright": "brightness", "volume": "volume",
+         "temperature": "temperature", "temp": "temperature", "color": "color",
+         "colour": "color", "position": "position", "level": "level", "speed": "speed"}
+_NUM = re.compile(r"\b(\d+)\b")
+_DROP = set(_STOP) | {"to", "percent", "%", "degrees", "degree", "at"} | set(_ATTR)
+
+# R3: closed-class classification, cheap and lookup-free.
+_CONFIRM_W = {"yes", "yeah", "yep", "no", "nope", "cancel", "sure", "ok", "okay", "nevermind"}
+_QUERY_W = {"what", "when", "where", "who", "why", "how", "which", "whose",
+            "is", "are", "do", "does", "can", "could", "will"}
+_CMD_W = {"turn", "set", "switch", "open", "close", "start", "stop", "play",
+          "dim", "brighten", "lock", "unlock", "run", "use", "toggle"}
+
+def parse_command(t: str) -> dict | None:
+    sp = re.match(r"\b(turn|switch)\s+(.+?)\s+(on|off)\b", t)
+    if sp:
+        verb, rest = f"{sp.group(1)} {sp.group(3)}", sp.group(2)
+    else:
+        verb = None
+        for v in sorted(DEVICE_VERBS, key=len, reverse=True):
+            if re.search(r"\b" + re.escape(v) + r"\b", t):
+                verb = v
+                break
+        if not verb:
+            return None
+        rest = t.split(verb, 1)[1].strip()
+    m = _NUM.search(rest)
+    attribute = next((a for k, a in _ATTR.items() if k in rest), None)
+    if verb in ("dim", "brighten") and not attribute:
+        attribute = "brightness"
+    device = " ".join(w for w in rest.split() if w not in _DROP and not w.isdigit()).strip()
+    return {"verb": verb, "action": _ACTION.get(verb, verb), "device": device or None,
+            "attribute": attribute, "value": int(m.group(1)) if m else None}
+
+def classify(text: str) -> str:
+    """command | query | confirm | chitchat — from function words, microseconds."""
+    words = text.lower().split()
+    if not words:
+        return "empty"
+    if len(words) <= 3 and (set(words) & _CONFIRM_W):
+        return "confirm"
+    if parse_command(text) or words[0] in _CMD_W:
+        return "command"
+    if words[0] in _QUERY_W:
+        return "query"
+    return "chitchat"
+
 # ============================ Astral device wrapper ============================
 
 def _emit_success(spoken, data=None):
@@ -268,32 +350,69 @@ def _emit_none():
     print(json.dumps({"success": True, "spoken_response": "", "data": {}, "error": None}))
 
 
-_DEV1 = re.compile(r"\b(turn|switch|set)\s+(?:the\s+)?(.+?)\s+(on|off)\b")
-_DEV2 = re.compile(r"\b(turn|switch|set)\s+(on|off)\s+(?:the\s+)?(.+)")
+# multi-turn: the device ability runs as a fresh subprocess per call, so the last device
+# is persisted to a small state file instead of held in memory. Covers "turn it off".
+_CTX = "/tmp/astral_ctx.json"
+_PRONOUN = re.compile(r"\b(it|that|them|those|this)\b")
+_SPOKEN = {"open": "Opening", "close": "Closing", "lock": "Locking", "unlock": "Unlocking"}
+
+def _last_device():
+    try:
+        return json.load(open(_CTX)).get("device")
+    except Exception:
+        return None
+
+def _remember_device(device):
+    try:
+        json.dump({"device": device}, open(_CTX, "w"))
+    except Exception:
+        pass
+
+def _publish(topic, payload):
+    try:
+        r = subprocess.run(["mosquitto_pub", "-t", topic, "-m", str(payload)],
+                           capture_output=True, timeout=4)
+        return r.returncode == 0
+    except FileNotFoundError:
+        return None                 # no broker/tools installed
+    except Exception:
+        return False
 
 def _device_command(q):
-    """Deterministic MQTT device control: "turn on the kitchen light" -> publish, no LLM.
-    Universal by topic (home/<device>/set), so it works before any device registry exists.
-    Uses mosquitto_pub if present; degrades gracefully with no broker."""
-    m = _DEV1.search(q)
-    if m:
-        action, device = m.group(3), m.group(2)
-    else:
-        m = _DEV2.search(q)
-        if not m:
-            return None
-        action, device = m.group(2), m.group(3)
-    device = device.strip()
+    """Deterministic device control via slot extraction (comprehend.parse_command).
+    Handles on/off/toggle/set-level/set-attribute/open/close/lock/unlock, resolves
+    "it/that" to the last device (multi-turn), and publishes over MQTT. Universal by
+    topic (home/<device>/...), so it works before any device registry exists."""
+    # multi-turn: swap a pronoun for the last device we acted on
+    if _PRONOUN.search(q):
+        dev = _last_device()
+        if dev:
+            q = _PRONOUN.sub(dev, q, count=1)
+    cmd = parse_command(q)
+    if not cmd or not cmd.get("device"):
+        return None
+    device = cmd["device"]
+    _remember_device(device)                      # remember even without a broker, for multi-turn
     slug = re.sub(r"\s+", "_", device)
-    payload = "ON" if action == "on" else "OFF"
-    try:
-        r = subprocess.run(["mosquitto_pub", "-t", f"home/{slug}/set", "-m", payload],
-                           capture_output=True, timeout=4)
-        return f"Turning {action} the {device}." if r.returncode == 0 else f"I couldn't reach the {device}."
-    except FileNotFoundError:
+    action, attr, val = cmd["action"], cmd.get("attribute"), cmd.get("value")
+
+    if action in ("on", "off"):
+        topic, payload, spoken = f"home/{slug}/set", action.upper(), f"Turning {action} the {device}."
+    elif action == "toggle":
+        topic, payload, spoken = f"home/{slug}/set", "TOGGLE", f"Toggling the {device}."
+    elif action == "set" and attr and val is not None:
+        topic, payload, spoken = f"home/{slug}/{attr}", val, f"Setting the {device} {attr} to {val}."
+    elif action == "set" and val is not None:
+        topic, payload, spoken = f"home/{slug}/set", val, f"Setting the {device} to {val}."
+    elif action in _SPOKEN:
+        topic, payload, spoken = f"home/{slug}/set", action.upper(), f"{_SPOKEN[action]} the {device}."
+    else:
+        return None
+
+    ok = _publish(topic, payload)
+    if ok is None:
         return "MQTT isn't set up on this device yet."
-    except Exception:
-        return f"I couldn't reach the {device}."
+    return spoken if ok else f"I couldn't reach the {device}."
 
 def respond(*words):
     q = " ".join(str(w) for w in words).strip()
