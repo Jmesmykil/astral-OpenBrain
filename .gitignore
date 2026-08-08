@@ -1,0 +1,18 @@
+__pycache__/
+*.pyc
+*.pyo
+.DS_Store
+*.wav
+*.log
+.venv/
+venv/
+scratch/
+__pycache__/
+*.zip
+
+# internal — kept local, not in the public repo
+hub/
+MAP.md
+CATALOG-EXPANSION.md
+OPENHOME-SURFACES.md
+MECH-DISTILL.md
