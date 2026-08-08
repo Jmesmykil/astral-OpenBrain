@@ -27,17 +27,29 @@ import re, os, sys, json, shutil, subprocess
 def _hm(now: datetime) -> str:
     return now.strftime("%I:%M %p").lstrip("0").lower()
 
-def _time(now):     return f"It's {_hm(now)}."
-def _date(now):     return f"Today is {now.strftime('%A, %B %d, %Y').replace(' 0', ' ')}."
-def _day(now):      return f"It's {now.strftime('%A')}."
-def _month(now):    return f"It's {now.strftime('%B')}."
-def _year(now):     return f"It's {now.strftime('%Y')}."
+def _time(now):
+    return f"It's {_hm(now)}."
+
+def _date(now):
+    return f"Today is {now.strftime('%A, %B %d, %Y').replace(' 0', ' ')}."
+
+def _day(now):
+    return f"It's {now.strftime('%A')}."
+
+def _month(now):
+    return f"It's {now.strftime('%B')}."
+
+def _year(now):
+    return f"It's {now.strftime('%Y')}."
+
 def _partofday(now):
     h = now.hour
     part = ("early morning" if h < 6 else "morning" if h < 12 else
             "afternoon" if h < 17 else "evening" if h < 21 else "night")
-    return f"It's {part} — {_hm(now)}."
-def _ampm(now):     return f"It's {now.strftime('%p').lower()} — {_hm(now)}."
+    return f"It's {part}, {_hm(now)}."
+
+def _ampm(now):
+    return f"It's {now.strftime('%p').lower()}, {_hm(now)}."
 
 # ordered: most specific first. each entry (pattern, handler).
 HANDLERS = [
