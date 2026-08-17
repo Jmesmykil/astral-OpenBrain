@@ -49,3 +49,47 @@ Typed or dictated-with-pauses input works; a fast spoken list does not.
 
 Six of eight spoken phrases answered end to end through the real ASR path on the
 DevKit. The other two failed here, at the transcript, before the engine saw them.
+
+## Device state found on 2026-08-17 while testing acoustically
+
+None of this is code. All of it stops the device working, and none of it shows up in
+any test that runs on a laptop.
+
+**The speaker was at 0 percent.** `pactl get-sink-volume` read `0% / -inf dB`. paplay
+exited 0, the amp enabled and disabled in dmesg, and nothing came out. Anyone talking
+to the DevKit would have heard silence and had no way to tell why. Set to 65 percent to
+run the tests; it is not known whether that survives a reboot, and the mic gain is
+documented as resetting every boot, so assume this one does too.
+
+**PipeWire exposes no microphone.** `pactl list sources short` returns exactly one
+source and it is the output monitor. The hardware is fine — ALSA shows the Google
+voiceHAT capture device on card 2 — so anything recording through PulseAudio or
+PipeWire gets nothing while `arecord -D plughw:2,0` works normally. The voiceHAT also
+exposes no mixer controls at all, so there is no software capture gain to raise.
+
+**Whisper invents sentences from silence.** Recording a silent room and transcribing it
+produced "There's a reason so much of our personal information ends up happening. Data
+brokers make billions collecting and selling data." Nobody said anything. Astral
+declined it, which is the architecture working, but a hallucinated transcript that
+happens to contain a trigger phrase would be answered. Any always-on loop should gate
+on a capture level floor before it routes a transcript.
+
+**The wake word is still hey_mycroft.** The product wake word is Open Brain and there
+is no model for it. openWakeWord ships pretrained models only — alexa, hey_jarvis,
+hey_mycroft, hey_marvin, timer — so Open Brain needs either a trained custom
+openWakeWord model or Picovoice Porcupine with a free key. Testing on hey_mycroft
+proves the detection path, not the keyword.
+
+**piper shipped without the execute bit.** `~/astral-voice/tts/piper/piper` was not
+executable, so text-to-speech failed with PermissionError until chmod +x.
+
+## What is now proven acoustically, and what is not
+
+Proven on the hardware, speaker to microphone, no human in the loop: wake detection
+fires at 1.000 on a known keyword and 0.000 on both other speech and silence; 7 of 8
+spoken phrases answered end to end through real capture and whisper; piper speech plays
+audibly and transcribes back word for word.
+
+Not proven: the Open Brain keyword, and the OpenHome agent routing a spoken phrase to
+this capability at all — the hotwords live cloud-side, so that cannot be tested until
+the capability is registered against the agent.
