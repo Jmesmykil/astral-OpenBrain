@@ -28,3 +28,24 @@ Straight list of what's rough, so nobody's surprised. Split by the two paths.
 - A ready-loop after a confused capture. Now cools down after every listen.
 - A self-reset when one bad capture raised an error. The listen loop now recovers and keeps going instead of crashing.
 - Wrong spoken time from the device timezone being off. Now matched to local.
+
+## Speech-to-text limits, measured on the device 2026-08-17
+
+Everything else in this repo is tested on typed text. These two only show up when a
+sentence is actually spoken, and neither is a code defect — they are the transcript
+arriving wrong, and the engine correctly declines rather than guessing.
+
+**Words that sound like other words.** "Escape velocity of Mars" transcribed as "is
+cake velocity of Mars", so nothing matched. Fuzzy-matching the transcript would fix
+this case and introduce a worse one, since the whole point is that a match is exact.
+A better microphone, a real voice rather than synthesized speech, and the larger
+whisper model all reduce it; nothing in this code can.
+
+**Spoken lists of numbers get concatenated.** "Standard deviation of four six eight
+ten" transcribed as "Standard deviation of 46810". A five-digit number cannot be split
+back into a list without inventing the boundaries — 4 6 8 10 and 46 8 10 and 4 68 10
+are all readable from it. So statistics over a spoken list is unreliable by nature.
+Typed or dictated-with-pauses input works; a fast spoken list does not.
+
+Six of eight spoken phrases answered end to end through the real ASR path on the
+DevKit. The other two failed here, at the transcript, before the engine saw them.
