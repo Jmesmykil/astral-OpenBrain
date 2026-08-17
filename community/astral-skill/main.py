@@ -1,9 +1,15 @@
 """Astral - deterministic base capability for OpenHome.
 
-Answers the exact-answer class without the LLM: time, date, math, money, and unit
-conversions. The whole engine is inlined below (pattern-and-table code, no model, no
-network), so this runs anywhere an agent runs - no DevKit required. Modeled on the
-official date-and-time base capability, generalized.
+Answers the exact-answer class without the LLM: time, date, math, money, unit
+conversions, grades, chemistry, physics, statistics, and number tools. The whole engine
+is inlined below (pattern-and-table code, no model, no network), so this runs anywhere
+an agent runs - no DevKit required. Modeled on the official date-and-time base
+capability, generalized.
+
+The class is bigger than it first looks. "What do I need on the final to get a 90",
+"molar mass of water", "escape velocity of Mars", "standard deviation of 4 6 8 10" all
+have exactly one right answer and a formula that produces it. A model answers them
+fluently and sometimes wrongly. This computes them, in microseconds, offline.
 
 If nothing matches, it speaks nothing and hands the turn back so the agent takes it.
 """
@@ -40,23 +46,31 @@ from fractions import Fraction
 #
 # Timezone: uses the device's local clock. (Set the device TZ correctly — the DevKit
 # image shipped Asia/Karachi; a real deploy should match the user.)
+
+
 def _hm(now: datetime) -> str:
     return now.strftime("%I:%M %p").lstrip("0").lower()
+
 
 def _time(now):
     return f"It's {_hm(now)}."
 
+
 def _date(now):
     return f"Today is {now.strftime('%A, %B %d, %Y').replace(' 0', ' ')}."
+
 
 def _day(now):
     return f"It's {now.strftime('%A')}."
 
+
 def _month(now):
     return f"It's {now.strftime('%B')}."
 
+
 def _year(now):
     return f"It's {now.strftime('%Y')}."
+
 
 def _partofday(now):
     h = now.hour
@@ -64,8 +78,10 @@ def _partofday(now):
             "afternoon" if h < 17 else "evening" if h < 21 else "night")
     return f"It's {part}, {_hm(now)}."
 
+
 def _ampm(now):
     return f"It's {now.strftime('%p').lower()}, {_hm(now)}."
+
 
 # ordered: most specific first. each entry (pattern, handler).
 HANDLERS = [
@@ -81,6 +97,7 @@ HANDLERS = [
                 r"\bcurrent time\b|\btime is it\b|\bgot the time\b|\bthe time\b"), _time),
 ]
 
+
 def mech_handle(utterance: str, now: datetime | None = None) -> str | None:
     """Return a spoken answer for a mechanical command, or None to fall through."""
     now = now or datetime.now()
@@ -91,6 +108,7 @@ def mech_handle(utterance: str, now: datetime | None = None) -> str | None:
     return None
 
 # ── demo: the efficiency contrast ─────────────────────────────────────────────
+
 
 # ── calc.py ────────────────────────────────────────────────────────────────
 # Astral calc — deterministic math, money, and unit conversion. No LLM, no cloud, µs.
@@ -106,13 +124,14 @@ def mech_handle(utterance: str, now: datetime | None = None) -> str | None:
 # handle(text) -> spoken string, or None to fall through to the normal path.
 # All parsing is pattern + table based (no eval) so it is safe on voice input.
 # ── number words → value (STT emits words: "twenty five", "one hundred") ──────
-_ONES = {"zero":0,"one":1,"two":2,"three":3,"four":4,"five":5,"six":6,"seven":7,
-         "eight":8,"nine":9,"ten":10,"eleven":11,"twelve":12,"thirteen":13,
-         "fourteen":14,"fifteen":15,"sixteen":16,"seventeen":17,"eighteen":18,
-         "nineteen":19,"a":1,"an":1}
-_TENS = {"twenty":20,"thirty":30,"forty":40,"fifty":50,"sixty":60,"seventy":70,
-         "eighty":80,"ninety":90}
-_SCALE = {"thousand":1000,"million":1000000,"billion":1000000000}
+_ONES = {"zero": 0, "one": 1, "two": 2, "three": 3, "four": 4, "five": 5, "six": 6, "seven": 7,
+         "eight": 8, "nine": 9, "ten": 10, "eleven": 11, "twelve": 12, "thirteen": 13,
+         "fourteen": 14, "fifteen": 15, "sixteen": 16, "seventeen": 17, "eighteen": 18,
+         "nineteen": 19, "a": 1, "an": 1}
+_TENS = {"twenty": 20, "thirty": 30, "forty": 40, "fifty": 50, "sixty": 60, "seventy": 70,
+         "eighty": 80, "ninety": 90}
+_SCALE = {"thousand": 1000, "million": 1000000, "billion": 1000000000}
+
 
 def _int_words(toks: list[str]) -> float:
     # "a"/"an" is only the number one when nothing else in the run is a number.
@@ -129,12 +148,18 @@ def _int_words(toks: list[str]) -> float:
             cur += float(t)
         elif t in ("a", "an"):
             cur += 0 if real else 1
-        elif t in _ONES: cur += _ONES[t]
-        elif t in _TENS: cur += _TENS[t]
-        elif t == "hundred": cur = (cur or 1) * 100
-        elif t in _SCALE: total += (cur or 1) * _SCALE[t]; cur = 0
+        elif t in _ONES:
+            cur += _ONES[t]
+        elif t in _TENS:
+            cur += _TENS[t]
+        elif t == "hundred":
+            cur = (cur or 1) * 100
+        elif t in _SCALE:
+            total += (cur or 1) * _SCALE[t]
+            cur = 0
         # ignore "and"
     return total + cur
+
 
 def parse_number(s: str):
     s = s.strip().lower().replace("-", " ")
@@ -151,10 +176,12 @@ def parse_number(s: str):
             or t in _SCALE or t.replace(".", "", 1).isdigit()]
     return _int_words(toks) if toks else None
 
+
 _NUMRUN = re.compile(r"((?:\b(?:zero|one|two|three|four|five|six|seven|eight|nine|ten|"
-    r"eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|"
-    r"twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety|hundred|thousand|million|"
-    r"point|and|a|an)\b|\d+(?:\.\d+)?)(?:\s+|$))+")
+                     r"eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|"
+                     r"twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety|hundred|thousand|million|"
+                     r"point|and|a|an)\b|\d+(?:\.\d+)?)(?:\s+|$))+")
+
 
 def numbers(text: str) -> list[float]:
     out = []
@@ -170,6 +197,7 @@ def numbers(text: str) -> list[float]:
         if v is not None:
             out.append(v)
     return out
+
 
 def _fmt(x: float) -> str:
     # round(), not int(). int() truncates, so a float that lands a hair BELOW an
@@ -190,20 +218,29 @@ def _fmt(x: float) -> str:
             "e-", " times ten to the minus ") if "e" in g else g
     return s
 
+
 def _fmt_spoken(x: float) -> str:
     """Same number, said out loud. 9460730472580.8 is not an answer anyone can hear,
     so anything past a million becomes '9.46 trillion' and anything under a millionth
     keeps its significant digits instead of collapsing to '0'."""
     a = abs(x)
-    if a >= 1e15: return f"{x/1e15:.2f}".rstrip("0").rstrip(".") + " quadrillion"
-    if a >= 1e12: return f"{x/1e12:.2f}".rstrip("0").rstrip(".") + " trillion"
-    if a >= 1e9:  return f"{x/1e9:.2f}".rstrip("0").rstrip(".") + " billion"
-    if a >= 1e6:  return f"{x/1e6:.2f}".rstrip("0").rstrip(".") + " million"
-    if a and a < 0.001: return f"{x:.4g}".replace("e-0", " times ten to the minus ").replace("e-", " times ten to the minus ")
+    if a >= 1e15:
+        return f"{x/1e15:.2f}".rstrip("0").rstrip(".") + " quadrillion"
+    if a >= 1e12:
+        return f"{x/1e12:.2f}".rstrip("0").rstrip(".") + " trillion"
+    if a >= 1e9:
+        return f"{x/1e9:.2f}".rstrip("0").rstrip(".") + " billion"
+    if a >= 1e6:
+        return f"{x/1e6:.2f}".rstrip("0").rstrip(".") + " million"
+    if a and a < 0.001:
+        return f"{x:.4g}".replace("e-0", " times ten to the minus ").replace("e-", " times ten to the minus ")
     return _fmt(x)
 
-_ROMAN = [(1000,"M"),(900,"CM"),(500,"D"),(400,"CD"),(100,"C"),(90,"XC"),
-          (50,"L"),(40,"XL"),(10,"X"),(9,"IX"),(5,"V"),(4,"IV"),(1,"I")]
+
+_ROMAN = [(1000, "M"), (900, "CM"), (500, "D"), (400, "CD"), (100, "C"), (90, "XC"),
+          (50, "L"), (40, "XL"), (10, "X"), (9, "IX"), (5, "V"), (4, "IV"), (1, "I")]
+
+
 def _to_roman(n: int) -> str:
     out = ""
     for v, s in _ROMAN:
@@ -212,72 +249,73 @@ def _to_roman(n: int) -> str:
             n -= v
     return out
 
+
 # ── unit conversion tables (to a base per dimension) ──────────────────────────
 # Factors are the exact defined values, not rounded ones. A truncated constant is a
 # wrong answer with extra steps: mile = 1609.34 answered "a mile is 5279.99 feet".
-_WEIGHT = {"gram":1,"grams":1,"g":1,"kilogram":1000,"kilograms":1000,"kg":1000,
-           "kilo":1000,"kilos":1000,"milligram":0.001,"milligrams":0.001,"mg":0.001,
-           "pound":453.59237,"pounds":453.59237,"lb":453.59237,
-           "lbs":453.59237,"ounce":28.349523125,"ounces":28.349523125,"oz":28.349523125,
+_WEIGHT = {"gram": 1, "grams": 1, "g": 1, "kilogram": 1000, "kilograms": 1000, "kg": 1000,
+           "kilo": 1000, "kilos": 1000, "milligram": 0.001, "milligrams": 0.001, "mg": 0.001,
+           "pound": 453.59237, "pounds": 453.59237, "lb": 453.59237,
+           "lbs": 453.59237, "ounce": 28.349523125, "ounces": 28.349523125, "oz": 28.349523125,
            # "ton" from an American voice is the short ton; the metric one has its own
            # names. Collapsing them into one number was a factor-of-1.1 error waiting.
-           "ton":907184.74,"tons":907184.74,"short ton":907184.74,"short tons":907184.74,
-           "tonne":1e6,"tonnes":1e6,"metric ton":1e6,"metric tons":1e6,
-           "stone":6350.29318,"amu":1.66053906660e-24}
-_LENGTH = {"meter":1,"meters":1,"metre":1,"m":1,"centimeter":0.01,"centimeters":0.01,
-           "cm":0.01,"millimeter":0.001,"mm":0.001,"micrometer":1e-6,"micron":1e-6,
-           "nanometer":1e-9,"nanometers":1e-9,"nm":1e-9,
-           "kilometer":1000,"kilometers":1000,
-           "km":1000,"inch":0.0254,"inches":0.0254,"foot":0.3048,"feet":0.3048,
-           "yard":0.9144,"yards":0.9144,"mile":1609.344,"miles":1609.344,
-           "nautical mile":1852,"nautical miles":1852,
+           "ton": 907184.74, "tons": 907184.74, "short ton": 907184.74, "short tons": 907184.74,
+           "tonne": 1e6, "tonnes": 1e6, "metric ton": 1e6, "metric tons": 1e6,
+           "stone": 6350.29318, "amu": 1.66053906660e-24}
+_LENGTH = {"meter": 1, "meters": 1, "metre": 1, "m": 1, "centimeter": 0.01, "centimeters": 0.01,
+           "cm": 0.01, "millimeter": 0.001, "mm": 0.001, "micrometer": 1e-6, "micron": 1e-6,
+           "nanometer": 1e-9, "nanometers": 1e-9, "nm": 1e-9,
+           "kilometer": 1000, "kilometers": 1000,
+           "km": 1000, "inch": 0.0254, "inches": 0.0254, "foot": 0.3048, "feet": 0.3048,
+           "yard": 0.9144, "yards": 0.9144, "mile": 1609.344, "miles": 1609.344,
+           "nautical mile": 1852, "nautical miles": 1852,
            # astronomical distances — exact IAU definitions
-           "light year":9.4607304725808e15,"light years":9.4607304725808e15,
-           "lightyear":9.4607304725808e15,"lightyears":9.4607304725808e15,
-           "parsec":3.0856775814913673e16,"parsecs":3.0856775814913673e16,
-           "astronomical unit":1.495978707e11,"astronomical units":1.495978707e11}
-_VOLUME = {"liter":1,"liters":1,"litre":1,"l":1,"milliliter":0.001,"milliliters":0.001,
-           "ml":0.001,"cup":0.2365882365,"cups":0.2365882365,
-           "gallon":3.785411784,"gallons":3.785411784,
-           "quart":0.946352946,"quarts":0.946352946,"pint":0.473176473,
-           "pints":0.473176473,"tablespoon":0.01478676478125,
-           "tablespoons":0.01478676478125,"teaspoon":0.00492892159375,
-           "teaspoons":0.00492892159375,"cubic meter":1000,"cubic meters":1000}
+           "light year": 9.4607304725808e15, "light years": 9.4607304725808e15,
+           "lightyear": 9.4607304725808e15, "lightyears": 9.4607304725808e15,
+           "parsec": 3.0856775814913673e16, "parsecs": 3.0856775814913673e16,
+           "astronomical unit": 1.495978707e11, "astronomical units": 1.495978707e11}
+_VOLUME = {"liter": 1, "liters": 1, "litre": 1, "l": 1, "milliliter": 0.001, "milliliters": 0.001,
+           "ml": 0.001, "cup": 0.2365882365, "cups": 0.2365882365,
+           "gallon": 3.785411784, "gallons": 3.785411784,
+           "quart": 0.946352946, "quarts": 0.946352946, "pint": 0.473176473,
+           "pints": 0.473176473, "tablespoon": 0.01478676478125,
+           "tablespoons": 0.01478676478125, "teaspoon": 0.00492892159375,
+           "teaspoons": 0.00492892159375, "cubic meter": 1000, "cubic meters": 1000}
 # base = meters per second
-_SPEED = {"mph":0.44704,"kph":1/3.6,"kmh":1/3.6,"knot":1852/3600,"knots":1852/3600,
-          "mps":1,"meters per second":1,"feet per second":0.3048,
-          "miles per hour":0.44704,"kilometers per hour":1/3.6}
+_SPEED = {"mph": 0.44704, "kph": 1 / 3.6, "kmh": 1 / 3.6, "knot": 1852 / 3600, "knots": 1852 / 3600,
+          "mps": 1, "meters per second": 1, "feet per second": 0.3048,
+          "miles per hour": 0.44704, "kilometers per hour": 1 / 3.6}
 # base = square meters
-_AREA = {"square meter":1,"square meters":1,"sqm":1,"square foot":0.09290304,
-         "square feet":0.09290304,"sqft":0.09290304,"acre":4046.8564224,
-         "acres":4046.8564224,"square inch":0.00064516,"square inches":0.00064516,
-         "hectare":10000,"hectares":10000,"square kilometer":1e6,"square kilometers":1e6,
-         "square mile":2589988.110336,"square miles":2589988.110336}
+_AREA = {"square meter": 1, "square meters": 1, "sqm": 1, "square foot": 0.09290304,
+         "square feet": 0.09290304, "sqft": 0.09290304, "acre": 4046.8564224,
+         "acres": 4046.8564224, "square inch": 0.00064516, "square inches": 0.00064516,
+         "hectare": 10000, "hectares": 10000, "square kilometer": 1e6, "square kilometers": 1e6,
+         "square mile": 2589988.110336, "square miles": 2589988.110336}
 # base = seconds (time DURATION units, not the clock — those are mechanical.py)
-_TIME = {"second":1,"seconds":1,"minute":60,"minutes":60,"hour":3600,"hours":3600,
-         "day":86400,"days":86400,"week":604800,"weeks":604800,
-         "year":31557600,"years":31557600,"millisecond":0.001,"milliseconds":0.001}
+_TIME = {"second": 1, "seconds": 1, "minute": 60, "minutes": 60, "hour": 3600, "hours": 3600,
+         "day": 86400, "days": 86400, "week": 604800, "weeks": 604800,
+         "year": 31557600, "years": 31557600, "millisecond": 0.001, "milliseconds": 0.001}
 # base = joules
-_ENERGY = {"joule":1,"joules":1,"kilojoule":1000,"kilojoules":1000,"kj":1000,
-           "calorie":4.184,"calories":4.184,"kilocalorie":4184,"kilocalories":4184,
-           "food calorie":4184,"food calories":4184,
-           "watt hour":3600,"watt hours":3600,"kilowatt hour":3.6e6,
-           "kilowatt hours":3.6e6,"electron volt":1.602176634e-19,
-           "electron volts":1.602176634e-19,"btu":1055.05585262}
+_ENERGY = {"joule": 1, "joules": 1, "kilojoule": 1000, "kilojoules": 1000, "kj": 1000,
+           "calorie": 4.184, "calories": 4.184, "kilocalorie": 4184, "kilocalories": 4184,
+           "food calorie": 4184, "food calories": 4184,
+           "watt hour": 3600, "watt hours": 3600, "kilowatt hour": 3.6e6,
+           "kilowatt hours": 3.6e6, "electron volt": 1.602176634e-19,
+           "electron volts": 1.602176634e-19, "btu": 1055.05585262}
 # base = pascals
-_PRESSURE = {"pascal":1,"pascals":1,"kilopascal":1000,"kilopascals":1000,"kpa":1000,
-             "bar":100000,"bars":100000,"atmosphere":101325,"atmospheres":101325,
-             "atm":101325,"psi":6894.757293168,"torr":133.32236842105263,
-             "millimeters of mercury":133.32236842105263}
+_PRESSURE = {"pascal": 1, "pascals": 1, "kilopascal": 1000, "kilopascals": 1000, "kpa": 1000,
+             "bar": 100000, "bars": 100000, "atmosphere": 101325, "atmospheres": 101325,
+             "atm": 101325, "psi": 6894.757293168, "torr": 133.32236842105263,
+             "millimeters of mercury": 133.32236842105263}
 # base = newtons
-_FORCE = {"newton":1,"newtons":1,"kilonewton":1000,"kilonewtons":1000,
-          "pound force":4.4482216152605,"pounds force":4.4482216152605,"dyne":1e-5}
+_FORCE = {"newton": 1, "newtons": 1, "kilonewton": 1000, "kilonewtons": 1000,
+          "pound force": 4.4482216152605, "pounds force": 4.4482216152605, "dyne": 1e-5}
 # base = bytes (binary multiples — the convention every CS course teaches)
-_DATA = {"byte":1,"bytes":1,"bit":0.125,"bits":0.125,"kilobyte":1024,"kilobytes":1024,
-         "kb":1024,"megabyte":1048576,"megabytes":1048576,"mb":1048576,
-         "gigabyte":1073741824,"gigabytes":1073741824,"gb":1073741824,
-         "terabyte":1099511627776,"terabytes":1099511627776,"tb":1099511627776,
-         "megabit":131072,"megabits":131072,"gigabit":134217728,"gigabits":134217728}
+_DATA = {"byte": 1, "bytes": 1, "bit": 0.125, "bits": 0.125, "kilobyte": 1024, "kilobytes": 1024,
+         "kb": 1024, "megabyte": 1048576, "megabytes": 1048576, "mb": 1048576,
+         "gigabyte": 1073741824, "gigabytes": 1073741824, "gb": 1073741824,
+         "terabyte": 1099511627776, "terabytes": 1099511627776, "tb": 1099511627776,
+         "megabit": 131072, "megabits": 131072, "gigabit": 134217728, "gigabits": 134217728}
 # Order matters: a compound unit contains a simple one, so the compound dimension has
 # to win the match. "square meter" contains "meter" (area before length), "meters per
 # second" contains "meters" (speed before length), "kilowatt hour" contains "hour"
@@ -310,6 +348,7 @@ def _find_units(text: str):
                 found.append((dim, m.group(1), m.start()))
     return found
 
+
 def _convert(text: str, nums):
     # "how many feet in a mile" names no quantity — the question is about one of them.
     # Only an explicit asking shape gets that default, so merely mentioning two units
@@ -328,7 +367,7 @@ def _convert(text: str, nums):
     c = re.search(r"\b(?:celsius|centigrade)\b", text)
     if f and c:
         return (f"{_fmt(v)} degrees Fahrenheit is {_fmt((v-32)*5/9)} degrees Celsius."
-                if abs(f.start()-npos) <= abs(c.start()-npos) else
+                if abs(f.start() - npos) <= abs(c.start() - npos) else
                 f"{_fmt(v)} degrees Celsius is {_fmt(v*9/5+32)} degrees Fahrenheit.")
 
     units = _find_units(text)
@@ -342,6 +381,8 @@ def _convert(text: str, nums):
     return None
 
 # ── main ──────────────────────────────────────────────────────────────────────
+
+
 def calc_handle(text: str) -> str | None:
     t = " " + text.lower().strip() + " "
     nums = numbers(text)
@@ -409,7 +450,7 @@ def calc_handle(text: str) -> str | None:
     # arithmetic: A <op> B
     if len(nums) >= 2:
         a, b = nums[0], nums[1]
-        if re.search(r"\bplus\b|\badd\b|\band\b", t) and not any(w in t for w in ("percent","tip","tax","split")):
+        if re.search(r"\bplus\b|\badd\b|\band\b", t) and not any(w in t for w in ("percent", "tip", "tax", "split")):
             if "plus" in t or "add" in t:
                 return f"{_fmt(a)} plus {_fmt(b)} is {_fmt(a+b)}."
         if re.search(r"\bminus\b|\bsubtract\b|\bless\b|\btake away\b", t):
@@ -420,6 +461,7 @@ def calc_handle(text: str) -> str | None:
             if b:
                 return f"{_fmt(a)} divided by {_fmt(b)} is {_fmt(a/b)}."
     return None
+
 
 # ── study.py ───────────────────────────────────────────────────────────────
 # Astral study — deterministic grade arithmetic. No LLM, no cloud, µs.
@@ -446,7 +488,6 @@ _GR_BANDS = [(97, "A plus"), (93, "A"), (90, "A minus"), (87, "B plus"), (83, "B
 
 # Whole-letter targets, used when a target is spoken as a letter rather than a number.
 _GR_TARGET = {"a": 90, "b": 80, "c": 70, "d": 60}
-
 
 
 def _gr_letter(pct: float) -> str:
@@ -565,6 +606,7 @@ def study_handle(text: str) -> str | None:
 
     return None
 
+
 # ── chem.py ────────────────────────────────────────────────────────────────
 # Astral chem — deterministic chemistry. No LLM, no cloud, µs.
 #
@@ -663,7 +705,7 @@ def _ch_count(x: float) -> str:
 
 def _ch_molar(formula: str):
     """Molar mass of a formula, parentheses included. None if any symbol is unknown."""
-    stack, total, i = [], 0.0, 0
+    stack, total = [], 0.0
     if not re.fullmatch(r"(?:[A-Z][a-z]?\d*|\(|\)\d*)+", formula):
         return None
     for m in _CH_TOKEN.finditer(formula):
@@ -777,8 +819,8 @@ def chem_handle(text: str) -> str | None:
 
     # ── ideal gas ─────────────────────────────────────────────────────────────
     if re.search(r"\bideal gas\b|\bpv\s*=\s*nrt\b", t) or (
-            re.search(r"\bmoles?\b", t) and re.search(r"\bkelvin\b", t) and
-            re.search(r"\batmospheres?\b|\batm\b", t)):
+            re.search(r"\bmoles?\b", t) and re.search(r"\bkelvin\b", t)
+            and re.search(r"\batmospheres?\b|\batm\b", t)):
         mo = re.search(r"([0-9]+(?:\.[0-9]+)?)\s*moles?", t)
         kv = re.search(r"([0-9]+(?:\.[0-9]+)?)\s*kelvin", t)
         at = re.search(r"([0-9]+(?:\.[0-9]+)?)\s*(?:atmospheres?|atm)", t)
@@ -790,6 +832,7 @@ def chem_handle(text: str) -> str | None:
                     f"occupies {v:.4g} liters.")
 
     return None
+
 
 # ── sci.py ─────────────────────────────────────────────────────────────────
 # Astral sci — deterministic physics and astronomy. No LLM, no cloud, µs.
@@ -815,12 +858,12 @@ def chem_handle(text: str) -> str | None:
 #
 # handle(text) -> spoken string, or None to fall through.
 # ── measured constants (CODATA / IAU) ─────────────────────────────────────────
-_SCI_G     = 6.67430e-11        # gravitational constant, m^3 kg^-1 s^-2
-_SCI_C     = 299792458.0        # speed of light, m/s (exact)
-_SCI_G0    = 9.80665            # standard gravity, m/s^2 (exact)
-_SCI_H     = 6.62607015e-34     # Planck, J s (exact)
-_SCI_MSUN  = 1.98847e30         # solar mass, kg
-_SCI_LY    = _LENGTH["light year"]   # one definition, shared with the unit table
+_SCI_G = 6.67430e-11        # gravitational constant, m^3 kg^-1 s^-2
+_SCI_C = 299792458.0        # speed of light, m/s (exact)
+_SCI_G0 = 9.80665            # standard gravity, m/s^2 (exact)
+_SCI_H = 6.62607015e-34     # Planck, J s (exact)
+_SCI_MSUN = 1.98847e30         # solar mass, kg
+_SCI_LY = _LENGTH["light year"]   # one definition, shared with the unit table
 _SCI_MPS_TO_MPH = 2.2369362920544    # m/s -> mph, exact from the mile definition
 
 # body -> (mass kg, EQUATORIAL radius m, mean distance from Earth m or None)
@@ -833,17 +876,17 @@ _SCI_MPS_TO_MPH = 2.2369362920544    # m/s -> mph, exact from the mile definitio
 # numbers. With equatorial radii, every body agrees with the published surface gravity
 # and escape velocity to better than half a percent, and test_hardening.py asserts it.
 _SCI_BODY = {
-    "sun":     (1.98847e30, 6.957e8,    1.495978707e11),
-    "mercury": (3.3011e23,  2.4405e6,   9.17e10),
-    "venus":   (4.8675e24,  6.0518e6,   4.14e10),
-    "earth":   (5.97217e24, 6.378137e6, None),
-    "moon":    (7.342e22,   1.7381e6,   3.844e8),
-    "mars":    (6.4171e23,  3.3962e6,   7.83e10),
-    "jupiter": (1.8982e27,  7.1492e7,   6.288e11),
-    "saturn":  (5.6834e26,  6.0268e7,   1.275e12),
-    "uranus":  (8.6810e25,  2.5559e7,   2.723e12),
-    "neptune": (1.02413e26, 2.4764e7,   4.351e12),
-    "pluto":   (1.303e22,   1.1883e6,   5.75e12),
+    "sun": (1.98847e30, 6.957e8, 1.495978707e11),
+    "mercury": (3.3011e23, 2.4405e6, 9.17e10),
+    "venus": (4.8675e24, 6.0518e6, 4.14e10),
+    "earth": (5.97217e24, 6.378137e6, None),
+    "moon": (7.342e22, 1.7381e6, 3.844e8),
+    "mars": (6.4171e23, 3.3962e6, 7.83e10),
+    "jupiter": (1.8982e27, 7.1492e7, 6.288e11),
+    "saturn": (5.6834e26, 6.0268e7, 1.275e12),
+    "uranus": (8.6810e25, 2.5559e7, 2.723e12),
+    "neptune": (1.02413e26, 2.4764e7, 4.351e12),
+    "pluto": (1.303e22, 1.1883e6, 5.75e12),
 }
 _SCI_ALIAS = {"the sun": "sun", "the moon": "moon", "the earth": "earth"}
 
@@ -884,14 +927,21 @@ def _sci_far(metres: float) -> str:
 
 def _sci_secs(seconds: float) -> str:
     """Seconds said the way a person would say them."""
-    if seconds < 1e-6:  return f"{seconds*1e9:.2f}".rstrip("0").rstrip(".") + " nanoseconds"
-    if seconds < 1e-3:  return f"{seconds*1e6:.2f}".rstrip("0").rstrip(".") + " microseconds"
-    if seconds < 1:     return f"{seconds*1e3:.2f}".rstrip("0").rstrip(".") + " milliseconds"
-    if seconds < 90:    return _fmt(seconds) + (" second" if abs(seconds - 1) < 1e-9 else " seconds")
-    if seconds < 5400:  return _fmt(seconds/60) + " minutes"
-    if seconds < 172800: return _fmt(seconds/3600) + " hours"
-    if seconds < 3.156e7: return _fmt(seconds/86400) + " days"
-    return _fmt_spoken(seconds/3.15576e7) + " years"
+    if seconds < 1e-6:
+        return f"{seconds*1e9:.2f}".rstrip("0").rstrip(".") + " nanoseconds"
+    if seconds < 1e-3:
+        return f"{seconds*1e6:.2f}".rstrip("0").rstrip(".") + " microseconds"
+    if seconds < 1:
+        return f"{seconds*1e3:.2f}".rstrip("0").rstrip(".") + " milliseconds"
+    if seconds < 90:
+        return _fmt(seconds) + (" second" if abs(seconds - 1) < 1e-9 else " seconds")
+    if seconds < 5400:
+        return _fmt(seconds / 60) + " minutes"
+    if seconds < 172800:
+        return _fmt(seconds / 3600) + " hours"
+    if seconds < 3.156e7:
+        return _fmt(seconds / 86400) + " days"
+    return _fmt_spoken(seconds / 3.15576e7) + " years"
 
 
 def sci_handle(text: str) -> str | None:
@@ -945,7 +995,7 @@ def sci_handle(text: str) -> str | None:
         for name, dist in sorted(_SCI_LIGHT_TARGET.items(), key=lambda kv: -len(kv[0])):
             if re.search(r"\b" + re.escape(name) + r"\b", t):
                 said = name if name.startswith("the ") else \
-                       ("the " + name if name in ("sun", "moon") else name)
+                    ("the " + name if name in ("sun", "moon") else name)
                 return (f"Light takes {_sci_secs(dist / _SCI_C)} to cross the "
                         f"{_sci_far(dist)} to {said}.")
         return None
@@ -1027,6 +1077,7 @@ def sci_handle(text: str) -> str | None:
             return f"That photon carries {_fmt_spoken(e)} joules."
 
     return None
+
 
 # ── stats.py ───────────────────────────────────────────────────────────────
 # Astral stats — deterministic descriptive statistics and counting. No LLM, µs.
@@ -1113,12 +1164,18 @@ def stats_handle(text: str) -> str | None:
 
     # ── descriptive statistics ────────────────────────────────────────────────
     wants = None
-    if re.search(r"\b(?:mean|average)\b", t):            wants = "mean"
-    if re.search(r"\bmedian\b", t):                      wants = "median"
-    if re.search(r"\bmode\b", t):                        wants = "mode"
-    if re.search(r"\brange of\b", t):                    wants = "range"
-    if re.search(r"\bvariance\b", t):                    wants = "variance"
-    if re.search(r"\bstandard deviation\b|\bstd dev\b", t): wants = "stdev"
+    if re.search(r"\b(?:mean|average)\b", t):
+        wants = "mean"
+    if re.search(r"\bmedian\b", t):
+        wants = "median"
+    if re.search(r"\bmode\b", t):
+        wants = "mode"
+    if re.search(r"\brange of\b", t):
+        wants = "range"
+    if re.search(r"\bvariance\b", t):
+        wants = "variance"
+    if re.search(r"\bstandard deviation\b|\bstd dev\b", t):
+        wants = "stdev"
     if not wants:
         return None
 
@@ -1132,7 +1189,7 @@ def stats_handle(text: str) -> str | None:
         return f"The mean of {said} is {_fmt(sum(vals)/n)}."
     if wants == "median":
         s = sorted(vals)
-        med = s[n//2] if n % 2 else (s[n//2 - 1] + s[n//2]) / 2
+        med = s[n // 2] if n % 2 else (s[n // 2 - 1] + s[n // 2]) / 2
         return f"The median of {said} is {_fmt(med)}."
     if wants == "mode":
         counts = {}
@@ -1159,6 +1216,7 @@ def stats_handle(text: str) -> str | None:
         return f"The {label} variance of {said} is {_fmt(var)}."
     return (f"The {label} standard deviation of {said} is {_fmt(math.sqrt(var))}, "
             f"around a mean of {_fmt(mean)}.")
+
 
 # ── mathx.py ───────────────────────────────────────────────────────────────
 # Astral mathx — the rest of the deterministic math. No LLM, no cloud, µs.
@@ -1369,6 +1427,7 @@ def mathx_handle(text: str) -> str | None:
                     f"to the {'minus ' if exp < 0 else ''}{abs(exp)}.")
 
     return None
+
 
 # ── engine.py ──────────────────────────────────────────────────────────────
 # Astral engine — the one router every surface uses.
