@@ -4,7 +4,7 @@
 
 ## What this is
 
-Astral answers the exact-answer class on the device, without the LLM: time, date, math, money, unit conversions, DevKit telemetry, and simple device control over MQTT. You ask in plain language, the device computes the answer with pattern-and-table code, and the agent speaks it. When a request is not an exact-answer question, Astral speaks nothing and the agent takes the turn.
+Astral answers the exact-answer class on the device, without the LLM: time, date, math, money, unit conversions, grades, physics, chemistry, statistics, DevKit telemetry, and simple device control over MQTT. You ask in plain language, the device computes the answer with pattern-and-table code, and the agent speaks it. When a request is not an exact-answer question, Astral speaks nothing and the agent takes the turn.
 
 There is no LLM routing and no model on the device. The answers are deterministic and take microseconds.
 
@@ -26,6 +26,27 @@ There is no LLM routing and no model on the device. The answers are deterministi
 
 Also: day of the week, addition, subtraction, multiplication, division, percentages, splitting a bill, tax, length and weight and volume and temperature conversions, uptime, disk, and memory.
 
+## For students
+
+The same idea, aimed at the questions that come up in a course. These are the ones a model answers fluently and sometimes wrongly, which is exactly why they should not go to a model.
+
+| Ask | Answer |
+|-----|--------|
+| "I have an 87 and the final is worth 20 percent, what do I need to get a 90" | You'd need 102 percent on the final for 90 percent, which isn't possible. A perfect final leaves you at 89.6 percent. |
+| "what's my grade if I got 42 out of 50" | 42 out of 50 is 84 percent, a B on a standard 90/80/70 scale. |
+| "molar mass of water" | The molar mass of water (H2O) is 18.015 grams per mole. |
+| "how many moles in 36 grams of water" | 36 grams of water is 1.998 moles, at 18.015 grams per mole. |
+| "escape velocity of mars" | Escape velocity at Mars is 5.03 kilometers per second, 11245.35 miles per hour. |
+| "how far does something fall in 3 seconds" | In 3 seconds it falls 44.13 meters, 144.78 feet, ignoring air resistance. |
+| "standard deviation of 4 6 8 10" | The sample standard deviation of 4, 6, 8, 10 is 2.58, around a mean of 7. |
+| "is 91 prime" | No, 91 isn't prime. It's 7 times 13. |
+| "42 in binary" | 42 in binary is 101010. |
+| "solve the quadratic 1 5 6" | With a 1, b 5, c 6 the roots are -2 and -3. |
+
+Grades: what you need on the final, weighted course totals, percent to letter, score out of total, GPA over credits. Chemistry: molar mass for any formula or a named compound, moles and grams, molarity, pH, the ideal gas law, atomic mass and number for all 118 elements. Physics: escape velocity and surface gravity for the Sun, the Moon and every planet, weight on another world, free fall, kinetic and potential energy, momentum, force, work, power, Ohm's law, time dilation, Schwarzschild radius, photon energy, light travel time. Statistics: mean, median, mode, range, variance, sample and population standard deviation, z scores, combinations and permutations. Number tools: binary, hex and octal, logs, trig, GCD and LCM, primes and prime factors, modulo, the quadratic formula, percent change, fractions, significant figures, scientific notation. Units now also cover energy, pressure, force, data sizes, and astronomical distances.
+
+Two things it says out loud rather than assuming. Anything that depends on a grading scale names the scale, because the scale is a convention and not a fact. A standard deviation says whether it is the sample or the population one, because those are different numbers and a course grades you on which you used.
+
 **Device control (MQTT).** It understands the command, not just on and off. It extracts action, device, attribute, and value from plain speech, so "turn on the kitchen light", "dim the bedroom light to 30", "set the thermostat to 72", and "lock the front door" all parse, and it publishes to `home/<device>/...` with no LLM. It remembers the last device, so a follow-up like "turn it off" resolves. Universal by topic, so it works before you set up a device registry; without an MQTT broker it says so plainly instead of failing silently.
 
 ## Suggested trigger words
@@ -34,11 +55,13 @@ Set these in the OpenHome dashboard. Pick the ones you want.
 
 `what time`, `what's the time`, `what's the date`, `what day is it`, `calculate`, `what's`, `how much is`, `percent of`, `square root of`, `convert`, `how many`, `tip on`, `tax on`, `split`, `turn on`, `turn off`, `switch`, `toggle`, `dim`, `set`, `lock`, `unlock`, `open`, `close`, `device temperature`, `uptime`, `disk usage`, `memory usage`
 
+For the student set: `what do I need`, `what letter grade`, `out of`, `weighted`, `gpa`, `molar mass`, `molecular weight`, `how many moles`, `atomic mass`, `atomic number`, `symbol for`, `molarity`, `ph of`, `escape velocity`, `surface gravity`, `how much would I weigh`, `kinetic energy`, `potential energy`, `momentum`, `schwarzschild`, `time dilation`, `mean of`, `median of`, `standard deviation`, `variance of`, `z score`, `choose`, `in binary`, `in hexadecimal`, `log of`, `log base`, `sine of`, `cosine of`, `prime`, `prime factors`, `quadratic`, `percent change`, `simplify`, `significant figures`
+
 ## How it works
 
 **Cloud side (`main.py`).** On a trigger word it takes the transcript and sends it straight to the device with `send_devkit_capability_action(function_name="respond", args=[transcript])`. No LLM routing. It speaks the device's `spoken_response`, or nothing if the device returns an empty one, then calls `resume_normal_flow()`.
 
-**Device side (`devkit_functions.py`).** One self-contained file. `respond` runs the transcript through the inlined engine (time and date, then math, money, and conversions) and emits a structured result:
+**Device side (`devkit_functions.py`).** One self-contained file. `respond` runs the transcript through the inlined engine and emits a structured result. The engine is one router with a fixed order: time and date, then grades, chemistry, physics, statistics, number tools, and plain arithmetic last. Specific before general, because the general one will match a fragment of a specific question. The result:
 
 ```json
 { "success": true, "spoken_response": "It's 3:10 pm.", "data": { ... }, "error": null }
