@@ -1511,11 +1511,17 @@ def domains() -> tuple:
     """The routing order, read off the thing that actually routes."""
     return tuple(name for name, _fn, _clock in _ROUTE)
 
-# ===== END ASTRAL ENGINE =====
 
-# ---------------- comprehension: morphology, slots, classify (comprehend.py) ----------------
-
-
+# ── comprehend.py ──────────────────────────────────────────────────────────
+# Deterministic comprehension — the MECH-distilled subset, pure and self-contained.
+#
+# Morphology (`_lemma`), intent classification (`classify`), and slot extraction
+# (`parse_command` → {action, device, attribute, value}). No lexicon file, no network,
+# microseconds. This is the part that makes it understand a command instead of matching
+# a canned string — "set the kitchen light brightness to 50", not just on/off.
+#
+# Lifted from registry.py so the shipped abilities can carry it without the cloud-registry
+# machinery.
 # device-control verbs
 DEVICE_VERBS = ("turn on", "turn off", "switch on", "switch off", "toggle", "set",
                 "dim", "brighten", "open", "close", "lock", "unlock", "start", "stop")
@@ -1557,6 +1563,22 @@ _ATTR = {"brightness": "brightness", "bright": "brightness", "volume": "volume",
 _NUM = re.compile(r"\b(\d+)\b")
 _DROP = set(_STOP) | {"to", "percent", "%", "degrees", "degree", "at"} | set(_ATTR)
 
+# Things that are not devices, however much the sentence looks like a command. "Set"
+# and "stop" are the two broadest verbs here and they collide with the most common
+# requests a person makes of a speaker:
+#
+#   "set a timer for 10 minutes"  -> device "timer for minutes", publishes value 10
+#   "set an alarm for 7"          -> device "alarm for"
+#   "set a reminder to call mom"  -> device "reminder call mom"
+#   "can you stop talking"        -> device "talking", publishes OFF
+#
+# This path does not just say something wrong, it ACTS — it publishes to
+# home/<device>/set. Astral has no timer and no alarm, so the only correct move is to
+# decline and let the agent, which does, take the turn.
+_NOT_A_DEVICE = {"timer", "alarm", "reminder", "reminders", "note", "notes",
+                 "calendar", "event", "meeting", "appointment", "schedule",
+                 "talking", "listening", "asking", "recording"}
+
 # R3: closed-class classification, cheap and lookup-free.
 _CONFIRM_W = {"yes", "yeah", "yep", "no", "nope", "cancel", "sure", "ok", "okay", "nevermind"}
 _QUERY_W = {"what", "when", "where", "who", "why", "how", "which", "whose",
@@ -1583,6 +1605,8 @@ def parse_command(t: str) -> dict | None:
     if verb in ("dim", "brighten") and not attribute:
         attribute = "brightness"
     device = " ".join(w for w in rest.split() if w not in _DROP and not w.isdigit()).strip()
+    if any(w in _NOT_A_DEVICE for w in device.split()):
+        return None
     return {"verb": verb, "action": _ACTION.get(verb, verb), "device": device or None,
             "attribute": attribute, "value": int(m.group(1)) if m else None}
 
@@ -1599,6 +1623,8 @@ def classify(text: str) -> str:
     if words[0] in _QUERY_W:
         return "query"
     return "chitchat"
+
+# ===== END ASTRAL ENGINE =====
 
 # ============================ Astral device wrapper ============================
 
