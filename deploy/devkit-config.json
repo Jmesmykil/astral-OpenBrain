@@ -1,6 +1,6 @@
 {
   "unique_name": "astral",
-  "description": "Astral — instant on-device answers for the deterministic stuff: time, date, math, money, unit conversions, grades, chemistry, physics, statistics, number tools, and DevKit telemetry. No cloud round-trip, no model. Opt-in; the agent defers to it only for these, everything else flows to the agent as normal.",
+  "description": "Astral \u2014 instant on-device answers for the deterministic stuff: time, date, math, money, unit conversions, grades, chemistry, physics, statistics, number tools, and DevKit telemetry. No cloud round-trip, no model. Opt-in; the agent defers to it only for these, everything else flows to the agent as normal.",
   "matching_hotwords": [
     "what time is it",
     "what's the time",
@@ -42,7 +42,6 @@
     "how much disk",
     "how much memory",
     "uptime",
-
     "what do i need",
     "what letter grade",
     "letter grade",
@@ -51,7 +50,6 @@
     "my grade",
     "gpa",
     "grade point average",
-
     "molar mass",
     "molecular weight",
     "how many moles",
@@ -62,7 +60,6 @@
     "symbol for",
     "molarity",
     "ph of",
-
     "escape velocity",
     "surface gravity",
     "how much would i weigh",
@@ -75,7 +72,6 @@
     "how long does light",
     "light year",
     "parsec",
-
     "average of",
     "mean of",
     "median of",
@@ -86,7 +82,6 @@
     "z score",
     "choose",
     "permutations",
-
     "in binary",
     "in hexadecimal",
     "in octal",
@@ -108,6 +103,42 @@
     "as a fraction",
     "simplify",
     "significant figures",
-    "scientific notation"
+    "scientific notation",
+    "fahrenheit",
+    "celsius",
+    "degrees",
+    "half of",
+    "double",
+    "squared",
+    "cubed",
+    "cube root",
+    "factorial",
+    "roman numerals",
+    "to the power",
+    "worth",
+    "counts for",
+    "kelvin",
+    "atmosphere",
+    "atmospheres",
+    "ideal gas",
+    "newtons",
+    "volts",
+    "amps",
+    "ohms",
+    "voltage",
+    "current through",
+    "photon",
+    "falling",
+    "how fast",
+    "work done",
+    "power of",
+    "prime",
+    "binary",
+    "hexadecimal",
+    "hex",
+    "octal",
+    "in decimal",
+    "decimal places",
+    "round"
   ]
 }
