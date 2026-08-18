@@ -67,12 +67,23 @@ voiceHAT capture device on card 2 — so anything recording through PulseAudio o
 PipeWire gets nothing while `arecord -D plughw:2,0` works normally. The voiceHAT also
 exposes no mixer controls at all, so there is no software capture gain to raise.
 
-**Whisper invents sentences from silence.** Recording a silent room and transcribing it
-produced "There's a reason so much of our personal information ends up happening. Data
-brokers make billions collecting and selling data." Nobody said anything. Astral
-declined it, which is the architecture working, but a hallucinated transcript that
-happens to contain a trigger phrase would be answered. Any always-on loop should gate
-on a capture level floor before it routes a transcript.
+**RETRACTED — whisper does not invent sentences from silence.** This entry previously
+claimed whisper hallucinated "There's a reason so much of our personal information ends
+up happening. Data brokers make billions collecting and selling data." from a silent
+room. The room was not silent. A video was playing nearby and the DevKit microphone
+picked it up; whisper transcribed it correctly. The same file transcribes as
+"centralized company this video", which is plainly the video, and a genuinely quiet
+room recorded afterwards transcribes as nothing at all. The claim was wrong and the
+measurement that produced it was contaminated.
+
+**The real finding underneath it: the microphone hears the room, including whatever
+media is playing in it.** An always-on device three feet from a TV or a laptop gets a
+continuous stream of fluent, confident, perfectly-transcribed speech that no human in
+the room said. Nothing downstream can distinguish that from a user turn, and a capture
+level gate does not help, because the television is loud. This is why the wake word
+matters more than it looks: it is the only thing standing between ambient media and the
+agent. Astral itself is safe by construction — it declines anything that is not an
+exact-answer question — but the turn still gets taken.
 
 **The wake word is still hey_mycroft.** The product wake word is Open Brain and there
 is no model for it. openWakeWord ships pretrained models only — alexa, hey_jarvis,
