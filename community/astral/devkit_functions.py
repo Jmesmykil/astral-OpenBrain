@@ -196,6 +196,12 @@ def _int_words(toks: list[str]) -> float:
 
 def parse_number(s: str):
     s = s.strip().lower()
+    # A sign in front of a spoken number is part of it: "-four" is -4. Written this way
+    # by _spoken_signs, which is what turns "minus four" into a quantity rather than an
+    # operator; without this the word reader dropped the sign and answered about four.
+    if s.startswith("-") and not s[1:].strip().replace(".", "", 1).isdigit():
+        value = parse_number(s[1:])
+        return None if value is None else -value
     # A hyphen joins words in "twenty-one" and signs a number in "-4". Replacing every
     # hyphen with a space, as this did, silently turned minus four into four.
     s = re.sub(r"(?<=[a-z])-(?=[a-z])", " ", s)
@@ -213,7 +219,7 @@ def parse_number(s: str):
     return _int_words(toks) if toks else None
 
 
-_NUMRUN = re.compile(r"((?:\b(?:zero|one|two|three|four|five|six|seven|eight|nine|ten|"
+_NUMRUN = re.compile(r"((?:-?\b(?:zero|one|two|three|four|five|six|seven|eight|nine|ten|"
                      r"eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|"
                      r"twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety|hundred|thousand|million|"
                      r"point|and|a|an)\b|-?\d+(?:\.\d+)?)(?:\s+|$))+")
@@ -243,10 +249,38 @@ _HYPHEN_WORDS = re.compile(r"\b(twenty|thirty|forty|fifty|sixty|seventy|eighty|n
                            r"(one|two|three|four|five|six|seven|eight|nine)\b")
 
 
+_SPOKEN_SIGN_WORDS = ("minus", "negative")
+
+
+def _spoken_signs(text: str) -> str:
+    """"minus four" is the number -4 when it opens a quantity, and the operator "minus"
+    when it sits between two of them. Only the first is a sign: "five minus three" is not
+    "five, negative three". This is the form people actually say out loud, and it was
+    still being answered wrongly after the digit form was fixed — "square root of minus
+    four" came back as the square root of four."""
+    parts = re.split(r"(\s+)", text)
+    out, last_was_number = [], False
+    for token in parts:
+        bare = token.strip().lower()
+        if bare in _SPOKEN_SIGN_WORDS and not last_was_number:
+            out.append("-")
+            continue
+        if bare:
+            # Fraction words are numbers too. Without them, "three quarters minus one
+            # half" read the minus as a sign because "quarters" did not look like a
+            # number, and the phrase stopped being answerable at all.
+            last_was_number = (bool(re.fullmatch(r"-?[\d.]+", bare))
+                               or bare in _ONES or bare in _TENS or bare in _SCALE
+                               or bare in _FRAC_DEN or bare.rstrip("s") in _FRAC_DEN)
+        out.append(token)
+    return re.sub(r"-\s+", "-", "".join(out))
+
+
 def _join_groups(text: str) -> str:
     # "twenty-one" is one number. The run reader stops at the hyphen, so before this
     # "twenty-one plus one" was read as one plus one and answered 2.
     text = _HYPHEN_WORDS.sub(lambda m: f"{m.group(1)} {m.group(2)}", text)
+    text = _spoken_signs(text)
     return _GROUPED.sub(lambda m: m.group(1) + re.sub(r"[,\s]", "", m.group(2)), text)
 
 

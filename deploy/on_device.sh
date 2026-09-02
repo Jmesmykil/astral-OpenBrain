@@ -44,8 +44,22 @@ systemctl --user daemon-reload
 # also the only way the fits table can be true: measured here, or somebody else's numbers.
 HOST=$($PY -c 'import costs; print(costs.host_id())')
 PROFILE="data/costs/$HOST.json"
-if [ ! -s "$PROFILE" ]; then
-  echo "no profile for $HOST yet: measuring, about a minute"
+# Measure when the machine's answer to "what do I have" has changed, not only when there
+# is no profile at all. Copying the decks onto the card and leaving a stale profile in
+# place is how the quiz ended up refused on a device that had the decks sitting there.
+HAVE_NOW=$($PY -c 'import measure_costs; print(",".join(measure_costs.available_here()))')
+HAVE_THEN=$($PY - "$PROFILE" <<'PYEOF' 2>/dev/null || true
+import json, sys
+try:
+    print(",".join(json.load(open(sys.argv[1]))["available"]))
+except Exception:
+    print("")
+PYEOF
+)
+if [ "$HAVE_NOW" != "$HAVE_THEN" ]; then
+  echo "what this machine has changed since the last measurement: measuring, about a minute"
+  echo "  was: ${HAVE_THEN:-nothing measured}"
+  echo "  now: $HAVE_NOW"
   $PY measure_costs.py --runs 40 >/dev/null 2>&1 || true
 fi
 

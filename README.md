@@ -57,26 +57,27 @@ Measured on the DevKit (Pi 4, 8 GB, idle, 30 runs per phrase):
 
 | What it does | Tier | Cost on the DevKit | From |
 |---|---|---|---|
-| time and date | 0 | 52 us | p95 of 300 |
-| the device and its OS | 0 | 182 us | p95 of 40 |
-| grades | 0 | 213 us | p95 of 480 |
-| physics and the planets | 0 | 388 us | p95 of 1620 |
-| number tools | 0 | 468 us | p95 of 1500 |
-| sun signs and the moon | 0 | 560 us | p95 of 40 |
-| statistics | 0 | 562 us | p95 of 720 |
-| math, money, conversions | 0 | 771 us | p95 of 2880 |
-| deciding it has no answer | 0 | 832 us | p95 of 2100 |
-| timers, alarms, reminders | 0 | 940 us | p95 of 40 |
-| chemistry | 0 | 1.1 ms | p95 of 1020 |
-| small talk and jokes | 0 | 1.3 ms | p95 of 40 |
-| what it can and cannot do | 0 | 1.7 ms | p95 of 40 |
-| songs, played and spoken | 0 | 644.6 ms | p95 of 40 |
+| time and date | 0 | 100 us | p95 of 200 |
+| the device and its OS | 0 | 261 us | p95 of 40 |
+| grades | 0 | 356 us | p95 of 320 |
+| sun signs and the moon | 0 | 544 us | p95 of 40 |
+| physics and the planets | 0 | 793 us | p95 of 1080 |
+| statistics | 0 | 808 us | p95 of 480 |
+| number tools | 0 | 808 us | p95 of 1000 |
+| deciding it has no answer | 0 | 870 us | p95 of 1480 |
+| chemistry | 0 | 1.0 ms | p95 of 680 |
+| flashcards from the card | 0 | 1.0 ms | p95 of 40 |
+| math, money, conversions | 0 | 1.3 ms | p95 of 2000 |
+| timers, alarms, reminders | 0 | 2.9 ms | p95 of 40 |
+| what it can and cannot do | 0 | 3.2 ms | p95 of 40 |
+| small talk and jokes | 0 | 3.9 ms | p95 of 40 |
+| songs, played and spoken | 0 | 640.7 ms | p95 of 40 |
 | exact arithmetic, proven kernel | 1 | 16 us | - |
-| passages from the books | 1 | 3.8 ms | p95 of 42 |
-| every sense of a word | 1 | 29.0 ms | p95 of 42 |
-| algebra and calculus | 1 | 290.4 ms | p95 of 40 |
-| reading a new question | 2 | 1.7 s | max of 6 |
-| open conversation | 2 | 1.7 s | max of 6 |
+| passages from the books | 1 | 1.1 ms | p95 of 42 |
+| every sense of a word | 1 | 26.3 ms | p95 of 42 |
+| algebra and calculus | 1 | 320.1 ms | p95 of 40 |
+| reading a new question | 2 | 1.8 s | max of 6 |
+| open conversation | 2 | 1.8 s | max of 6 |
 
 Every row was measured on the DevKit by `hub/measure_costs.py` and is read from
 `hub/data/costs/pi4-8g-arm64.json`, the same file the router obeys. "From" says how the
