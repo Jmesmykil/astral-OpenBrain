@@ -42,42 +42,10 @@ rsync -rlt --delete --chmod=ugo=rwX -e "${SSHC[*]}" \
   `# and copying this machine's numbers over the device's would make the fits table a fiction.` \
   --include='data/sounds/*.wav' --include='data/books/' --include='data/books/*.txt' --include='data/books/*.md' \
   --include='data/state/' --exclude='*' "$HERE/hub/" "$T:~/astral-voice/hub-v2/"
+rsync -lt --chmod=ugo=rwx -e "${SSHC[*]}" "$HERE/deploy/on_device.sh" "$T:~/astral-voice/hub-v2/"
 
-"${SSHC[@]}" "$T" 'set -e
-cd ~/astral-voice/hub-v2
-python3 sounds.py make >/dev/null
-# Books live on the card where they can be dropped in, not inside the hub. The sample
-# ships so the class has something to read before the first real book arrives.
-mkdir -p ~/astral-voice/books ~/astral-voice/decks
-for d in data/decks/*.txt; do [ -e "$d" ] && cp -n "$d" ~/astral-voice/decks/ || true; done
-for b in data/books/*.txt data/books/*.md; do [ -e "$b" ] && cp -n "$b" ~/astral-voice/books/ || true; done
-python3 books.py index >/dev/null
-mkdir -p ~/astral-voice/state ~/.config/systemd/user
-cat > ~/.config/systemd/user/astral-hub.service <<UNIT
-[Unit]
-Description=Astral local loop (version two): wake, local STT, ranked local answers, local TTS
-After=pipewire.service
-
-[Service]
-WorkingDirectory=%h/astral-voice/hub-v2
-Environment=PATH=%h/opt/julia/bin:%h/.cargo/bin:/usr/local/bin:/usr/bin:/bin
-Environment=LD_LIBRARY_PATH=%h/astral-voice/whisper.cpp/build/bin
-ExecStartPre=/usr/bin/pactl set-source-volume @DEFAULT_SOURCE@ 160%
-ExecStart=%h/astral-voice/kws-venv/bin/python3 live_hub.py
-Restart=always
-RestartSec=3
-StandardOutput=append:%h/astral-voice/astral-hub.log
-StandardError=append:%h/astral-voice/astral-hub.log
-
-[Install]
-WantedBy=default.target
-UNIT
-systemctl --user daemon-reload
-echo "kiosk:      $(systemctl --user is-active openhome-dashboard.service || true)"
-echo "astral-hub: $(systemctl --user is-active astral-hub.service || true)"
-echo "oracle:     $(ls ~/slate/ada/slate_exact/lib/libslate_exact_c.so 2>/dev/null || echo absent)"
-echo "sounds:     $(ls ~/astral-voice/sounds 2>/dev/null | wc -l | tr -d " ") files"
-echo "python:     $(~/astral-voice/kws-venv/bin/python3 -V)"'
+# Everything device-side lives in on_device.sh, which was synced with the hub above.
+"${SSHC[@]}" "$T" 'bash ~/astral-voice/hub-v2/on_device.sh'
 
 if (( START )); then
   "${SSHC[@]}" "$T" 'systemctl --user stop openhome-dashboard.service 2>/dev/null || true; systemctl --user restart astral-hub.service; sleep 3; systemctl --user is-active astral-hub.service; tail -5 ~/astral-voice/astral-hub.log'
