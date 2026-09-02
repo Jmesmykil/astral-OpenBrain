@@ -155,6 +155,37 @@ constant is a typo waiting to be spoken with confidence. Anything resting on a
 convention says which convention: a letter grade names the 90/80/70 scale, a standard
 deviation says whether it is the sample or the population one.
 
+## Two modes, and which one to run
+
+The device can listen in either of two ways, and the difference is only who does the
+listening.
+
+**Through OpenHome, their way.** Their kiosk owns the microphone, their wake word gates
+the turn, their speech-to-text transcribes it, and a hotword match routes the phrase to
+our ability, which answers deterministically without waking their model. This is the
+mode their documentation describes, it is what PR #361 shipped, and it is better than
+ours at exactly the two things we are weakest at: the wake word is theirs and maintained,
+and their transcription beats whisper-base on a Pi 4. **It is not local**: their kiosk
+loads `openhome-staging.algoryc.com`, so the audio leaves the house for transcription.
+The one step still outstanding is registering the ability's trigger words on agent 595324
+at app.openhome.com, which needs an account login.
+
+**The local loop, ours.** Wake, speech-to-text, every tier and the voice all run on the
+device or on the LAN, and nothing leaves the house. It costs the two things above: the
+wake word is "hey mycroft" rather than the product word, and transcription takes two to
+three seconds. It buys the chimes, timers that survive a restart, a quiz that holds its
+place across turns, barge-in, and the fits table deciding what runs where.
+
+```
+deploy/install_v2.sh openhome@openhome.local --start   # the local loop
+# or, to hand the microphone back to OpenHome:
+ssh openhome@openhome.local 'systemctl --user stop astral-hub; systemctl --user start openhome-dashboard'
+```
+
+One microphone, one owner: never run both. Whichever is listening, the answers come from
+the same engine — `hub/build_ability.py` generates the ability from the same sources the
+loop imports, and the suite proves the two agree phrase for phrase.
+
 ## The wake word
 
 It answers to **"hey mycroft"**. The product word, "Open Brain", has a trained model in

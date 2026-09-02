@@ -57,6 +57,24 @@ have. Then:
 is listening. That profile, not the idle one, is the fits table the device ships with.
 Copy `data/costs/pi4-8g-arm64.json` back into the workspace.
 
+## Through OpenHome's own routing
+
+Their wake word, their transcription, our answers. The ability is refreshed on every
+deploy at `~/openhome_devkit/local_capabilities/astral/devkit_functions.py`, and it is
+answering today's engine — checked through the exact call the node server makes:
+
+```
+ssh openhome@openhome.local
+cd ~/openhome_devkit/local_capabilities/astral
+python3 devkit_functions.py respond what time is it
+python3 devkit_functions.py respond solve 2x + 3 = 11 for x     # says nothing, correctly
+```
+
+To hear it by voice this way, the trigger words have to be registered on agent 595324 at
+app.openhome.com, which is the one step an agent cannot do. Until then this mode answers
+only when invoked directly, as above. Note also that a cloud sync of abilities overwrites
+that directory, so re-run the deploy after one.
+
 ## The duplex loop, if you want to try it
 
 The service runs the half-duplex loop, which finishes a sentence before it listens again.
