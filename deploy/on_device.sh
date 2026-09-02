@@ -17,6 +17,19 @@ for b in data/books/*.txt data/books/*.md; do [ -e "$b" ] && cp -n "$b" ~/astral
 for d in data/decks/*.txt; do [ -e "$d" ] && cp -n "$d" ~/astral-voice/decks/ || true; done
 $PY books.py index >/dev/null
 
+# Refresh the ability OpenHome itself routes to. Their path — their wake word, their
+# speech-to-text, their hotword match — dispatches devkit_functions.py through the node
+# server, and that copy is a HAND-PLACED file: nothing here syncs it, so it sat at the
+# 17 August build while the engine moved on. It was still answering "solve 2x + 3 = 11
+# for x" with "3 times 11 is 33" three weeks after that was fixed everywhere else.
+# config.json is the platform's and is left alone.
+CAP=~/openhome_devkit/local_capabilities/astral
+if [ -d "$CAP" ]; then
+  cp ~/astral-voice/hub-v2/../../Documents/OpenHome-Astral/community/astral/devkit_functions.py "$CAP/" 2>/dev/null \
+    || cp ~/astral-voice/hub-v2/shipped/devkit_functions.py "$CAP/" 2>/dev/null || true
+  echo "ability:    $(md5sum "$CAP/devkit_functions.py" | cut -c1-8) refreshed in local_capabilities/astral"
+fi
+
 mkdir -p ~/astral-voice/state ~/.config/systemd/user
 cat > ~/.config/systemd/user/astral-hub.service <<UNIT
 [Unit]

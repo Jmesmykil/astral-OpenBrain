@@ -44,6 +44,11 @@ rsync -rlt --delete --chmod=ugo=rwX -e "${SSHC[*]}" \
   --include='data/decks/' --include='data/decks/*.txt' \
   --include='data/state/' --exclude='*' "$HERE/hub/" "$T:~/astral-voice/hub-v2/"
 rsync -lt --chmod=ugo=rwx -e "${SSHC[*]}" "$HERE/deploy/on_device.sh" "$T:~/astral-voice/hub-v2/"
+# The shipped ability travels too: OpenHome's own routing calls this file, and until
+# now nothing kept it current on the device.
+"${SSHC[@]}" "$T" 'mkdir -p ~/astral-voice/hub-v2/shipped'
+rsync -lt --chmod=ugo=rwX -e "${SSHC[*]}" "$HERE/community/astral/devkit_functions.py" \
+  "$HERE/community/astral/main.py" "$T:~/astral-voice/hub-v2/shipped/"
 
 # Everything device-side lives in on_device.sh, which was synced with the hub above.
 "${SSHC[@]}" "$T" 'bash ~/astral-voice/hub-v2/on_device.sh'
