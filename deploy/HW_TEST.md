@@ -32,6 +32,16 @@ each line only if the sound and the words were both right.
 | the weather is nice today | nothing at all | silent |
 | tell me a joke | handoff cue and the ask (conversation is not on the device yet) | ask |
 
+## The suite, on the device
+
+```
+ssh openhome@openhome.local
+cd ~/astral-voice/hub-v2 && ~/astral-voice/kws-venv/bin/python3 tests/run.py --quiet
+```
+
+Everything the device can prove about itself, including the kernels the Mac does not
+have. Then:
+
 ## Measure while it runs
 
 `ssh` in and run `python3 measure_costs.py` inside `~/astral-voice/hub-v2` while the loop

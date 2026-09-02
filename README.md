@@ -145,7 +145,9 @@ deviation says whether it is the sample or the population one.
 
 ## Tests
 
-155 phrases are asserted BYTE-EXACT against known-good strings, the questions Astral
+One runner, `python3 hub/tests/run.py`, and six suites named for what they prove:
+answers, kernels, ranking, classes, voice, shipped. The byte contract is the centre of
+it: 167 phrases asserted BYTE-EXACT against known-good strings, the questions Astral
 must stay silent on included, so the agent keeps the turn. Byte comparisons, not
 approximate ones: a changed constant, a changed rounding rule, or one subject stealing
 another's phrasing all show up as a diff rather than as a plausible wrong answer.
