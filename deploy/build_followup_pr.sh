@@ -29,8 +29,8 @@ python3 -m autopep8 --in-place --max-line-length=120 --ignore=E501,W503 --aggres
 python3 -m autopep8 --in-place --max-line-length=120 --select=E22 --aggressive --aggressive community/astral/hub/*.py
 
 ( cd community/astral && python3 hub/build_ability.py )
-( cd community/astral/hub && python3 test_golden.py > /dev/null && python3 test_artifact_parity.py > /dev/null && python3 test_hardening.py > /dev/null )
-echo "hub tests pass in the upstream layout"
+( cd community/astral/hub && python3 tests/run.py --quiet | tail -3 )
+echo "the suite passes in the upstream layout"
 if cmp -s "$HERE/community/astral-skill/main.py" community/astral/main.py; then
   echo "main.py identical to the workspace artifact"
 else

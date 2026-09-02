@@ -31,7 +31,9 @@ print("routes:", cur)
 PY
 
 rsync -rlt --chmod=ugo=rwX -e "${SSHC[*]}" \
-  --include='*.py' --include='kernels/' --include='kernels/*.py' --include='data/' --include='data/*.json' \
+  --include='*.py' --include='kernels/' --include='kernels/*.py' \
+  --include='tests/' --include='tests/*.py' --include='wake/' --include='wake/*.npz' \
+  --include='data/' --include='data/*.json' \
   --include='data/lan.token' --include='data/sounds/' \
   `# data/costs is deliberately absent: a host's cost profile is measured ON that host,` \
   `# and copying this machine's numbers over the device's would make the fits table a fiction.` \
