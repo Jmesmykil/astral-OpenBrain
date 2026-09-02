@@ -45,7 +45,8 @@ cd ~/astral-voice/hub-v2
 python3 sounds.py make >/dev/null
 # Books live on the card where they can be dropped in, not inside the hub. The sample
 # ships so the class has something to read before the first real book arrives.
-mkdir -p ~/astral-voice/books
+mkdir -p ~/astral-voice/books ~/astral-voice/decks
+for d in data/decks/*.txt; do [ -e "$d" ] && cp -n "$d" ~/astral-voice/decks/ || true; done
 for b in data/books/*.txt data/books/*.md; do [ -e "$b" ] && cp -n "$b" ~/astral-voice/books/ || true; done
 python3 books.py index >/dev/null
 mkdir -p ~/astral-voice/state ~/.config/systemd/user
