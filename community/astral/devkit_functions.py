@@ -216,7 +216,20 @@ _NUMRUN = re.compile(r"((?:\b(?:zero|one|two|three|four|five|six|seven|eight|nin
                      r"point|and|a|an)\b|\d+(?:\.\d+)?)(?:\s+|$))+")
 
 
+# Speech-to-text writes large numbers in groups: "24 352", "1 250", sometimes with
+# commas. Read as separate runs those became 24 and 352, and "20 percent of 24 352"
+# answered "4.8" — the right formula over the wrong number, said with confidence, which
+# is the exact failure this engine exists to prevent. A group of three digits following
+# a number, with only a space or comma between, is a thousands group and belongs to it.
+_GROUPED = re.compile(r"(?<![\d.])(\d{1,3})((?:[,\s]\d{3})+)(?![\d.])")
+
+
+def _join_groups(text: str) -> str:
+    return _GROUPED.sub(lambda m: m.group(1) + re.sub(r"[,\s]", "", m.group(2)), text)
+
+
 def numbers(text: str) -> list[float]:
+    text = _join_groups(text)
     out = []
     for m in _NUMRUN.finditer(text.lower()):
         run = m.group(0).strip()
@@ -508,7 +521,7 @@ def _fractions(t: str) -> Optional[str]:
 
 
 def calc_handle(text: str) -> Optional[str]:
-    t = " " + text.lower().strip() + " "
+    t = " " + _join_groups(text.lower().strip()) + " "
     nums = numbers(text)
 
     # conversions first (they contain unit words)
