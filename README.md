@@ -186,6 +186,28 @@ One microphone, one owner: never run both. Whichever is listening, the answers c
 the same engine — `hub/build_ability.py` generates the ability from the same sources the
 loop imports, and the suite proves the two agree phrase for phrase.
 
+**Through OpenHome, the ability now answers everything the loop does.** The shipped file
+stays self-contained — on a bare DevKit it is the whole product — but when the hub is
+installed beside it, which the deploy does, it asks the hub for anything it cannot answer
+itself: the dictionary, the books, the songs, the quiz, the reader, the exact-mathematics
+kernel. Measured on the device through OpenHome's own dispatch path: "define ubiquitous"
+0.9 s, "sing twinkle twinkle" 0.6 s, "integral of x squared" 0.6 s, "what is 20 percent of
+24352" 0.2 s.
+
+**And when it cannot answer, it says so and asks where to send it.** "I can't do that
+here. Want me to ask the Mac, or the cloud?" — a question, answered out loud, naming the
+machines. A machine in the house is asked over the LAN and the answer is spoken; the cloud
+means this ability stays quiet and OpenHome's own agent takes the turn it would have taken
+anyway. Nothing is sent anywhere on a shrug: chatter is never offered, a bare "yes" with
+two places named is not an answer, and "no" ends it. The cloud route ships switched off in
+`hub/data/routes.json` for the local loop, where there is nothing behind it.
+
+**One kernel for the machine.** Slate takes 41 seconds to compile itself and milliseconds
+to answer after that, so `hub/slate_server.py` owns one and both callers ask it over a
+Unix socket. Before this the ability paid the start on every turn — 43 seconds, twice in a
+row, measured — and honestly offered to send the question away rather than do it here.
+While it is warming it says so rather than going quiet.
+
 ## The wake word
 
 It answers to **"hey mycroft"**. The product word, "Open Brain", has a trained model in
@@ -196,8 +218,9 @@ that has not passed that gate, so it cannot be enabled by accident.
 
 ## Tests
 
-One runner, `python3 hub/tests/run.py`, and six suites named for what they prove:
-answers, kernels, ranking, classes, voice, shipped. The byte contract is the centre of
+One runner, `python3 hub/tests/run.py`, and thirteen suites named for what they prove:
+answers, kernels, ranking, classes, meta, study, voice, duplex, barge, daemon, ability,
+shipped, honesty. The byte contract is the centre of
 it: 167 phrases asserted BYTE-EXACT against known-good strings, the questions Astral
 must stay silent on included, so the agent keeps the turn. Byte comparisons, not
 approximate ones: a changed constant, a changed rounding rule, or one subject stealing

@@ -23,11 +23,23 @@ $PY books.py index >/dev/null
 # 17 August build while the engine moved on. It was still answering "solve 2x + 3 = 11
 # for x" with "3 times 11 is 33" three weeks after that was fixed everywhere else.
 # config.json is the platform's and is left alone.
-CAP=~/openhome_devkit/local_capabilities/astral
-if [ -d "$CAP" ]; then
-  cp ~/astral-voice/hub-v2/../../Documents/OpenHome-Astral/community/astral/devkit_functions.py "$CAP/" 2>/dev/null \
-    || cp ~/astral-voice/hub-v2/shipped/devkit_functions.py "$CAP/" 2>/dev/null || true
-  echo "ability:    $(md5sum "$CAP/devkit_functions.py" | cut -c1-8) refreshed in local_capabilities/astral"
+CAPS=~/openhome_devkit/local_capabilities
+SHIPPED=~/astral-voice/hub-v2/shipped/devkit_functions.py
+if [ -d "$CAPS/astral" ]; then
+  cp "$SHIPPED" "$CAPS/astral/" 2>/dev/null || true
+  echo "ability:    $(md5sum "$CAPS/astral/devkit_functions.py" | cut -c1-8) refreshed in local_capabilities/astral"
+fi
+
+# The background daemon is a SECOND ability upload (one category per ability), so the node
+# server resolves its device calls under its own name — it reads
+# local_capabilities/<capability_name>/devkit_functions.py and does not care which category
+# asked. Nothing syncs a device file for a non-local ability, so the directory is made here
+# and given the same engine. Without it the daemon's every call returns
+# "devkit_functions.py not found", which it reads as "not mine" and goes quiet for good.
+if [ -e "$SHIPPED" ]; then
+  mkdir -p "$CAPS/astral-daemon"
+  cp "$SHIPPED" "$CAPS/astral-daemon/" 2>/dev/null || true
+  echo "daemon:     $(md5sum "$CAPS/astral-daemon/devkit_functions.py" | cut -c1-8) in local_capabilities/astral-daemon"
 fi
 
 mkdir -p ~/astral-voice/state ~/.config/systemd/user
@@ -50,6 +62,30 @@ StandardError=append:%h/astral-voice/astral-hub.log
 [Install]
 WantedBy=default.target
 UNIT
+# One kernel for the whole machine. Slate costs 43 seconds to start and milliseconds to
+# answer, so the process that owns it must outlive any one question — and the OpenHome
+# ability is a fresh process per turn, which is why exact mathematics was being offered
+# away to the cloud on a device that can do it. This service owns it; both callers ask
+# the socket. Started only when the kernel binary is actually here.
+if [ -x ~/slate-trim/slate-kernel-full ] || [ -x ~/slate-trim/slate-kernel ]; then
+cat > ~/.config/systemd/user/astral-slate.service <<UNIT
+[Unit]
+Description=Astral Slate kernel, resident and shared (one warm kernel, one socket)
+
+[Service]
+WorkingDirectory=%h/astral-voice/hub-v2
+Environment=PATH=%h/opt/julia/bin:%h/.cargo/bin:/usr/local/bin:/usr/bin:/bin
+ExecStart=%h/astral-voice/kws-venv/bin/python3 slate_server.py
+Restart=always
+RestartSec=5
+StandardOutput=append:%h/astral-voice/astral-slate.log
+StandardError=append:%h/astral-voice/astral-slate.log
+
+[Install]
+WantedBy=default.target
+UNIT
+fi
+
 systemctl --user daemon-reload
 
 # Measure this machine. Without a profile every class above the table layer is refused,
@@ -87,7 +123,12 @@ PYEOF
 else
   echo "profile:    MISSING — the table layer answers, everything above it stays silent"
 fi
+if [ -f ~/.config/systemd/user/astral-slate.service ]; then
+  systemctl --user enable astral-slate.service >/dev/null 2>&1 || true
+  systemctl --user restart astral-slate.service || true
+fi
 echo "kiosk:      $(systemctl --user is-active openhome-dashboard.service || true)"
+echo "slate:      $(systemctl --user is-active astral-slate.service 2>/dev/null || echo absent)"
 echo "astral-hub: $(systemctl --user is-active astral-hub.service || true)"
 echo "oracle:     $(ls ~/slate/ada/slate_exact/lib/libslate_exact_c.so 2>/dev/null || echo absent)"
 echo "wake:       $($PY -c 'import wake_openbrain as w; print("hey mycroft + open brain" if w.available() else "hey mycroft only")')"
