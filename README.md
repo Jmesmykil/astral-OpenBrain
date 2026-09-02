@@ -55,27 +55,33 @@ turn.
 
 Measured on the DevKit (Pi 4, 8 GB, idle, 30 runs per phrase):
 
-| Class | Tier | p95 | Verdict |
-|---|---|---|---|
-| time and date | 0 | 44 us | fits |
-| grades | 0 | 250 us | fits |
-| physics | 0 | 448 us | fits |
-| statistics | 0 | 599 us | fits |
-| number tools | 0 | 534 us | fits |
-| math, money, conversions | 0 | 848 us | fits |
-| chemistry | 0 | 1.1 ms | fits |
-| deciding it has no answer | 0 | 726 us | fits |
-| device and OS surface | 0 | 425 us | fits |
-| timers, alarms, reminders | 0 | 2.5 ms | fits |
-| small talk and jokes | 0 | 2.2 ms | fits |
-| book passages | 1 | 1.5 ms | fits |
-| exact arithmetic, Ada/SPARK oracle | 1 | 16 us | fits |
-| comprehension | 2 | not on the device | routes to the Mac |
+| Class | Tier | p95 | Peak memory | Verdict |
+|---|---|---|---|---|
+| time and date | 0 | 42 us | 21 MB | fits |
+| grades | 0 | 171 us | 21 MB | fits |
+| device and OS surface | 0 | 250 us | 21 MB | fits |
+| physics | 0 | 322 us | 21 MB | fits |
+| number tools | 0 | 400 us | 21 MB | fits |
+| statistics | 0 | 454 us | 21 MB | fits |
+| deciding it has no answer | 0 | 540 us | 21 MB | fits |
+| astrology: sun signs, moon phase | 0 | 844 us | 22 MB | fits |
+| chemistry | 0 | 907 us | 21 MB | fits |
+| math, money, conversions | 0 | 1.1 ms | 21 MB | fits |
+| timers, alarms, reminders | 0 | 1.3 ms | 21 MB | fits |
+| small talk and jokes | 0 | 1.4 ms | 22 MB | fits |
+| exact arithmetic, Ada/SPARK oracle | 1 | 15 us | 24 MB | fits |
+| book passages | 1 | 1.2 ms | 24 MB | fits |
+| every definition of a word | 1 | 26 ms | 24 MB | fits |
+| comprehension and conversation | 2 | 1.7 s | 341 MB | fits |
 
-Everything stays local. Wake, speech-to-text, every tier above, and text-to-speech run
-on the device or on the Mac over the LAN. There is no cloud tier in this path; the cloud
-agent exists only in OpenHome's own ability mode. Open weights and toolchains are fetched
-once onto our own drives and run from there.
+**All of it runs on the DevKit, off the card.** The 128 GB card is what makes the upper
+tiers possible here rather than somewhere else: the dictionary is Open English WordNet
+with 135,969 lexemes and 107,519 defined senses, the comprehension core reads against
+133,218 dictionary entries and 52,571 phrases from a 456 MB data set, and the books and
+corpora sit beside them. There is no cloud tier and no dependency on another machine.
+A LAN route to a bigger machine exists for anything the device genuinely cannot hold,
+and today nothing in the table needs it. Open weights and toolchains are fetched once
+onto our own drives and run from there.
 
 The exact arithmetic is checked twice: the table layer computes with Python's own
 `Fraction`, and Slate's Ada/SPARK oracle re-derives the same step through its C entry
