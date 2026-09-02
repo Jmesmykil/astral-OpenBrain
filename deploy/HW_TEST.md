@@ -14,8 +14,9 @@ LAN between the Pi and the Mac.
 
 ## The turns
 
-Say the wake word ("hey mycroft" until the custom model lands), then the phrase. Tick
-each line only if the sound and the words were both right.
+Say **"hey mycroft"**, then the phrase. That is the wake word: the product word has a
+model that does not ship because it wakes at an empty room, and `KNOWN-BUGS.md` has the
+measurements. Tick each line only if the sound and the words were both right.
 
 | Say | Expect to hear | Path |
 |---|---|---|
@@ -27,10 +28,18 @@ each line only if the sound and the words were both right.
 | how hot are you | accept, processor temperature | device |
 | list abilities | accept, "1 local ability installed: astral." | device |
 | set a timer for one minute | accept, "Timer set for 1 minute."; one minute later: accept, "Your 1 minute timer is up." | hooks |
-| integral of x squared | handoff cue, "I would need the Mac for that. Want me to send it there?"; say "no": "Okay." | ask, declined |
-| integral of x squared, then "yes" | handoff cue, the ask, then accept and the Mac's answer, or the decline tone and "I couldn't reach the Mac right now." | ask, LAN |
+| integral of two x d x | working tick, then the integral | algebra, on the device |
 | the weather is nice today | nothing at all | silent |
-| tell me a joke | handoff cue and the ask (conversation is not on the device yet) | ask |
+| tell me a joke | accept, a joke, and a different one next time | small talk |
+| what can you do | accept, the classes that fit this device, counted | meta |
+| why didn't that work | accept, the real reason the last turn was silent | meta |
+| define shell | accept, the first sense and how many there are | dictionary |
+| sing twinkle twinkle | the tune played, the words spoken in time | songs |
+| quiz me on physics | accept, the card count, then the first question; answer it, then say stop | flashcards |
+| what is a lighthouse | working tick for about two seconds, then what it read | comprehension |
+| derivative of x squared | working tick, then 2 x | algebra, on the device |
+| solve 2x + 3 = 11 for x | nothing: it does not have a solver and will not guess | refused |
+| square root of minus four | nothing | refused |
 
 ## The suite, on the device
 
@@ -47,6 +56,20 @@ have. Then:
 `ssh` in and run `python3 measure_costs.py` inside `~/astral-voice/hub-v2` while the loop
 is listening. That profile, not the idle one, is the fits table the device ships with.
 Copy `data/costs/pi4-8g-arm64.json` back into the workspace.
+
+## The duplex loop, if you want to try it
+
+The service runs the half-duplex loop, which finishes a sentence before it listens again.
+The duplex loop hears you while it talks:
+
+```
+systemctl --user stop astral-hub
+cd ~/astral-voice/hub-v2 && ~/astral-voice/kws-venv/bin/python3 duplex.py
+```
+
+Say the wake word while it is answering and it stops mid-sentence and listens. For a few
+seconds after it finishes, ask the next thing without the wake word at all. Ctrl-C, then
+`systemctl --user start astral-hub` to put the service back.
 
 ## After
 
