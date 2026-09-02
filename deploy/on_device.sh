@@ -141,7 +141,7 @@ echo "kiosk:      $(systemctl --user is-active openhome-dashboard.service || tru
 echo "slate:      $(systemctl --user is-active astral-slate.service 2>/dev/null || echo absent)"
 echo "astral-hub: $(systemctl --user is-active astral-hub.service || true)"
 echo "oracle:     $(ls ~/slate/ada/slate_exact/lib/libslate_exact_c.so 2>/dev/null || echo absent)"
-echo "wake:       $($PY -c 'import wake_openbrain as w; print("hey mycroft + open brain" if w.available() else "hey mycroft only")')"
+echo "wake:       $($PY -c 'import wake_phrase as w; print(", ".join(w.WAKE_PHRASES) + " (phrase recogniser)" if w.available() else "hey mycroft (no phrase model on this machine)")')"
 echo "sounds:     $(ls ~/astral-voice/sounds 2>/dev/null | wc -l | tr -d ' ') files"
 echo "library:    $($PY -c 'import library; s=library.sources(); print(f"{len(s)} sources: " + ", ".join(sorted({x[0] for x in s})) if s else "empty — drop files in ~/astral-voice/library")')"
 echo "python:     $($PY -V)"
