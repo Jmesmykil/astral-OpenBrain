@@ -20,6 +20,7 @@ model, no network.
 # No future-annotations import here, on purpose: the platform comments that line out
 # on upload, so every annotation in this file has to be valid eagerly on the runtime's
 # Python. The engine region below declares Optional and uses it instead of PEP 604.
+import os                                   # for the hub-side bridge below
 from datetime import datetime
 import re
 import sys
@@ -1962,8 +1963,58 @@ def respond(*words):
         answer = _device_command(q)          # turn on/off <device> -> MQTT, no LLM
     if answer:
         _emit_success(answer, {"query": q})
-    else:
-        _emit_none()
+        return
+
+    # Nothing inlined here fits. If this device has the full hub, it knows more than
+    # this file does — the dictionary, the books, the songs, the quiz, the exact-maths
+    # kernel — so it gets asked before the turn is given away.
+    out = _hub("answer", "--agent", q)
+    if out and out.get("kind") == "answer" and out.get("say"):
+        _emit_success(out["say"], {"query": q, "hub": True, "class": out.get("class"),
+                                   "tier": out.get("tier")})
+        return
+
+    # Too slow to finish here is still an answer worth giving: price the question
+    # without running it, and offer the machines that would not have to start anything.
+    if out and out.get("kind") == "timeout":
+        out = _hub("offer", "--agent", q, timeout=8)
+
+    # And if the hub knows the CLASS but cannot run it here, it says so out loud and
+    # names where it could go. That is the ranking talking: "I can't do that here. Want
+    # me to ask the Mac, or the cloud?" — a question, so main.py takes the answer and
+    # routes it. Nothing leaves this house without somebody saying yes to it.
+    if out and out.get("kind") == "ask" and out.get("say"):
+        _emit_success(out["say"], {"query": q, "hub": True, "offer": True,
+                                   "routes": out.get("routes") or [],
+                                   "class": out.get("class"), "why": out.get("why")})
+        return
+    _emit_none()
+
+
+def route_answer(route="", *words):
+    """Send a question to a route the user just chose out loud, and say what came back.
+
+    "cloud" is not a place this device sends anything: on the OpenHome path the cloud IS
+    the agent, so choosing it means this ability stays quiet and the agent takes the turn
+    it would have taken anyway. That is handled by main.py; if it ever reaches here, it
+    is answered honestly rather than pretended at.
+    """
+    q = " ".join(str(w) for w in words).strip()
+    if not route or not q:
+        _emit_error("no_route", "A route and a question are both required.")
+        return
+    if route == "cloud":
+        _emit_none()                        # the agent's turn: nothing for this file to say
+        return
+    out = _hub("route", route, q, timeout=25)
+    if out is None:
+        _emit_error("no_hub", "This device has no local hub to route through.")
+        return
+    if out.get("kind") == "answer" and out.get("say"):
+        _emit_success(out["say"], {"query": q, "route": route})
+        return
+    _emit_success(f"I couldn't reach {'the Mac' if route == 'mac' else 'your ' + route} right now.",
+                  {"query": q, "route": route, "unreachable": True})
 
 
 def device_control(action="", device="", *_):
@@ -1972,6 +2023,68 @@ def device_control(action="", device="", *_):
         _emit_success(ans, {"action": action, "device": device})
     else:
         _emit_error("device_failed", "Could not command the device.")
+
+
+# The node server runs this file as `sudo python3 devkit_functions.py <fn> <args>`, and
+# sudo resets HOME to /root — measured on the device, not assumed. So "~" here is root's
+# home and not the account that owns the hub, which is why these paths are written out in
+# full. Left as expanduser, the import below would have found nothing and the timer store
+# would have read empty forever, reporting "nothing due" in a voice indistinguishable
+# from working correctly.
+_DEVICE_HOME = os.environ.get("ASTRAL_HOME") or "/home/openhome"
+_HUB = os.path.join(_DEVICE_HOME, "astral-voice/hub-v2")
+
+
+_HUB_USER = "openhome"
+_HUB_PY = os.path.join(_DEVICE_HOME, "astral-voice/kws-venv/bin/python3")
+_BRIDGE = os.path.join(_HUB, "ability_bridge.py")
+
+
+def _hub(*args, timeout=10):
+    """Ask the local hub, if this device has one. Returns its dict, or None.
+
+    The ability is self-contained on purpose and nothing here may depend on the hub
+    being present: when it is absent, or slow, or broken, this returns None and the
+    caller falls back to the inlined engine, which is the whole product on a bare
+    DevKit.
+
+    It crosses back to the openhome account deliberately — see ability_bridge.py. This
+    file runs as root, and as root the hub's dictionary, books, kernels and memory all
+    resolve into /root and answer nothing, while the fits table still claims they are
+    there. Measured on the device: the same three questions answer as the user and go
+    silent as root.
+    """
+    if not os.path.exists(_BRIDGE):
+        return None
+    python = _HUB_PY if os.path.exists(_HUB_PY) else "python3"
+    cmd = ["sudo", "-n", "-u", _HUB_USER, "-H", python, _BRIDGE, *[str(a) for a in args]]
+    if os.geteuid() != 0:
+        cmd = cmd[5:]                   # already that user (or testing): no sudo needed
+    try:
+        r = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout)
+        out = json.loads((r.stdout or "").strip().splitlines()[-1])
+        return out if isinstance(out, dict) and out.get("ok") else None
+    except subprocess.TimeoutExpired:
+        # Slow is not the same as impossible, and the caller must be able to tell them
+        # apart: a cold Slate kernel is 43 seconds in a fresh process, measured on the
+        # device, against about ten before the node server gives up.
+        return {"ok": True, "kind": "timeout"}
+    except Exception:
+        return None
+
+
+def due_alerts(*_):
+    """Timers and reminders that have come due, for the background daemon to speak.
+
+    Each is removed by hooks.due() as it is handed back, so it is spoken once no matter
+    how many things are watching. Nothing due is success with nothing to say, not an
+    error: it is the answer to the question, several times a minute, forever.
+    """
+    out = _hub("alerts")
+    if out is None:
+        _emit_success("", {"count": 0, "hub": False})
+        return
+    _emit_success(out.get("say") or "", {"count": out.get("count", 0), "hub": True})
 
 
 def get_temperature(*_):
@@ -2016,6 +2129,8 @@ def get_memory(*_):
 
 FUNCTION_REGISTRY = {
     "respond": respond,
+    "due_alerts": due_alerts,
+    "route_answer": route_answer,
     "device_control": device_control,
     "get_temperature": get_temperature,
     "get_uptime": get_uptime,

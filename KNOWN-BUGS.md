@@ -121,3 +121,63 @@ audibly and transcribes back word for word.
 Not proven: the Open Brain keyword, and the OpenHome agent routing a spoken phrase to
 this capability at all — the hotwords live cloud-side, so that cannot be tested until
 the capability is registered against the agent.
+
+## The background daemon: what is designed, and what a room has to settle
+
+`community/astral/background.py` takes turns without a trigger word by polling the live
+transcript and preempting with `send_interrupt_signal()`. Its logic is tested against a
+faked platform (`hub/tests/suite_daemon.py`, 27 checks: which turn it reads, what it
+treats as an answer, that it interrupts before it speaks, that it never answers a turn
+twice, and that a device error is silence). None of that is a hardware claim. Three
+things can only be settled on the device, with a person in the room:
+
+1. **Whether a `background_daemon` ability may call `send_devkit_capability_action` at
+   all.** The docs only describe that call from a Local Ability. If a daemon may not make
+   it, every call fails, the daemon reads a failed call as "not mine", and it goes silent
+   permanently — the failure is invisible rather than loud, which is the wrong direction
+   for a bug and the reason it is written down here.
+2. **Whether it wins the race.** The agent and the daemon see the same turn together. A
+   device answer costs a subprocess and a table lookup; an agent answer costs a round
+   trip and speech synthesis, so the daemon should be first by a wide margin. If it is
+   not, the interrupt lands mid-sentence and the user hears a stub of the agent before
+   the real answer.
+3. **`POLL_SECONDS = 0.25`.** The documented background-ability example sleeps 20
+   seconds, which is right for an alert and useless for taking a turn. A quarter second
+   is a judgement, not a measurement; what it costs on a Pi 4 running the agent has not
+   been measured.
+
+The alert half (`due_alerts`) has a smaller unknown: it soft-imports `hooks` from
+`~/astral-voice/hub-v2` so there is one timer store rather than two. On a device without
+the local hub installed it reports nothing, forever, silently — correct, but
+indistinguishable from a broken import.
+
+## The fits table was measured inside the loop, and not every caller is the loop
+
+Every number in `hub/data/costs/` was measured inside a long-lived process, where the
+Slate kernel is already resident. The OpenHome ability is not that: the node server runs
+it as `sudo python3 devkit_functions.py …`, a fresh process per turn. Measured on the
+device, the same question cost 43 seconds twice in a row through that path while the
+profile said `cold_start_ms: 1644` — so the ranking believed the class fitted here, and
+the honest thing it could do about a 43-second answer was offer to send the question
+somewhere else, from a device that can do it.
+
+`hub/slate_server.py` fixes the case that matters by making the kernel shared rather than
+per-process (0.6 s through the same path afterwards). The general problem stands: a
+profile measured in one process model does not describe another, and nothing in the
+measurement records which model it was taken under. `costs.offer()` exists because of
+this — it answers "who else could" without consulting the local fit, for a caller that
+has already found out the hard way.
+
+Two smaller things that follow from the same service:
+
+- **For about forty seconds after the device boots, exact mathematics says "the maths
+  kernel is still starting. Ask me again in a minute."** That is the compile, once per
+  restart. It is a true sentence rather than silence, but it is still a minute of a
+  product that cannot do the thing it advertises.
+- **The ability runs as root and the hub does not.** Every hub path resolves from the
+  home directory, so as root they resolve into `/root`: measured on the device, three
+  questions that answer as the openhome account answer nothing as root, while the fits
+  table still reports the data as available. The ability crosses back with `sudo -u
+  openhome` for exactly this reason, and a hub file written as root would stop being
+  writable by the loop that owns it — one root-owned `smalltalk.sqlite` was created this
+  way during measurement and had to be given back.

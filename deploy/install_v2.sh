@@ -26,6 +26,9 @@ routes = hub / "data/routes.json"
 cur = json.loads(routes.read_text()) if routes.exists() else {}
 cur["mac"] = {"host": sys.argv[2], "port": lan.PORT}
 cur.setdefault("phone", {"host": None})
+# Never turned on by a deploy, and never dropped by one either: the switch is the
+# creator's to throw, and a route that quietly vanished would take the offer with it.
+cur.setdefault("cloud", {"enabled": False})
 routes.write_text(json.dumps(cur, indent=2) + "\n")
 print("routes:", cur)
 PY
@@ -48,7 +51,8 @@ rsync -lt --chmod=ugo=rwx -e "${SSHC[*]}" "$HERE/deploy/on_device.sh" "$T:~/astr
 # now nothing kept it current on the device.
 "${SSHC[@]}" "$T" 'mkdir -p ~/astral-voice/hub-v2/shipped'
 rsync -lt --chmod=ugo=rwX -e "${SSHC[*]}" "$HERE/community/astral/devkit_functions.py" \
-  "$HERE/community/astral/main.py" "$T:~/astral-voice/hub-v2/shipped/"
+  "$HERE/community/astral/main.py" "$HERE/community/astral/background.py" \
+  "$T:~/astral-voice/hub-v2/shipped/"
 
 # Everything device-side lives in on_device.sh, which was synced with the hub above.
 "${SSHC[@]}" "$T" 'bash ~/astral-voice/hub-v2/on_device.sh'

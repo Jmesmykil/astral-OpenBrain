@@ -69,6 +69,25 @@ For the student set: `what do I need`, `what letter grade`, `out of`, `weighted`
 
 An empty `spoken_response` means no exact answer, so the agent takes the turn.
 
+**Without a trigger word (`background.py`).** Trigger words only cover the turns somebody
+thought to register. The optional background daemon covers the rest: it starts with the
+session, reads the live transcript with `get_full_message_history()`, offers every turn to
+the same `respond` on the device, and — only when the device has an exact answer — calls
+`send_interrupt_signal()` and speaks it. When the device has nothing, which is most turns,
+it does nothing at all and OpenHome's normal routing handles the turn exactly as before.
+The local layer is a filter in front of the agent, not a replacement for it, and the
+failure mode of the filter is silence.
+
+It also speaks timers and reminders when they come due (`due_alerts`), which nothing else
+can do: a foreground ability is a subprocess that exited minutes ago.
+
+Upload it as a second ability with `category=background_daemon`, containing `background.py`
+alongside the same `devkit_functions.py`. Two things about it are honest unknowns until it
+runs on hardware, and both fail safe: whether a non-`local` ability may call
+`send_devkit_capability_action` at all (if it may not, every call returns an error, which
+this reads as "not mine", and the daemon stays silent forever), and whether the daemon
+consistently beats the agent to the turn. See `KNOWN-BUGS.md`.
+
 ## Speech to text is an option
 
 This ability version uses the agent's speech-to-text, so the transcript comes from the cloud. For a fully local path, wake and speech-to-text also run on the device (whisper base.en, quantized), so the exact-answer class answers with no cloud trip at all. That local path is proven on the DevKit with the network off. It becomes native once the agent can hand the turn to a hardware ability before the LLM, which the platform is moving toward.
@@ -90,6 +109,7 @@ Both paths use the same engine. Local speech-to-text is the default when it is a
 
 - `main.py` — the cloud-side capability. Deterministic dispatch, no LLM.
 - `devkit_functions.py` — the device side. One self-contained file: the time/date and math/money/conversion engine is inlined, so it needs no siblings.
+- `background.py` — the optional background daemon. Same engine, no trigger word, plus due timers.
 - `requirements.txt` — standard library only.
 
 ## Extending it
