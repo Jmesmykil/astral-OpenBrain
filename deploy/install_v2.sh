@@ -30,7 +30,10 @@ routes.write_text(json.dumps(cur, indent=2) + "\n")
 print("routes:", cur)
 PY
 
-rsync -rlt --chmod=ugo=rwX -e "${SSHC[*]}" \
+# --delete, because a file removed here must be removed there. Without it the device
+# kept an obsolete test_golden.py alive, which is the only reason a broken import in
+# measure_costs.py went unnoticed for a day.
+rsync -rlt --delete --chmod=ugo=rwX -e "${SSHC[*]}" \
   --include='*.py' --include='kernels/' --include='kernels/*.py' \
   --include='tests/' --include='tests/*.py' --include='wake/' --include='wake/*.npz' \
   --include='data/' --include='data/*.json' \
