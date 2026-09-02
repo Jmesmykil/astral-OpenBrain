@@ -21,8 +21,8 @@ This is the generalized version of the `date-and-time` base capability. The whol
   total, GPA over credits.
 - Chemistry: molar mass for a named compound or a formula, moles and grams, molarity,
   pH, the ideal gas law, atomic mass and number for all 118 elements.
-- Physics: escape velocity and surface gravity for the Sun, the Moon and every planet,
-  weight on another world, free fall, kinetic and potential energy, momentum, force,
+- Physics: mass, radius and diameter, escape velocity and surface gravity for the Sun,
+  the Moon and every planet, weight on another world, free fall, kinetic and potential energy, momentum, force,
   work, power, Ohm's law, time dilation, Schwarzschild radius, photon energy, light
   travel time.
 - Statistics: mean, median, mode, range, variance, sample and population standard
@@ -45,6 +45,8 @@ I have an 87 and the final is worth 20 percent, what do I need to get a 90
 molar mass of water                 -> The molar mass of water (H2O) is 18.015 grams per mole.
 escape velocity of mars             -> Escape velocity at Mars is 5.02 kilometers per second,
                                        11234.25 miles per hour.
+diameter of mars                    -> The diameter of Mars is 6792.4 kilometers, 4220.6 miles.
+mass of earth                       -> The mass of Earth is about 5.97 times ten to the 24 kilograms.
 standard deviation of 4 6 8 10      -> The sample standard deviation of 4, 6, 8, 10 is 2.58,
                                        around a mean of 7.
 is 91 prime                         -> No, 91 isn't prime. It's 7 times 13.
@@ -58,9 +60,9 @@ and a course grades you on which you used.
 
 ## Suggested trigger words
 
-Set these in the dashboard:
+Set these in the dashboard. `open brain` is the one to say when you want Astral to take the phrase whatever follows it; the rest catch the questions on their own:
 
-`what time`, `what's the time`, `what's the date`, `what day is it`, `calculate`, `what's`, `how much is`, `percent of`, `square root of`, `convert`, `how many`, `tip on`, `tax on`, `split`, `what do i need`, `what letter grade`, `out of`, `weighted`, `gpa`, `molar mass`, `how many moles`, `atomic mass`, `atomic number`, `molarity`, `ph of`, `escape velocity`, `surface gravity`, `kinetic energy`, `momentum`, `how long does light`, `average of`, `mean of`, `median of`, `standard deviation`, `z score`, `choose`, `in binary`, `in hexadecimal`, `log of`, `sine of`, `prime factors`, `quadratic`, `percent change`, `simplify`, `significant figures`
+`open brain`, `what time`, `what's the time`, `what's the date`, `what day is it`, `calculate`, `what's`, `how much is`, `percent of`, `square root of`, `convert`, `how many`, `tip on`, `tax on`, `split`, `what do i need`, `what letter grade`, `out of`, `weighted`, `gpa`, `molar mass`, `how many moles`, `atomic mass`, `atomic number`, `molarity`, `ph of`, `mass of`, `diameter of`, `radius of`, `how big is`, `escape velocity`, `surface gravity`, `kinetic energy`, `momentum`, `how long does light`, `average of`, `mean of`, `median of`, `standard deviation`, `z score`, `choose`, `in binary`, `in hexadecimal`, `log of`, `sine of`, `prime factors`, `quadratic`, `percent change`, `simplify`, `significant figures`
 
 ## How it works
 
@@ -75,10 +77,13 @@ hand-entered constant is a typo waiting to be spoken with confidence. Surface gr
 and escape velocity are computed from mass and equatorial radius and agree with
 published figures for eight bodies to better than half a percent.
 
-120 answers are asserted byte-exact in the source repo, alongside a suite that fuzzes
-four thousand utterances and rechecks every result a second independent way — statistics
-against Python's own `statistics` module, factorizations multiplied back out, physics
-against published constants.
+The engine source and its tests ship in `hub/` next to this file. `main.py` is generated
+from them (`python3 hub/build_ability.py`), and `hub/test_artifact_parity.py` proves the
+shipped file answers every phrase exactly as the source does. `hub/test_golden.py` pins
+155 phrases byte for byte, the ones it must stay silent on included, and
+`hub/test_hardening.py` fuzzes four thousand utterances and rechecks every result a second
+independent way: statistics against Python's own `statistics` module, factorizations
+multiplied back out, physics against published constants.
 
 ## Requirements
 
