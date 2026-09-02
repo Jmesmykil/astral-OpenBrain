@@ -10,15 +10,21 @@ Straight list of what's rough, so nobody's surprised. Split by the two paths.
 - **Occasional word or number order garble** ("45 dollars" comes back as "dollars 45"). The deterministic engine is forgiving and still answers most of these.
 - **Sometimes misses a clearly spoken command** and comes back empty. Mic quality plus room noise. Say it again and it usually lands.
 - **Latency is about 2.5 to 3 seconds** per command. That's whisper base.en on the Pi 4.
-- **"Open Brain" works, about two thirds of the time.** The product wake word is now a real
-  model, trained here from 216 spoken clips and 450 negatives and graded on voices it never
-  heard: it wakes on 63 of 100 spoken "Open Brain"s on the device, false-fires on about 2 in
-  80 phonetically-near phrases, and scores an empty room at 0.24 against a 0.95 threshold.
-  "hey mycroft" still works every time and runs beside it, so nothing is lost by saying
-  either. Getting Open Brain to the reliability of the stock word needs a bigger corpus of
-  real spoken examples, which is a training job, not a code fix. Two earlier attempts were
-  refused by the trainer's own guard for scoring silence at 0.98, which is exactly what that
-  guard is for.
+- **The wake word is "hey mycroft". "Open Brain" is built but does not ship, and here is
+  exactly why.** A classifier for it is trained by `wake/train_openbrain.py` from 216
+  positive clips and 450 negatives, and on paper it looked usable: about two thirds of
+  held-out voices detected at a 0.2% false-fire rate. Then it was graded against ninety
+  seconds of this room, recorded through this microphone at the gain the device actually
+  runs at. It scores **0.999 where its threshold is 0.95**. It wakes at the room.
+  That is not a hypothetical. Before the gate existed, the device woke **102 times in one
+  evening, every one of them attributed to "open brain", 82 of them into a room where the
+  loudest thing was 20 out of 32767** — and several of the non-silent ones transcribed the
+  household's conversation rather than a command.
+  The cause is the corpus, not the classifier. The 216 positives are macOS `say` voices, so
+  the model learned to tell synthetic speech from synthetic noise, which is not the job.
+  `wake_openbrain.load()` now refuses any model that was not graded against real room audio,
+  so this cannot be switched on by forgetting. Getting the product wake word working needs
+  real recorded people saying it in this house, or Picovoice Porcupine with a free key.
 
 ## Native ability mode (through the agent)
 

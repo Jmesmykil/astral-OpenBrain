@@ -55,24 +55,35 @@ turn.
 
 Measured on the DevKit (Pi 4, 8 GB, idle, 30 runs per phrase):
 
-| Class | Tier | p95 | Peak memory | Verdict |
-|---|---|---|---|---|
-| time and date | 0 | 42 us | 21 MB | fits |
-| grades | 0 | 171 us | 21 MB | fits |
-| device and OS surface | 0 | 250 us | 21 MB | fits |
-| physics | 0 | 322 us | 21 MB | fits |
-| number tools | 0 | 400 us | 21 MB | fits |
-| statistics | 0 | 454 us | 21 MB | fits |
-| deciding it has no answer | 0 | 540 us | 21 MB | fits |
-| astrology: sun signs, moon phase | 0 | 844 us | 22 MB | fits |
-| chemistry | 0 | 907 us | 21 MB | fits |
-| math, money, conversions | 0 | 1.1 ms | 21 MB | fits |
-| timers, alarms, reminders | 0 | 1.3 ms | 21 MB | fits |
-| small talk and jokes | 0 | 1.4 ms | 22 MB | fits |
-| exact arithmetic, Ada/SPARK oracle | 1 | 15 us | 24 MB | fits |
-| book passages | 1 | 1.2 ms | 24 MB | fits |
-| every definition of a word | 1 | 26 ms | 24 MB | fits |
-| comprehension and conversation | 2 | 1.7 s | 341 MB | fits |
+| What it does | Tier | Cost on the DevKit | From |
+|---|---|---|---|
+| time and date | 0 | 52 us | p95 of 300 |
+| the device and its OS | 0 | 182 us | p95 of 40 |
+| grades | 0 | 213 us | p95 of 480 |
+| physics and the planets | 0 | 388 us | p95 of 1620 |
+| number tools | 0 | 468 us | p95 of 1500 |
+| sun signs and the moon | 0 | 560 us | p95 of 40 |
+| statistics | 0 | 562 us | p95 of 720 |
+| math, money, conversions | 0 | 771 us | p95 of 2880 |
+| deciding it has no answer | 0 | 832 us | p95 of 2100 |
+| timers, alarms, reminders | 0 | 940 us | p95 of 40 |
+| chemistry | 0 | 1.1 ms | p95 of 1020 |
+| small talk and jokes | 0 | 1.3 ms | p95 of 40 |
+| what it can and cannot do | 0 | 1.7 ms | p95 of 40 |
+| songs, played and spoken | 0 | 644.6 ms | p95 of 40 |
+| exact arithmetic, proven kernel | 1 | 16 us | - |
+| passages from the books | 1 | 3.8 ms | p95 of 42 |
+| every sense of a word | 1 | 29.0 ms | p95 of 42 |
+| algebra and calculus | 1 | 290.4 ms | p95 of 40 |
+| reading a new question | 2 | 1.7 s | max of 6 |
+| open conversation | 2 | 1.7 s | max of 6 |
+
+Every row was measured on the DevKit by `hub/measure_costs.py` and is read from
+`hub/data/costs/pi4-8g-arm64.json`, the same file the router obeys. "From" says how the
+figure was arrived at: a percentile where a class is cheap enough to sample hundreds of
+times, the observed maximum where it is not, because a percentile over six samples is a
+maximum wearing a percentile's name. Memory is only reported for a kernel that runs in
+its own process; for everything sharing this one there is no per-class number to give.
 
 **All of it runs on the DevKit, off the card.** The 128 GB card is what makes the upper
 tiers possible here rather than somewhere else: the dictionary is Open English WordNet
@@ -142,6 +153,14 @@ against the element table, never typed in per compound, because a hand-entered
 constant is a typo waiting to be spoken with confidence. Anything resting on a
 convention says which convention: a letter grade names the 90/80/70 scale, a standard
 deviation says whether it is the sample or the population one.
+
+## The wake word
+
+It answers to **"hey mycroft"**. The product word, "Open Brain", has a trained model in
+`hub/wake/` that does not ship: graded against ninety seconds of the real room through the
+real microphone it scores 0.999 against its own 0.95 threshold, which means it wakes at
+nothing. `KNOWN-BUGS.md` has the measurements and the reason. The loader refuses any model
+that has not passed that gate, so it cannot be enabled by accident.
 
 ## Tests
 
