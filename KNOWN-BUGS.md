@@ -10,7 +10,15 @@ Straight list of what's rough, so nobody's surprised. Split by the two paths.
 - **Occasional word or number order garble** ("45 dollars" comes back as "dollars 45"). The deterministic engine is forgiving and still answers most of these.
 - **Sometimes misses a clearly spoken command** and comes back empty. Mic quality plus room noise. Say it again and it usually lands.
 - **Latency is about 2.5 to 3 seconds** per command. That's whisper base.en on the Pi 4.
-- **Wake word is "hey mycroft" right now.** The product wake word "Open Brain" needs a custom wake model (Picovoice Porcupine with a free key, or a trained openWakeWord model). Not wired yet.
+- **"Open Brain" works, about two thirds of the time.** The product wake word is now a real
+  model, trained here from 216 spoken clips and 450 negatives and graded on voices it never
+  heard: it wakes on 63 of 100 spoken "Open Brain"s on the device, false-fires on about 2 in
+  80 phonetically-near phrases, and scores an empty room at 0.24 against a 0.95 threshold.
+  "hey mycroft" still works every time and runs beside it, so nothing is lost by saying
+  either. Getting Open Brain to the reliability of the stock word needs a bigger corpus of
+  real spoken examples, which is a training job, not a code fix. Two earlier attempts were
+  refused by the trainer's own guard for scoring silence at 0.98, which is exactly what that
+  guard is for.
 
 ## Native ability mode (through the agent)
 
