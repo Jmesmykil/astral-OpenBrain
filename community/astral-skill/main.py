@@ -192,7 +192,10 @@ def _int_words(toks: list[str]) -> float:
 
 
 def parse_number(s: str):
-    s = s.strip().lower().replace("-", " ")
+    s = s.strip().lower()
+    # A hyphen joins words in "twenty-one" and signs a number in "-4". Replacing every
+    # hyphen with a space, as this did, silently turned minus four into four.
+    s = re.sub(r"(?<=[a-z])-(?=[a-z])", " ", s)
     try:
         return float(s)
     except ValueError:
@@ -203,14 +206,26 @@ def parse_number(s: str):
         digits = "".join(str(int(_ONES[t])) for t in frac.split() if t in _ONES)
         return float(f"{w}.{digits}") if digits else w
     toks = [t for t in s.split() if t in _ONES or t in _TENS or t == "hundred"
-            or t in _SCALE or t.replace(".", "", 1).isdigit()]
+            or t in _SCALE or t.lstrip("-").replace(".", "", 1).isdigit()]
     return _int_words(toks) if toks else None
 
 
 _NUMRUN = re.compile(r"((?:\b(?:zero|one|two|three|four|five|six|seven|eight|nine|ten|"
                      r"eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|"
                      r"twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety|hundred|thousand|million|"
-                     r"point|and|a|an)\b|\d+(?:\.\d+)?)(?:\s+|$))+")
+                     r"point|and|a|an)\b|-?\d+(?:\.\d+)?)(?:\s+|$))+")
+
+# A number that arrives attached to something this reader does not understand is not a
+# number it may quietly simplify. "square root of -4" was answering "the square root of 4
+# is 2" and "convert 1e400 pounds" was answering about 400 pounds: the reader lifted the
+# digits it recognised out of the middle of a token and dropped the rest, which is how a
+# formula ends up applied to a number nobody said. If a digit sits next to a character
+# this reader has no meaning for, the phrase is refused rather than trimmed to fit.
+# Deliberately narrow. "2/3" is a fraction this engine reads exactly, and "20%" is
+# turned into words before it gets here, so neither is mangled; scientific notation and
+# a digit fused to a letter are, because the reader would take the digits it recognised
+# and drop the rest, which is how "1e400 pounds" became an answer about 400 pounds.
+_MANGLED = re.compile(r"\d[eE][+-]?\d|\d[a-df-zA-DF-Z]|[a-zA-Z]\d|\d\s*[\^*]\s*\d")
 
 
 # Speech-to-text writes large numbers in groups: "24 352", "1 250", sometimes with
@@ -221,8 +236,20 @@ _NUMRUN = re.compile(r"((?:\b(?:zero|one|two|three|four|five|six|seven|eight|nin
 _GROUPED = re.compile(r"(?<![\d.])(\d{1,3})((?:[,\s]\d{3})+)(?![\d.])")
 
 
+_HYPHEN_WORDS = re.compile(r"\b(twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety)-"
+                           r"(one|two|three|four|five|six|seven|eight|nine)\b")
+
+
 def _join_groups(text: str) -> str:
+    # "twenty-one" is one number. The run reader stops at the hyphen, so before this
+    # "twenty-one plus one" was read as one plus one and answered 2.
+    text = _HYPHEN_WORDS.sub(lambda m: f"{m.group(1)} {m.group(2)}", text)
     return _GROUPED.sub(lambda m: m.group(1) + re.sub(r"[,\s]", "", m.group(2)), text)
+
+
+def unreadable(text: str) -> bool:
+    """True when the phrase contains a quantity this reader cannot faithfully take."""
+    return bool(_MANGLED.search(_join_groups(text)))
 
 
 def numbers(text: str) -> list[float]:
@@ -236,6 +263,12 @@ def numbers(text: str) -> list[float]:
         # assumes a quantity of one when no number is spoken at all.
         if all(w in ("a", "an", "and") for w in run.split()):
             continue
+        # An article in front of a number is not part of it. "an -50" was parsed as a
+        # run containing both, and came back 1: the article won and the number vanished.
+        words = run.split()
+        while words and words[0] in ("a", "an", "and"):
+            words.pop(0)
+        run = " ".join(words)
         v = parse_number(run)
         if v is not None:
             out.append(v)
@@ -564,7 +597,15 @@ def calc_handle(text: str) -> Optional[str]:
         return f"Double {_fmt(nums[0])} is {_fmt(nums[0]*2)}."
 
     # square root / squared
+    if re.search(r"\bto the power of\b|\braised to\b", t) and len(nums) >= 2:
+        base, exp = nums[0], nums[1]
+        # 2 to the power of 100000 is a real number and not a spoken one: it raised
+        # OverflowError out of the engine and the device answered with a C errno.
+        if abs(exp) > 64 or (abs(base) > 1e6 and abs(exp) > 8):
+            return None
     if "square root of" in t and nums:
+        if nums[0] < 0:
+            return None          # no real square root: silence, not the root of its absolute value
         return f"The square root of {_fmt(nums[0])} is {_fmt(nums[0] ** 0.5)}."
     if ("squared" in t) and nums:
         return f"{_fmt(nums[0])} squared is {_fmt(nums[0] ** 2)}."
@@ -1645,11 +1686,22 @@ def normalize(text: str) -> str:
     return re.sub(r"\s+", " ", text).strip()
 
 
+# Phrases this engine must not attempt. An equation needs a solver it does not have, and
+# a quantity it cannot read faithfully must not be trimmed until it fits a formula. Both
+# were being answered: "solve 2x + 3 = 11 for x" came back "3 times 11 is 33", and
+# "convert 1e400 pounds to kilograms" came back about 400 pounds. This lives here rather
+# than in the router because the shipped ability calls this function and never that one.
+_UNANSWERABLE = re.compile(r"=|\bsolve\b[^.]*\bfor\b|\b(derivative|differentiate|integral|"
+                           r"integrate|antiderivative)\b")
+
+
 def astral_answer(text: str, now: Optional[datetime] = None) -> Optional[str]:
     if not text or not text.strip():
         return None
     text = normalize(text)
     if not text:
+        return None
+    if _UNANSWERABLE.search(text.lower()) or unreadable(text):
         return None
     for _name, fn, takes_clock in _ROUTE:
         r = fn(text, now) if takes_clock else fn(text)
