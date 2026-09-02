@@ -42,6 +42,51 @@ Raspberry Pi 4 Model B, 4 cores, 7.7 GB RAM, Python 3.13.5.
 Measured on the device on 2026-08-17, 300 runs each, against the file as deployed.
 The answer itself is microseconds. On the fully-local path the latency is speech-to-text and text-to-speech, not the compute. The cloud-side Skill adds only those microseconds on top of the agent's own speech handling.
 
+## Version two: what runs where, measured
+
+Version one answered the exact-answer class on the device and stayed silent otherwise.
+Version two adds tiers above that, and no tier runs anywhere until its cost has been
+MEASURED on that machine. `hub/measure_costs.py` runs the real engine over the real
+corpus on the host it is run on and writes a profile; `hub/costs.py` compares it to a
+budget and produces the fits table; `hub/router.py` reads the table before it runs
+anything. A class that fits runs. A class that fits somewhere else on the LAN says what
+it would need and asks. A class that fits nowhere stays silent and the agent takes the
+turn.
+
+Measured on the DevKit (Pi 4, 8 GB, idle, 30 runs per phrase):
+
+| Class | Tier | p95 | Verdict |
+|---|---|---|---|
+| time and date | 0 | 44 us | fits |
+| grades | 0 | 250 us | fits |
+| physics | 0 | 448 us | fits |
+| statistics | 0 | 599 us | fits |
+| number tools | 0 | 534 us | fits |
+| math, money, conversions | 0 | 848 us | fits |
+| chemistry | 0 | 1.1 ms | fits |
+| deciding it has no answer | 0 | 726 us | fits |
+| device and OS surface | 0 | 425 us | fits |
+| timers, alarms, reminders | 0 | 2.5 ms | fits |
+| small talk and jokes | 0 | 2.2 ms | fits |
+| book passages | 1 | 1.5 ms | fits |
+| exact arithmetic, Ada/SPARK oracle | 1 | 16 us | fits |
+| comprehension | 2 | not on the device | routes to the Mac |
+
+Everything stays local. Wake, speech-to-text, every tier above, and text-to-speech run
+on the device or on the Mac over the LAN. There is no cloud tier in this path; the cloud
+agent exists only in OpenHome's own ability mode. Open weights and toolchains are fetched
+once onto our own drives and run from there.
+
+The exact arithmetic is checked twice: the table layer computes with Python's own
+`Fraction`, and Slate's Ada/SPARK oracle re-derives the same step through its C entry
+point (`hub/kernels/spark_exact.py`, built native on the device with GNAT, 92 KB). They
+must agree before a word is spoken. A disagreement is a silence, never a guess.
+
+Chimes say what is happening without words: a cue on wake, a working tick while
+speech-to-text runs, an acceptance chime when a command matches, a distinct cue when it
+is about to ask about a route, and a low tone when it declines. The device's own sound
+set is used where a file fits the meaning.
+
 ## Layout
 
 ```
@@ -51,6 +96,14 @@ community/astral/         Local DevKit ability (device compute + telemetry + MQT
   main.py                 the capability
   devkit_functions.py     one self-contained device file (engine inlined)
 hub/                      engine source, generator and tests (ships upstream as community/astral/hub/)
+  costs.py, measure_costs.py, data/budgets.json   the fits table: measured cost per class per host
+  router.py               run, ask, or stay silent, from the fits table
+  kernels/spark_exact.py  the proven Ada/SPARK oracle behind its C ABI
+  device.py, hooks.py     the OS surface; timers, alarms and reminders
+  books.py, smalltalk.py  passages from the card; jokes and pleasantries, no repeats
+  sounds.py, lan.py       the chime set; the token-authenticated LAN route
+deploy/install_v2.sh      put version two on the DevKit and wire the service
+deploy/HW_TEST.md         the hardware test, turn by turn
 RELEASE.md                the full release write-up
 REVIEW-2026-09-01.md      the upstream review, quoted, and what was done about it
 SUBMISSION.md             the short pitch to OpenHome

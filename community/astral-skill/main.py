@@ -417,6 +417,93 @@ def _convert(text: str, nums):
 # ── main ──────────────────────────────────────────────────────────────────────
 
 
+# ── exact fractions ───────────────────────────────────────────────────────────
+# "one third plus one sixth" used to answer "1 plus 1 is 2": the number reader kept
+# the numerators and dropped the fraction words, then the arithmetic path added what
+# was left. Confidently wrong, in the one class this engine exists to get right. So
+# fractions are read as fractions and computed exactly, before any float path sees them.
+_FRAC_DEN = {"half": 2, "halves": 2, "third": 3, "thirds": 3, "quarter": 4, "quarters": 4,
+             "fourth": 4, "fourths": 4, "fifth": 5, "fifths": 5, "sixth": 6, "sixths": 6,
+             "seventh": 7, "sevenths": 7, "eighth": 8, "eighths": 8, "ninth": 9, "ninths": 9,
+             "tenth": 10, "tenths": 10, "twelfth": 12, "twelfths": 12}
+_FRAC_NUM = {"a": 1, "an": 1, "one": 1, "two": 2, "three": 3, "four": 4, "five": 5, "six": 6,
+             "seven": 7, "eight": 8, "nine": 9, "ten": 10, "eleven": 11, "twelve": 12}
+_FRAC_NAME = {2: ("half", "halves"), 3: ("third", "thirds"), 4: ("quarter", "quarters"),
+              5: ("fifth", "fifths"), 6: ("sixth", "sixths"), 7: ("seventh", "sevenths"),
+              8: ("eighth", "eighths"), 9: ("ninth", "ninths"), 10: ("tenth", "tenths"),
+              12: ("twelfth", "twelfths")}
+_FRAC_WORDS = {1: "one", 2: "two", 3: "three", 4: "four", 5: "five", 6: "six", 7: "seven",
+               8: "eight", 9: "nine", 10: "ten", 11: "eleven", 12: "twelve"}
+_FRAC_TOKEN = re.compile(
+    r"\b(?P<wn>a|an|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve)[ -]"
+    r"(?P<wd>halves|half|thirds|third|quarters|quarter|fourths|fourth|fifths|fifth|sixths|sixth|"
+    r"sevenths|seventh|eighths|eighth|ninths|ninth|tenths|tenth|twelfths|twelfth)\b"
+    r"|(?P<sn>\d+)/(?P<sd>\d+)"
+    r"|\b(?P<op>plus|minus|times|multiplied by|divided by|of)\b"
+    r"|(?<![\d/.])(?P<int>\d+)(?![\d/.])")
+
+
+def _say_frac(f: Fraction) -> str:
+    if f.denominator == 1:
+        return _fmt(f.numerator)
+    sign = "minus " if f < 0 else ""
+    whole, rem = divmod(abs(f.numerator), f.denominator)
+    d = f.denominator
+    if d in _FRAC_NAME:
+        word = _FRAC_NAME[d][0] if rem == 1 else _FRAC_NAME[d][1]
+        part = f"{_FRAC_WORDS.get(rem, rem)} {word}"
+    else:
+        part = f"{rem} over {d}"
+    return sign + (f"{whole} and {part}" if whole else part)
+
+
+# The last exact step taken, as (op, a, b, result). The shipped file answers on its
+# own; where a proven oracle is present the router re-derives this step there before
+# speaking, and a disagreement is a silence, never a guess.
+LAST_STEP = None
+
+
+def _fractions(t: str) -> Optional[str]:
+    """Exact arithmetic on spoken or slashed fractions, or None if there are none."""
+    global LAST_STEP
+    LAST_STEP = None
+    toks = []
+    for m in _FRAC_TOKEN.finditer(t):
+        if m.group("wd"):
+            toks.append(("frac", Fraction(_FRAC_NUM[m.group("wn")], _FRAC_DEN[m.group("wd")])))
+        elif m.group("sd"):
+            if int(m.group("sd")) == 0:
+                return None
+            toks.append(("frac", Fraction(int(m.group("sn")), int(m.group("sd")))))
+        elif m.group("op"):
+            toks.append(("op", m.group("op")))
+        else:
+            toks.append(("int", Fraction(int(m.group("int")))))
+    if not any(k == "frac" for k, _ in toks):
+        return None
+    if len(toks) != 3 or toks[0][0] == "op" or toks[1][0] != "op" or toks[2][0] == "op":
+        return None
+    a, op, b = toks[0][1], toks[1][1], toks[2][1]
+    if op == "of":
+        if toks[0][0] != "frac" or toks[2][0] != "int":
+            return None
+        r = a * b
+        LAST_STEP = ("*", a, b, r)
+        return f"{_say_frac(a).capitalize()} of {_fmt(b)} is {_say_frac(r)}."
+    if op in ("plus",):
+        r = a + b
+    elif op == "minus":
+        r = a - b
+    elif op in ("times", "multiplied by"):
+        r = a * b
+    else:
+        if b == 0:
+            return None
+        r = a / b
+    LAST_STEP = ({"plus": "+", "minus": "-", "times": "*", "multiplied by": "*"}.get(op, "/"), a, b, r)
+    return f"{_say_frac(a).capitalize()} {op} {_say_frac(b)} is {_say_frac(r)}."
+
+
 def calc_handle(text: str) -> Optional[str]:
     t = " " + text.lower().strip() + " "
     nums = numbers(text)
@@ -425,6 +512,11 @@ def calc_handle(text: str) -> Optional[str]:
     conv = _convert(t, nums)
     if conv:
         return conv
+
+    # exact fractions next, before any float path can misread "one third" as 1
+    fr = _fractions(t)
+    if fr:
+        return fr
 
     # money: tip
     if "tip" in t and nums:
