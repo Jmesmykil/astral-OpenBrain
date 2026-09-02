@@ -45,6 +45,9 @@ rsync -rlt --delete --chmod=ugo=rwX -e "${SSHC[*]}" \
   `# and copying this machine's numbers over the device's would make the fits table a fiction.` \
   --include='data/sounds/*.wav' --include='data/books/' --include='data/books/*.txt' --include='data/books/*.md' \
   --include='data/decks/' --include='data/decks/*.txt' \
+  `# the starter shelf: what ships is the example, what the card holds is the owner's` \
+  --include='data/library/' --include='data/library/reference/' \
+  --include='data/library/reference/*.tsv' --include='data/library/reference/*.md' \
   --include='data/state/' --exclude='*' "$HERE/hub/" "$T:~/astral-voice/hub-v2/"
 rsync -lt --chmod=ugo=rwx -e "${SSHC[*]}" "$HERE/deploy/on_device.sh" "$T:~/astral-voice/hub-v2/"
 # The shipped ability travels too: OpenHome's own routing calls this file, and until
