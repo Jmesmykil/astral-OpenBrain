@@ -69,6 +69,7 @@ POLL_SECONDS = 0.25
 # ten-minute timer is not late.
 ALERT_EVERY = 24                                # ticks, so ~6 s
 DEVICE_TIMEOUT = 6                              # seconds for one respond() on the Pi
+FAILURES_BEFORE_SPEAKING = 3                    # in a row, before it says it cannot reach the device
 
 
 def last_user_turn(history):
@@ -95,6 +96,24 @@ def last_user_turn(history):
         if text:
             return i, text
     return None, ""
+
+
+def call_failed(result) -> bool:
+    """Did the device call itself fail — as opposed to the device having no answer?
+
+    These look identical downstream and are not the same thing at all. No answer is the
+    normal case, several times a minute. A failed call means this daemon cannot reach
+    the device AT ALL, and a daemon that cannot reach the device is a daemon that will
+    never speak again — invisibly, for the rest of the session, on a product whose whole
+    contract is "silence means the agent has it". That has to be sayable out loud.
+    """
+    if not isinstance(result, dict) or not result.get("success"):
+        return True
+    try:
+        payload = json.loads((result.get("output") or "").strip() or "{}")
+    except (ValueError, TypeError):
+        return True
+    return not (isinstance(payload, dict) and payload.get("success"))
 
 
 def spoken_from(result):
@@ -127,6 +146,13 @@ class AstralDaemon(MatchingCapability):
     worker: AgentWorker = None
     capability_worker: CapabilityWorker = None
     background_daemon_mode: bool = True
+    # Declared here as well as set in call(), so an instance is never half-built: an
+    # attribute that only exists after call() is an AttributeError inside the session
+    # loop, which is a daemon that dies on its first turn.
+    answered_turn = None
+    last_text = ""
+    failures = 0
+    said_unreachable = False
 
     #{{register capability}}
 
@@ -139,6 +165,8 @@ class AstralDaemon(MatchingCapability):
         self.capability_worker = CapabilityWorker(self)
         self.answered_turn = None
         self.last_text = ""
+        self.failures = 0
+        self.said_unreachable = False
         self.worker.session_tasks.create(self.watch())
 
     async def watch(self):
@@ -163,6 +191,7 @@ class AstralDaemon(MatchingCapability):
 
         result = await self.capability_worker.send_devkit_capability_action(
             function_name="respond", args=[text], timeout=DEVICE_TIMEOUT)
+        await self._note_health(result)
         spoken = spoken_from(result)
         if not spoken:
             return                              # not ours: the agent's turn, untouched
@@ -179,6 +208,29 @@ class AstralDaemon(MatchingCapability):
             return
         await self.capability_worker.send_interrupt_signal()
         await self.capability_worker.speak(spoken)
+
+    async def _note_health(self, result):
+        """Say once, out loud, if the device has stopped answering this daemon at all.
+
+        Three in a row rather than one: a single failure is a busy board, and a daemon
+        that announces every hiccup is worse than one that says nothing. Said once per
+        session, because it is news the first time and nagging after that — and said
+        again, as recovery, when the device comes back, so the room is never left
+        believing the local half is dead when it is not.
+        """
+        if not call_failed(result):
+            if self.failures >= FAILURES_BEFORE_SPEAKING and self.said_unreachable:
+                self.said_unreachable = False
+                await self.capability_worker.send_interrupt_signal()
+                await self.capability_worker.speak("The local engine is answering again.")
+            self.failures = 0
+            return
+        self.failures += 1
+        if self.failures == FAILURES_BEFORE_SPEAKING and not self.said_unreachable:
+            self.said_unreachable = True
+            await self.capability_worker.send_interrupt_signal()
+            await self.capability_worker.speak(
+                "I can't reach the local engine, so I'm answering from the cloud for now.")
 
     def _log(self, message):
         handler = getattr(self.worker, "editor_logging_handler", None)

@@ -202,6 +202,30 @@ anyway. Nothing is sent anywhere on a shrug: chatter is never offered, a bare "y
 two places named is not an answer, and "no" ends it. The cloud route ships switched off in
 `hub/data/routes.json` for the local loop, where there is nothing behind it.
 
+**Anything you put on the card, asked out loud.** `hub/library.py` is a set of shelves
+on the SD card — `reference/` for glossaries, `docs/` for language and application
+documentation, `code/` for your own projects, `data/` for datasets, `books/` for books.
+Drop files in, index once, and ask: "look up eigenvector", "what do the docs say about
+ownership", "in my project, what does resolve_route do", "what is in my library". Prose is
+cut into paragraphs, code into its functions and classes, data into records, and every
+answer names where it came from — a passage with no source is indistinguishable from a
+machine inventing one. `library.py add <path|git-url> <shelf>` links a folder (no second
+copy on the card) or shallow-clones a repository; a dictionary dump in JSONL lands as a
+glossary, which is how terminology for a whole field gets on there. The dictionary asks
+your shelves before it answers from WordNet: measured on the device, WordNet holds 20 of
+25 academic terms, and knows nothing of gradient descent, a Lagrangian, or big O notation.
+
+**No silent failures.** A turn that began with a wake word never ends in nothing. It ends
+in an answer, a question, a spoken refusal that says why — "that needs the dictionary, and
+this device doesn't have it", "the maths kernel is still starting", "two ways of working
+that out disagreed, so I won't say either" — or, for the only two silences that are
+correct (what you said was not a question, nothing usable was heard), a quiet tone that
+means "heard you, nothing here for me". `hub/tests/suite_silence.py` reads the reasons out
+of the source and fails if any of them has no voice, so a silence added tomorrow cannot be
+silent by omission. Through OpenHome the same rule holds, with their agent covering what
+we decline; the background daemon says out loud when it cannot reach the device at all,
+and says when it is back.
+
 **One kernel for the machine.** Slate takes 41 seconds to compile itself and milliseconds
 to answer after that, so `hub/slate_server.py` owns one and both callers ask it over a
 Unix socket. Before this the ability paid the start on every turn — 43 seconds, twice in a
@@ -218,9 +242,9 @@ that has not passed that gate, so it cannot be enabled by accident.
 
 ## Tests
 
-One runner, `python3 hub/tests/run.py`, and thirteen suites named for what they prove:
-answers, kernels, ranking, classes, meta, study, voice, duplex, barge, daemon, ability,
-shipped, honesty. The byte contract is the centre of
+One runner, `python3 hub/tests/run.py`, and fifteen suites named for what they prove:
+answers, kernels, ranking, classes, meta, study, library, voice, duplex, barge, daemon,
+ability, silence, shipped, honesty. 530 checks on the Mac, 522 on the device. The byte contract is the centre of
 it: 167 phrases asserted BYTE-EXACT against known-good strings, the questions Astral
 must stay silent on included, so the agent keeps the turn. Byte comparisons, not
 approximate ones: a changed constant, a changed rounding rule, or one subject stealing

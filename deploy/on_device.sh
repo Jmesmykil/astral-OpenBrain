@@ -17,6 +17,16 @@ for b in data/books/*.txt data/books/*.md; do [ -e "$b" ] && cp -n "$b" ~/astral
 for d in data/decks/*.txt; do [ -e "$d" ] && cp -n "$d" ~/astral-voice/decks/ || true; done
 $PY books.py index >/dev/null
 
+# The library: the owner's own shelves on the card. The shelves are made here so there is
+# somewhere obvious to drop things, and the starter glossary is copied in with cp -n so a
+# deploy can never overwrite what the owner has put there. Indexing is incremental: only
+# what is new or changed is read.
+for shelf in reference docs code data; do mkdir -p ~/astral-voice/library/$shelf; done
+for f in data/library/reference/*.tsv data/library/reference/*.md; do
+  [ -e "$f" ] && cp -n "$f" ~/astral-voice/library/reference/ || true
+done
+$PY library.py index >/dev/null 2>&1 || true
+
 # Refresh the ability OpenHome itself routes to. Their path — their wake word, their
 # speech-to-text, their hotword match — dispatches devkit_functions.py through the node
 # server, and that copy is a HAND-PLACED file: nothing here syncs it, so it sat at the
@@ -133,4 +143,5 @@ echo "astral-hub: $(systemctl --user is-active astral-hub.service || true)"
 echo "oracle:     $(ls ~/slate/ada/slate_exact/lib/libslate_exact_c.so 2>/dev/null || echo absent)"
 echo "wake:       $($PY -c 'import wake_openbrain as w; print("hey mycroft + open brain" if w.available() else "hey mycroft only")')"
 echo "sounds:     $(ls ~/astral-voice/sounds 2>/dev/null | wc -l | tr -d ' ') files"
+echo "library:    $($PY -c 'import library; s=library.sources(); print(f"{len(s)} sources: " + ", ".join(sorted({x[0] for x in s})) if s else "empty — drop files in ~/astral-voice/library")')"
 echo "python:     $($PY -V)"
