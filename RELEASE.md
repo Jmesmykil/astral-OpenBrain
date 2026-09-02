@@ -1,5 +1,7 @@
 # Astral
 
+Status: merged into openhome-dev/abilities `dev` on 2026-08-31 as `community/astral` (PR #361). The review and what came of it are in `REVIEW-2026-09-01.md`.
+
 A local deterministic layer for OpenHome. It answers the simple, exact-answer questions on the device with no cloud trip, and hands everything else to the agent.
 
 ## The idea

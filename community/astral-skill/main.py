@@ -13,7 +13,9 @@ fluently and sometimes wrongly. This computes them, in microseconds, offline.
 
 If nothing matches, it speaks nothing and hands the turn back so the agent takes it.
 """
-from __future__ import annotations
+# No future-annotations import here, on purpose: the platform comments that line out
+# on upload, so every annotation in this file has to be valid eagerly on the runtime's
+# Python. The engine region below declares Optional and uses it instead of PEP 604.
 from datetime import datetime
 from zoneinfo import ZoneInfo
 import re
@@ -28,6 +30,7 @@ from src.main import AgentWorker
 # Edit those and re-run `python3 hub/build_ability.py`. Hand edits here are lost.
 import math
 from fractions import Fraction
+from typing import Optional
 
 # ── mechanical.py ──────────────────────────────────────────────────────────
 # Mechanical command layer — deterministic, no-LLM, no-cloud, sub-millisecond.
@@ -123,7 +126,7 @@ _NOT_NOW = re.compile(
     r"time ?zone|best (time|month|day)|of the)\b")
 
 
-def mech_handle(utterance: str, now: datetime | None = None) -> str | None:
+def mech_handle(utterance: str, now: Optional[datetime] = None) -> Optional[str]:
     """Return a spoken answer for a mechanical command, or None to fall through."""
     now = now or datetime.now()
     t = " " + utterance.lower().strip() + " "
@@ -134,8 +137,8 @@ def mech_handle(utterance: str, now: datetime | None = None) -> str | None:
             return fn(now)
     return None
 
-# ── demo: the efficiency contrast ─────────────────────────────────────────────
 
+# ── demo: the efficiency contrast ─────────────────────────────────────────────
 
 # ── calc.py ────────────────────────────────────────────────────────────────
 # Astral calc — deterministic math, money, and unit conversion. No LLM, no cloud, µs.
@@ -414,7 +417,7 @@ def _convert(text: str, nums):
 # ── main ──────────────────────────────────────────────────────────────────────
 
 
-def calc_handle(text: str) -> str | None:
+def calc_handle(text: str) -> Optional[str]:
     t = " " + text.lower().strip() + " "
     nums = numbers(text)
 
@@ -557,7 +560,7 @@ def _gr_pairs(t: str):
     return pairs
 
 
-def study_handle(text: str) -> str | None:
+def study_handle(text: str) -> Optional[str]:
     t = " " + text.lower().strip() + " "
 
     # ── what do I need on the final ───────────────────────────────────────────
@@ -772,7 +775,7 @@ def _ch_find(text: str, t: str):
     return None, None, None
 
 
-def chem_handle(text: str) -> str | None:
+def chem_handle(text: str) -> Optional[str]:
     t = " " + text.lower().strip() + " "
     nums = numbers(text)
 
@@ -919,6 +922,7 @@ _SCI_BODY = {
     "neptune": (1.02413e26, 2.4764e7, 4.351e12),
     "pluto": (1.303e22, 1.1883e6, 5.75e12),
 }
+_SCI_M_TO_MI = 1 / 1609.344   # exact: 1 mile = 1609.344 m
 _SCI_ALIAS = {"the sun": "sun", "the moon": "moon", "the earth": "earth"}
 
 # Things light travels to, in metres. The solar-system distances are READ OFF the
@@ -975,10 +979,31 @@ def _sci_secs(seconds: float) -> str:
     return _fmt_spoken(seconds / 3.15576e7) + " years"
 
 
-def sci_handle(text: str) -> str | None:
+def sci_handle(text: str) -> Optional[str]:
     t = " " + text.lower().strip() + " "
     nums = numbers(text)
     body = _sci_body(t)
+
+    # ── mass and size (reviewer, 2026-09-01: the most common planet questions,
+    #    and the table already holds mass and equatorial radius for every body) ──
+    if body and re.search(r"\bmass of\b|\bhow massive\b|\bhow heavy is\b|\bhow much does .* weigh\b", t) \
+            and not nums and "molar" not in t and "atomic" not in t:
+        m, _, _ = _SCI_BODY[body]
+        unit = "kilograms"
+        if "pound" in t:                       # exact: 1 lb = 0.45359237 kg
+            m, unit = m / 0.45359237, "pounds"
+        exp = int(math.floor(math.log10(m)))
+        mant = m / 10 ** exp
+        return (f"The mass of {_sci_said(body)} is about {_fmt(mant)} times ten to the "
+                f"{exp} {unit}.")
+    if body and re.search(r"\bdiameter of\b|\bradius of\b|\bhow big is\b|\bhow wide is\b|\bhow large is\b", t) \
+            and "schwarzschild" not in t and "event horizon" not in t:
+        _, r, _ = _SCI_BODY[body]
+        if "radius" in t:
+            return (f"The radius of {_sci_said(body)} is {_fmt(r/1000)} kilometers, "
+                    f"{_fmt(r*_SCI_M_TO_MI)} miles.")
+        return (f"The diameter of {_sci_said(body)} is {_fmt(2*r/1000)} kilometers, "
+                f"{_fmt(2*r*_SCI_M_TO_MI)} miles.")
 
     # ── escape velocity ───────────────────────────────────────────────────────
     if "escape velocity" in t:
@@ -1162,7 +1187,7 @@ def _st_said(vals: list[float]) -> str:
     return ", ".join(_fmt(v) for v in vals)
 
 
-def stats_handle(text: str) -> str | None:
+def stats_handle(text: str) -> Optional[str]:
     t = " " + text.lower().strip() + " "
 
     # ── z score (checked before the plain mean/deviation words) ───────────────
@@ -1317,7 +1342,7 @@ def _mx_said_factors(fs: list[int]) -> str:
     return " times ".join(out)
 
 
-def mathx_handle(text: str) -> str | None:
+def mathx_handle(text: str) -> Optional[str]:
     t = " " + text.lower().strip() + " "
 
     # ── number bases ──────────────────────────────────────────────────────────
@@ -1515,7 +1540,7 @@ def normalize(text: str) -> str:
     return re.sub(r"\s+", " ", text).strip()
 
 
-def astral_answer(text: str, now: datetime | None = None) -> str | None:
+def astral_answer(text: str, now: Optional[datetime] = None) -> Optional[str]:
     if not text or not text.strip():
         return None
     text = normalize(text)
@@ -1548,6 +1573,41 @@ class AstralCapability(MatchingCapability):
         self.capability_worker = CapabilityWorker(self.worker)
         self.worker.session_tasks.create(self.run())
 
+    def _now(self) -> datetime:
+        """The current time in the user's zone, falling back to the local clock.
+
+        Every step here is a failure someone has actually hit, and none of them may be
+        allowed to cost more than the timezone itself. `ZoneInfo` accepts ONLY an exact
+        IANA key: 'GMT+5', 'UTC+05:00', 'PST', 'Pacific Standard Time', a lowercased
+        'america/new_york' and even 'Asia/Karachi ' with one trailing space all raise
+        ZoneInfoNotFoundError. `get_timezone()` can also raise outright, or hand back
+        None or whitespace — the merged alarm-timer ability strips and try/excepts it
+        for exactly that reason. And on a runtime with no system tz database and no
+        `tzdata` wheel, EVERY key raises, including 'UTC'.
+
+        Unguarded, any one of those took the whole ability down: this runs before
+        astral_answer(), so a bad timezone silenced 'molar mass of water' and '20
+        percent of 80' too — questions with no clock in them at all. The error went to
+        editor_logging_handler and the user heard nothing, which is indistinguishable
+        from the ability never having triggered.
+        """
+        tz = ""
+        try:
+            tz = (self.capability_worker.get_timezone() or "").strip()
+        except Exception as error:                                   # noqa: BLE001
+            self.worker.editor_logging_handler.info(
+                f"Astral: get_timezone() failed ({error!r}); using the local clock")
+        if not tz:
+            return datetime.now()
+        try:
+            return datetime.now(ZoneInfo(tz))
+        except Exception as error:                                   # noqa: BLE001
+            # Not an IANA key, or no tzdata in this image. Only 7 of ~40 handlers read
+            # the clock; the rest must still answer.
+            self.worker.editor_logging_handler.info(
+                f"Astral: timezone {tz!r} unusable ({error!r}); using the local clock")
+            return datetime.now()
+
     async def run(self):
         try:
             # No local normalizer: astral_answer() cleans the transcript itself, so the
@@ -1557,8 +1617,7 @@ class AstralCapability(MatchingCapability):
             msg = await self.capability_worker.wait_for_complete_transcription()
             if not msg:
                 return
-            tz = self.capability_worker.get_timezone()
-            now = datetime.now(ZoneInfo(tz)) if tz else datetime.now()
+            now = self._now()
 
             # One router, same order as the device: time and date first (in the
             # agent's timezone), then grades, chemistry, physics, statistics, number

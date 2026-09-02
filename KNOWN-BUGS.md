@@ -28,6 +28,9 @@ Straight list of what's rough, so nobody's surprised. Split by the two paths.
 - A ready-loop after a confused capture. Now cools down after every listen.
 - A self-reset when one bad capture raised an error. The listen loop now recovers and keeps going instead of crashing.
 - Wrong spoken time from the device timezone being off. Now matched to local.
+- A bad agent timezone silenced every answer in the cloud Skill, clock or not, because `ZoneInfo(tz)` ran before the router and the error went to the log. Found in review. Now falls back to the local clock and says so in the log.
+- The platform comments out `from __future__ import annotations` on upload, which made the Skill quietly require Python 3.10. Found in review. No future import anywhere now; the parity test fails on 3.9 if a PEP 604 union comes back.
+- The new size answers stole "schwarzschild radius of the sun". Caught by the golden suite before it shipped.
 
 ## Speech-to-text limits, measured on the device 2026-08-17
 

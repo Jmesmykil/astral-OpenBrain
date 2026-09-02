@@ -1,7 +1,9 @@
 {
   "unique_name": "astral",
-  "description": "Astral \u2014 instant on-device answers for the deterministic stuff: time, date, math, money, unit conversions, grades, chemistry, physics, statistics, number tools, and DevKit telemetry. No cloud round-trip, no model. Opt-in; the agent defers to it only for these, everything else flows to the agent as normal.",
+  "description": "Astral — instant on-device answers for the deterministic stuff: time, date, math, money, unit conversions, grades, chemistry, physics, statistics, number tools, and DevKit telemetry. No cloud round-trip, no model. Opt-in; the agent defers to it only for these, everything else flows to the agent as normal.",
   "matching_hotwords": [
+    "openbrain",
+    "open brain",
     "what time is it",
     "what's the time",
     "whats the time",
@@ -139,6 +141,14 @@
     "octal",
     "in decimal",
     "decimal places",
-    "round"
+    "round",
+    "mass of",
+    "how heavy",
+    "how massive",
+    "diameter of",
+    "radius of",
+    "how big is",
+    "how wide is",
+    "how large is"
   ]
 }

@@ -1,5 +1,7 @@
 # Astral for OpenHome
 
+Status: accepted. PR #361 was approved and merged into `dev` on 2026-08-31. Follow-ups from the review are staged as a second PR (`deploy/README.md`).
+
 ## What it is
 
 Astral answers the simple questions on the device, with no cloud trip.

@@ -41,3 +41,19 @@ Two consequences, both verified on 2026-08-17:
    device's copy correct; it does not by itself teach the agent to route a new phrase.
    That registration happens on app.openhome.com against the agent, and it needs an
    account login.
+
+## The follow-up PR
+
+`#361` merged into `dev` on 2026-08-31. The reviewer asked for two more things, planet
+mass and size, and the engine source and tests shipped next to `main.py`. Both are in
+this repo. To stage them as a second PR against `dev`:
+
+```bash
+gh repo clone Jmesmykil/abilities ~/abilities        # once
+deploy/build_followup_pr.sh ~/abilities
+```
+
+The script checks out upstream `dev`, copies `main.py` and the engine subset of `hub/`
+into `community/astral/`, regenerates and tests inside that layout, and stages. The
+commit, push and PR are the three commands it prints at the end. The PR text is
+`deploy/followup-pr-body.md`.

@@ -50,7 +50,9 @@ community/astral-skill/   cloud-side Skill (the uploadable ability, engine inlin
 community/astral/         Local DevKit ability (device compute + telemetry + MQTT)
   main.py                 the capability
   devkit_functions.py     one self-contained device file (engine inlined)
+hub/                      engine source, generator and tests (ships upstream as community/astral/hub/)
 RELEASE.md                the full release write-up
+REVIEW-2026-09-01.md      the upstream review, quoted, and what was done about it
 SUBMISSION.md             the short pitch to OpenHome
 KNOWN-BUGS.md             honest limitations
 assets/                   cover image
@@ -67,7 +69,7 @@ answering the same question differently.
 Pattern and table code, split by subject: `mechanical.py` (time and date), `calc.py`
 (arithmetic, money, ten unit dimensions), `study.py` (grades and GPA), `chem.py`
 (the periodic table, molar mass by formula parse, moles, molarity, pH, ideal gas),
-`sci.py` (mechanics, gravity, relativity, light), `stats.py` (descriptive statistics
+`sci.py` (mechanics, planet mass and size, gravity, relativity, light), `stats.py` (descriptive statistics
 and counting), `mathx.py` (bases, logs, trig, primes, quadratics, fractions).
 `engine.py` is the one router they all sit behind, so a phrase resolves the same way
 on the device and in the cloud.
@@ -84,8 +86,8 @@ deviation says whether it is the sample or the population one.
 
 ## Tests
 
-115 answers are asserted BYTE-EXACT against known-good strings, plus a set of
-questions Astral must stay silent on so the agent keeps the turn. Byte comparisons, not
+155 phrases are asserted BYTE-EXACT against known-good strings, the questions Astral
+must stay silent on included, so the agent keeps the turn. Byte comparisons, not
 approximate ones: a changed constant, a changed rounding rule, or one subject stealing
 another's phrasing all show up as a diff rather than as a plausible wrong answer.
 
