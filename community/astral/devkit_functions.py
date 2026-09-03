@@ -247,7 +247,9 @@ def route_answer(route="", *words):
     if not route or not q:
         _emit_error("no_route", "A route and a question are both required.")
         return
-    if route.startswith("cloud"):
+    if route == "cloud:openhome" or route == "cloud":
+        # The agent is already on this turn: choosing it means this ability stays quiet
+        # and lets it answer. Nothing is sent anywhere by this file.
         _emit_none()
         return
     out = hub("route", route, q, timeout=25)
