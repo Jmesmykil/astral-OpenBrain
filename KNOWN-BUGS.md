@@ -446,3 +446,30 @@ Peak-matched chimes sounded quiet to the owner — a short transient at the same
 sustained voice is heard as quieter — so chimes and the tick carry a fixed 1.5× lift that
 speech never gets. Shipped at master 100, chimes 100, tick 100, speech 100. The number
 that is still his to set by ear is the master.
+
+**Later the same day, after the owner's own tests.**
+
+- **The demo, out loud, triggered by voice.** "Open brain. Run the demo." was synthesised
+  and played into the room through the device's own speaker; the loop woke on it,
+  transcribed "run the demo", and ran the twelve-line spoken demo. Evidence: the device's
+  final speech file, transcribed by its own whisper — *"that was twelve questions in three
+  minutes and fifty seconds, all of them answered here on this card with nothing sent
+  anywhere."* Three minutes fifty because the device suite was running alongside it.
+- **The master volume has two owners.** OpenHome's node server sets the speaker to its own
+  default every time it starts, and this loop was setting a remembered number at boot, so
+  the volume changed by itself eight times in one day. Only a person moves it now — "louder",
+  "quieter", "set the volume to sixty", or the app — and the loop never touches it at boot.
+  Chime, tick and speech are fixed proportions of it (chimes and the tick with a 1.5× lift,
+  speech at unity). Shipped at master 65, chimes 70, tick 70, speech 100.
+- **OpenHome's services were stopped for nine hours.** The node server and the companion-app
+  client were stopped at 03:37 while chasing a greeting bug, and the app could not see the
+  device until they were started again at 12:28. Both stacks now run together and both read
+  the microphone; "open home" wakes both, "open brain" wakes only this loop.
+- **"We last spoke four hours ago."** Filing was made strict — a real question, really
+  answered — and the greeting read the last filed subject as the last conversation. Any
+  answered turn now moves the timestamp without filing anything.
+- **Two stale suite files shadowed the corrected checks on the device.** Pushes had put
+  `suite_kernels.py` and `suite_voice.py` in the hub root, and the runner imported them ahead
+  of `tests/`. The device count reported earlier today (3,583 held, 2 failed) ran those two
+  stale suites; the runner now puts `tests/` first and refuses a shadowed suite, and the full
+  device run is being repeated. Mac: 3,571 checks, 0 failed.
