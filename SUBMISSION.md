@@ -12,11 +12,19 @@ v2 is the rest of that idea. Same hardware, same platform, no network.
 
 ## What it does now
 
-**It answers 22 classes of question on the device.** The time, arithmetic, unit
+**It answers 29 classes of question on the device.** The time, arithmetic, unit
 conversions with both spellings, exact fractions checked against a proven kernel,
 chemistry, physics, statistics, the moon, definitions with every sense, 682 written-down
-facts across 20 fields, and 314,128 indexed passages from the books, encyclopedias and
+facts across 20 fields, and 308,946 indexed passages from the books, encyclopedias and
 documentation on its own SD card — searched in single-digit milliseconds.
+
+**It was tested by asking it everything.** Three agents ran overnight: 2,534 assistant
+phrasings across 115 capability areas, 13,408 library questions generated from the index
+itself, and 932 conversation sequences of 3,088 turns. They found 568 silent failures, a
+watermark being read aloud on 21,439 passages, two encyclopedia volumes silently
+discarded, five confidently wrong answers, and a budget that had switched the whole
+library off by a margin of 258 microseconds. All of that is fixed, each with a check that
+holds it. What remains is written down in KNOWN-BUGS.md, with numbers.
 
 **It knows what it cannot do, and says so.** Every refusal is a sentence with a reason:
 *"That needed the reader, and this machine doesn't have it."* There is a test suite whose
@@ -42,11 +50,12 @@ when you tell it you are tired.
 |---|---|
 | Wake word | vosk phrase recogniser, 2 phrases + everything-else; the room is never transcribed |
 | Table answers | 40–1,400 µs |
-| 314,128 passages | indexed in ~3 minutes; looked up in 1–58 ms |
+| 308,946 passages, 34 sources | indexed in ~3 minutes; looked up in 1–58 ms |
 | Mechanical comprehension (MECH) | 1.5 s, no model, no network |
 | Whole demo, 53 questions | 7.6 s end to end, median 2 ms |
 | Silence between the thinking tone and the answer | 0.00 s |
-| Checks passing | 3,250 on a Mac, ~3,290 on the DevKit |
+| Checks passing | 3,462 on a Mac, 3,467 on the DevKit |
+| Mass test, 842 phrasings | 2 silences, both correctly context-dependent (was 568) |
 
 ## How it ships to you
 
