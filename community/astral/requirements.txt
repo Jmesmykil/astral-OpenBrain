@@ -1,1 +1,10 @@
-# Astral uses the Python standard library only. No external packages.
+# The Astral engine. Compiled, proprietary, and installed by the platform on the
+# DevKit — "Packages listed in requirements.txt are installed for devkit_functions.py
+# on the OpenHome DevKit". devkit_functions.py in this directory is a thin shim over it
+# and is MIT, like the rest of this repository.
+#
+# Built for the interpreter and architecture it runs on (the DevKit is CPython 3.13 on
+# aarch64), which is a property of compiled code rather than a defect. Point this at the
+# release you want; a device that has the Astral local hub installed does not need it at
+# all, and one with neither says so out loud rather than going quiet.
+astral-kernel>=2.1.0
