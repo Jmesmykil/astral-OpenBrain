@@ -324,7 +324,15 @@ capabilities are answered before the reader sees them — but the corpus itself 
 separate product's data and still holds material like that. Anything that reaches tier two
 can still produce a sentence of it.
 
-**3. Two names still get a gloss.** "Who is Ada Lovelace" and "who is Avicenna" answer
+**3. FIXED 2026-09-03.** Two names answered with a gloss — "who is Avicenna" and "who is
+Ada Lovelace" both returned "…is a name for a particular person, place, or thing" while
+Britannica had articles on each. The cause was an optional article written `(?:a|an|the)?`
+in the question pattern, which matched the first LETTER of the name: the device was
+looking up "vicenna" and "da Lovelace". Both now answer from the encyclopedia. Written up
+because it is the second bug of exactly this shape tonight — the first was
+`.strip(" ,.of")` eating the o from "osmosis".
+
+**3b. Was: two names still get a gloss.** "Who is Ada Lovelace" and "who is Avicenna" answer
 "…is a name for a particular person, place, or thing", because the encyclopedia passage
 that mentions them does not contain the surname as a separate word for the containment
 check to find. The check exists to stop a Python manual being offered as an answer about
