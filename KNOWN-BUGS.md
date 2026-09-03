@@ -233,8 +233,16 @@ and the answer is refused out loud — *"The model added something the passage d
 Stephen — so I won't read you its version."* The mechanical summary, which is the
 passage's own sentences, has already been spoken and is still true.
 
-**It is only offered for what a model is for.** `costs.MODEL_CLASSES` holds summarising,
-reading and conversation. It is never offered for arithmetic, algebra or anything with one
+**It is only offered for the ONE thing it does well.** `costs.MODEL_CLASSES` holds
+summarising and nothing else, and that was decided by measurement rather than taste.
+Rewriting a mechanical summary works: given three sentences about Turing machines it
+produced two clearer ones that said the same thing. Answering an open question does not,
+even with perfect retrieval — handed a passage beginning "Smart pointers are pointers that
+own the object they point to and automatically delete it", the 1B replied that the text did
+not mention smart pointers; asked about the laws of physics it looped, "the study of the
+laws of society will be the study of the laws of society". Several prompt shapes were
+tried, on the device, and the shape was not the problem. A rung that answers badly is
+worse than a rung that is not there, because somebody has to spend a minute to find out. It is never offered for arithmetic, algebra or anything with one
 right answer: those have exact kernels, and a model that is merely fluent about them is
 worse than silence. Before that rule existed, the ranking offered a 1B model as a way to
 integrate x squared.
@@ -242,4 +250,16 @@ integrate x squared.
 **What is not done:** nothing keeps the model resident, so every use pays the load. A
 resident server — the shape `slate_server.py` already uses — would remove most of the
 wait, at the cost of about a gigabyte held permanently.
+
+## The reader answers some questions with the question
+
+MECH's reader sometimes hands the question back rearranged: "what are the laws of
+physics" came back as *"What about the physics and law?"*, and "turn on the kitchen light"
+as *"What about the kitchen and light?"*. It is not an answer, and speaking it is worse
+than silence because it sounds like the device was not listening.
+
+The router now refuses an "answer" that both asks a question and says nothing the question
+did not already say, and hands the turn up the ladder instead. What that exposes is the
+reader's real limit: it answers definitional questions well ("what is a lighthouse") and
+open ones poorly. That is a MECH question, not a routing one, and it is still open.
 
