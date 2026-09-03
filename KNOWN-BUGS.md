@@ -308,6 +308,21 @@ figure to quote rather than the 38% below, which mixes false wakes with a person
 the wake word and then pausing — the log carries no timestamps, so the two cannot be
 separated after the fact.
 
+**1a. The one thing blocking a better wake word is five minutes of your voice.** The
+research report and the failed attempt agree: thirty to a hundred takes on the microphone
+that will actually listen are worth more than ten thousand synthetic clips, and the model
+trained without them scored 0.999 against its own threshold and would have woken at
+nothing. `hub/wake_takes.py` collects them — forty takes across seven conditions (close,
+across the room, quiet, fast, slow, turned away, with noise), about five minutes, silent
+takes measured and dropped as they happen:
+
+    python3 wake_takes.py                    # on the device
+    python3 wake_takes.py --review           # what has been recorded so far
+    python3 wake_takes.py --phrase "hey astral"
+
+Until those exist, training is the same experiment that already failed once, and the vosk
+phrase recogniser at 3.0 false wakes an hour stays.
+
 **1b. Thirty-eight percent of wakes produce no words.** Of 480 wake events in one evening's
 log, 182 were followed by a burst with nothing usable in it. Some of those are a person
 saying the wake word and then pausing, which is correct behaviour; the rest are false
