@@ -181,3 +181,33 @@ Two smaller things that follow from the same service:
   openhome` for exactly this reason, and a hub file written as root would stop being
   writable by the loop that owns it — one root-owned `smalltalk.sqlite` was created this
   way during measurement and had to be given back.
+
+## The kernel: what is settled, and what is not
+
+`hub/build_kernel.py` compiles the engine into `astral-kernel`, a wheel whose only
+contents are a 6 MB shared object and a nine-line `__init__.py`. Verified on the device:
+181 of 181 byte-contract phrases answer identically through the compiled kernel, and the
+wheel contains no `.pyx` and no source.
+
+Three things about it are not settled, and all three are visible rather than silent:
+
+- **Distribution.** `requirements.txt` names `astral-kernel>=2.1.0`; nothing publishes it
+  yet. A DevKit with the local hub does not need it; a DevKit with neither hub nor wheel
+  says "the Astral engine is not installed on this device" out loud. Publishing it — PyPI,
+  a release URL, a private index — is the author's decision and is not made here.
+- **One wheel per interpreter and architecture.** The DevKit is CPython 3.13 on aarch64.
+  A different Python or a different machine needs its own build. This is a property of
+  compiled code; the loader reports it rather than failing quietly.
+- **Two interpreters on one device.** The ability runs under system python as root; the
+  loop and the tests run in the venv. Installing into one of them left the other with a
+  kernel that had never heard of an entry point added that afternoon, and nothing
+  anywhere said so. The deploy now installs into both, rebuilds a wheel older than its
+  sources, and reinstalls a kernel older than its wheel — and the suite fails if the
+  version it imports is not the version last built on that machine.
+
+**What is NOT claimed.** A compiled extension is machine code, not source: there is no
+Python in the wheel to read. It is not unbreakable — anything that runs can be reverse
+engineered by somebody determined enough — and it is not obfuscation theatre. It is the
+same protection every compiled commercial library has, arranged the way this platform's
+own documentation says dependencies arrive.
+

@@ -154,7 +154,8 @@ class AstralDaemon(MatchingCapability):
     failures = 0
     said_unreachable = False
 
-    #{{register capability}}
+    #{{register capability}}  # noqa: E265 — the platform replaces this whole
+    # line on upload and requires it verbatim, with no space after the hash
 
     def call(self, worker: AgentWorker, background_daemon_mode: bool):
         # Order matters: CapabilityWorker reads both attributes in its constructor, so
