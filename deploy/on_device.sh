@@ -25,6 +25,10 @@ for shelf in reference docs code data; do mkdir -p ~/astral-voice/library/$shelf
 for f in data/library/reference/*.tsv data/library/reference/*.md; do
   [ -e "$f" ] && cp -n "$f" ~/astral-voice/library/reference/ || true
 done
+# The documentation for the Python that is actually on this device, written from its own
+# docstrings. No network, about a second, and it makes "in Python, how do I read a file"
+# answerable on a device that has never been online. Only when it is not already there.
+[ -d ~/astral-voice/library/docs/python ] || $PY -c 'import library; print(library.generate_python_docs())' >/dev/null 2>&1 || true
 $PY library.py index >/dev/null 2>&1 || true
 
 # Refresh the ability OpenHome itself routes to. Their path — their wake word, their
@@ -33,6 +37,44 @@ $PY library.py index >/dev/null 2>&1 || true
 # 17 August build while the engine moved on. It was still answering "solve 2x + 3 = 11
 # for x" with "3 times 11 is 33" three weeks after that was fixed everywhere else.
 # config.json is the platform's and is left alone.
+# The kernel: built here, installed into the interpreter the PLATFORM uses. That is
+# system python3 running as root, not this venv — the node server runs the ability as
+# `sudo python3 devkit_functions.py`, and a kernel installed anywhere else is a kernel
+# the ability cannot see. Measured: with it in the venv only, `health` reported "no
+# kernel package" while the wheel sat two directories away.
+if [ -f ~/astral-voice/hub-v2/build_kernel.py ] && [ -n "$($PY -c 'import importlib.util as u; print(u.find_spec("Cython") is not None or "")' 2>/dev/null)" ]; then
+  WHEEL=$(ls -t ~/astral-voice/hub-v2/kernel/dist/astral_kernel-*.whl 2>/dev/null | head -1)
+  # Rebuild when there is no wheel, or when any engine source is newer than the one
+  # there. A wheel older than the code it was built from is the same silent lie as an
+  # installed kernel older than its wheel: everything reports fine and the change is
+  # simply absent.
+  NEWEST=$(ls -t ~/astral-voice/hub-v2/*.py 2>/dev/null | head -1)
+  if [ -z "$WHEEL" ] || [ "$NEWEST" -nt "$WHEEL" ]; then
+    echo "kernel:     compiling (a few minutes)"
+    (cd ~/astral-voice/hub-v2 && $PY build_kernel.py >/dev/null 2>&1) || true
+    WHEEL=$(ls -t ~/astral-voice/hub-v2/kernel/dist/astral_kernel-*.whl 2>/dev/null | head -1)
+  fi
+  if [ -n "$WHEEL" ]; then
+    # Version AND freshness. During development the engine changes far more often than
+    # the version does, and comparing versions alone once left a kernel installed that
+    # was older than its own source — it answered questions and had never heard of the
+    # entry point added that afternoon. The wheel's own timestamp settles it.
+    # BOTH interpreters. The ability runs under system python as root; the loop and the
+    # tests run in the venv. Installing into one left the other holding a kernel that
+    # had never heard of an entry point added that afternoon — and nothing said so,
+    # because each interpreter was perfectly happy with the copy it had.
+    WANT=$(basename "$WHEEL" | cut -d- -f2)
+    for INTERP in "sudo python3" "$PY"; do
+      HAVE=$($INTERP -c 'import astral_kernel; print(astral_kernel.__version__)' 2>/dev/null || echo none)
+      INSTALLED=$($INTERP -c 'import astral_kernel._engine as e; print(e.__file__)' 2>/dev/null || echo /nonexistent)
+      if [ "$HAVE" != "$WANT" ] || [ "$WHEEL" -nt "$INSTALLED" ]; then
+        $INTERP -m pip install --break-system-packages --quiet --root-user-action=ignore "$WHEEL" >/dev/null 2>&1 \
+          || $INTERP -m pip install --quiet "$WHEEL" >/dev/null 2>&1 || true
+      fi
+    done
+  fi
+fi
+
 CAPS=~/openhome_devkit/local_capabilities
 SHIPPED=~/astral-voice/hub-v2/shipped/devkit_functions.py
 if [ -d "$CAPS/astral" ]; then
@@ -143,5 +185,6 @@ echo "astral-hub: $(systemctl --user is-active astral-hub.service || true)"
 echo "oracle:     $(ls ~/slate/ada/slate_exact/lib/libslate_exact_c.so 2>/dev/null || echo absent)"
 echo "wake:       $($PY -c 'import wake_phrase as w; print(", ".join(w.WAKE_PHRASES) + " (phrase recogniser)" if w.available() else "hey mycroft (no phrase model on this machine)")')"
 echo "sounds:     $(ls ~/astral-voice/sounds 2>/dev/null | wc -l | tr -d ' ') files"
+echo "kernel:     $(sudo python3 -c 'import astral_kernel; print("astral-kernel " + astral_kernel.__version__ + " (compiled, system python)")' 2>/dev/null || echo 'not installed — the ability will use the hub, or say it has no engine')"
 echo "library:    $($PY -c 'import library; s=library.sources(); print(f"{len(s)} sources: " + ", ".join(sorted({x[0] for x in s})) if s else "empty — drop files in ~/astral-voice/library")')"
 echo "python:     $($PY -V)"

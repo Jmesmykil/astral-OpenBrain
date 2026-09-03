@@ -16,7 +16,8 @@ class AstralCapability(MatchingCapability):
     worker: AgentWorker = None
     capability_worker: CapabilityWorker = None
 
-    #{{register capability}}
+    #{{register capability}}  # noqa: E265 — the platform replaces this whole
+    # line on upload and requires it verbatim, with no space after the hash
 
     async def answer(self):
         try:
