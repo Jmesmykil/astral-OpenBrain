@@ -339,10 +339,26 @@ check to find. The check exists to stop a Python manual being offered as an answ
 Ada Lovelace, which it did. A better rule would score the passage rather than require a
 word.
 
-**4. Britannica has no page numbers.** The 29 volumes arrived as gzipped scanner text with
-no page breaks, so 224,021 passages carry page zero and "what is on page 412 of Britannica"
-cannot be answered. It now says so plainly. Fixing it properly means re-fetching the
-volumes as PDFs — a download, not a code change.
+**4. Britannica has no page numbers, and cannot get them from this download.** INVESTIGATED
+2026-09-03, so that nobody repeats it. Every text format in the archive was checked:
+
+  `_hocr_searchtext.txt.gz`   the text on the card. 8.1 MB per volume, ZERO form feeds.
+  `_djvu.txt`                 8 volumes have it. 8-9 MB each, ZERO form feeds.
+  `_hocr.html`                11 volumes have it. `file` reports "data" — corrupt.
+  `_hocr_pageindex.json.gz`   969 spans per volume, and they LOOK like the answer: four
+                              numbers per page, the last two being character offsets. They
+                              are offsets into the hOCR HTML, not into the search text —
+                              the sixth page already ends at character 213,761 of an 8.1 MB
+                              file, and rebuilding against the search text produced fifty
+                              enormous "pages" per volume instead of 969. Attempted and
+                              discarded.
+  `_page_numbers.json`        the printed number for each of the 969 leaves, and correct —
+                              but useless without a way to split the text into leaves.
+
+So the passages genuinely have no page to belong to, and the device says so rather than
+guessing. Fixing it means fetching the volumes in a format that carries page breaks — PDF
+or DjVu proper — which is a download, not a code change. The two books that ARE PDFs have
+real page numbers and answer page questions correctly today.
 
 **5. Britannica volume 29 is unreadable.** Its gzip is corrupt at the source, not
 truncated, so nothing can be recovered from this copy. It is reported by name as unread
