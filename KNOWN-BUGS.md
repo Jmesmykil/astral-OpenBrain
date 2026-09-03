@@ -339,7 +339,7 @@ capabilities are answered before the reader sees them — but the corpus itself 
 separate product's data and still holds material like that. Anything that reaches tier two
 can still produce a sentence of it.
 
-**3. FIXED 2026-09-03.** Two names answered with a gloss — "who is Avicenna" and "who is
+**3. PARTLY FIXED 2026-09-03 — Avicenna yes, Ada Lovelace no.** Two names answered with a gloss — "who is Avicenna" and "who is
 Ada Lovelace" both returned "…is a name for a particular person, place, or thing" while
 Britannica had articles on each. The cause was an optional article written `(?:a|an|the)?`
 in the question pattern, which matched the first LETTER of the name: the device was
@@ -427,3 +427,22 @@ quiet. The real fix is a trained wake model from his own takes (`wake_takes.py`)
 
 **Not audited.** The auditor checking the 682 written facts for accuracy was blocked by
 a content filter and never ran. The facts have not been independently checked.
+
+**Loudness, measured 2026-09-03 at the HAT's own microphone.** There were three gain paths:
+chimes through mpv with a 170% boost, speech through aplay with none, the tick at 62, all on
+a sink that swung between 40% and 100% in one day. Now the sink is the master (what
+"louder", "quieter" and "set the volume to sixty" move; remembered in settings and applied
+at boot) and chime, tick and speech are relatives on one scale through one player. Peaks at
+the microphone, relatives at 100, room floor 1,469:
+
+| master | chime peak | speech peak |
+|---|---|---|
+| 50% | 5,715 | 6,451 |
+| 65% | 12,471 | 14,207 |
+| 80% | 14,089 | 19,404 |
+| 100% | 14,905 | 26,119 |
+
+Peak-matched chimes sounded quiet to the owner — a short transient at the same peak as a
+sustained voice is heard as quieter — so chimes and the tick carry a fixed 1.5× lift that
+speech never gets. Shipped at master 100, chimes 100, tick 100, speech 100. The number
+that is still his to set by ear is the master.
