@@ -45,6 +45,8 @@ rsync -rlt --delete --chmod=ugo=rwX -e "${SSHC[*]}" \
   `# and copying this machine's numbers over the device's would make the fits table a fiction.` \
   --include='data/sounds/*.wav' --include='data/books/' --include='data/books/*.txt' --include='data/books/*.md' \
   --include='data/decks/' --include='data/decks/*.txt' \
+  `# one file per field, and any the owner adds beside them` \
+  --include='data/facts/' --include='data/facts/*.json' \
   `# the starter shelf: what ships is the example, what the card holds is the owner's` \
   --include='data/library/' --include='data/library/reference/' \
   --include='data/library/reference/*.tsv' --include='data/library/reference/*.md' \
@@ -60,6 +62,14 @@ rsync -lt --chmod=ugo=rwX -e "${SSHC[*]}" "$HERE/community/astral/devkit_functio
 # Everything device-side lives in on_device.sh, which was synced with the hub above.
 "${SSHC[@]}" "$T" 'bash ~/astral-voice/hub-v2/on_device.sh'
 
+# A deploy onto a RUNNING loop restarts it, whether or not --start was given. Without this,
+# every fix made in a day was copied to the card and none of it ran: the service that
+# started at 07:59 was still executing the 07:59 code at 10:30, twenty modules newer on
+# disk, while the suite reported green and the owner kept catching bugs already "fixed".
+if "${SSHC[@]}" "$T" 'systemctl --user is-active --quiet astral-hub.service'; then
+  echo "astral-hub is running: restarting it so the deployed code is the running code"
+  START=1
+fi
 if (( START )); then
   "${SSHC[@]}" "$T" 'systemctl --user stop openhome-dashboard.service 2>/dev/null || true; systemctl --user restart astral-hub.service; sleep 3; systemctl --user is-active astral-hub.service; tail -5 ~/astral-voice/astral-hub.log'
 else

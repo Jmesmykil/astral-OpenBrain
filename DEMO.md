@@ -80,8 +80,8 @@ chmod 600 ~/astral-voice/state/keys.json
 python3 demo.py --lanes                          # it now says: cloud: Claude — yes
 ```
 
-Any of eight providers works the same way — Claude, ChatGPT, Gemini, Groq, Mistral,
-DeepSeek, Grok, OpenRouter — and each is offered by its own name. A provider switched on
+Any of the six providers in routes.json works the same way — Claude, ChatGPT, Gemini,
+Groq, Mistral, OpenRouter — plus OpenHome's own agent, and each is offered by its own name. A provider switched on
 with no key is deliberately *not* offered: a route that cannot answer is worse than no
 route.
 
@@ -95,8 +95,8 @@ printf '{"anthropic":"sk-..."}' > ~/astral-voice/state/keys.json && chmod 600 ~/
 python3 demo.py --lanes                          # it now says: cloud: Claude — yes
 ```
 
-Any of eight providers works the same way — Claude, ChatGPT, Gemini, Groq, Mistral,
-DeepSeek, Grok, OpenRouter — and each is offered by its own name. A provider that is
+Any of the six providers in routes.json works the same way — Claude, ChatGPT, Gemini,
+Groq, Mistral, OpenRouter — plus OpenHome's own agent, and each is offered by its own name. A provider that is
 switched on with no key is deliberately *not* offered: a route that cannot answer is
 worse than no route.
 
