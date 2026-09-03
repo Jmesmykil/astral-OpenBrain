@@ -215,6 +215,25 @@ glossary, which is how terminology for a whole field gets on there. The dictiona
 your shelves before it answers from WordNet: measured on the device, WordNet holds 20 of
 25 academic terms, and knows nothing of gradient descent, a Lagrangian, or big O notation.
 
+**It was stress-tested with a fourteen-volume encyclopedia.** The 1911 Britannica is 41 GB
+of scanned page images and 96 MB of searchable text, and the text is the part worth having,
+so gzipped archives are read where they lie — nothing is unpacked onto the card. Measured
+on the DevKit:
+
+| | |
+|---|---|
+| files read | 92 (Britannica, his books, the Python docs, the glossaries) |
+| passages | **231,170** |
+| full rebuild from nothing | **2.3 minutes** |
+| index on the card | 472 MB |
+| peak memory while building | 169 MB |
+| answering a question | **1–58 ms** |
+
+"What does the encyclopedia say about the steam engine" comes back in 17 ms with Watt's
+1769 patent, in his own words. A book's own back-of-book index is read too, so "tell me
+about smart pointers" answers *"Modern C++ indexes smart pointers on pages 248 to 251"*
+before it reads anything out.
+
 **No silent failures.** A turn that began with a wake word never ends in nothing. It ends
 in an answer, a question, a spoken refusal that says why — "that needs the dictionary, and
 this device doesn't have it", "the maths kernel is still starting", "two ways of working
