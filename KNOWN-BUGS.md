@@ -301,7 +301,14 @@ matching a shorter branch first.
 Measured, reproducible, and not fixed. Each one is here because it is better written down
 than remembered.
 
-**1. Thirty-eight percent of wakes produce no words.** Of 480 wake events in one evening's
+**1. The wake word wakes about three times an hour in a quiet room.** MEASURED, 2026-09-03
+06:00 to 06:20 on the DevKit in the owner's room with nobody speaking: 20 minutes, one
+wake, 3.0 per hour. That is the number any trained model has to beat, and it is the honest
+figure to quote rather than the 38% below, which mixes false wakes with a person saying
+the wake word and then pausing — the log carries no timestamps, so the two cannot be
+separated after the fact.
+
+**1b. Thirty-eight percent of wakes produce no words.** Of 480 wake events in one evening's
 log, 182 were followed by a burst with nothing usable in it. Some of those are a person
 saying the wake word and then pausing, which is correct behaviour; the rest are false
 wakes. The log carries no timestamps, so the two cannot be separated after the fact, and a
@@ -334,5 +341,15 @@ truncated, so nothing can be recovered from this copy. It is reported by name as
 rather than silently dropped. Volume 3 was truncated and 1,236,485 words of it were
 recovered.
 
-**6. The compiled kernel disagrees with its source on three phrases.** See the section
-above. Ability path only.
+**6. FIXED 2026-09-03.** The compiled kernel disagreed with its source on three phrases.
+Cause: every module is spliced into ONE namespace to build the kernel, and `hooks`'
+`_TENS`/`_ONES` — added the same night to hear "twenty five minutes" — silently replaced
+`calc`'s far larger number tables. The kernel read "ten pounds" as one pound and could not
+parse "fifteen plus twenty seven", while `calc.handle` answered both correctly. Renamed to
+`_HOOK_TENS`/`_HOOK_ONES`, and there is now a check that fails when any two spliced
+modules define the same top-level name. The check was proved red against two throwaway
+modules before being trusted.
+
+One operational lesson worth keeping: DEPLOY BEFORE YOU REBUILD. The kernel was rebuilt
+from the device's older copy of the sources, and the fix appeared not to work for a whole
+round of investigation.
