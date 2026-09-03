@@ -1,93 +1,128 @@
-# Demonstrating it
+# The demo
 
-Everything below has been spoken at the device and answered by it. Nothing here is
-aspirational, and nothing needs the network.
+Two ways to run it. Both use the same script, and the script is a program — every line in
+it goes through the real router on the real card, and the run fails loudly if any line
+answers with nothing. Nothing here is a promise that hasn't already happened.
 
-## Before you start (two minutes)
+```
+python3 demo.py                 run it silently, print what every line answers, with timings
+python3 demo.py --speak         say it out loud on the device: both sides, real chimes
+python3 demo.py --lanes         the ladder, and what is ready on each rung
+python3 demo.py --section books just one part
+python3 demo.py --json out.json the whole transcript
+```
+
+**Run `python3 demo.py` before the meeting.** If it prints `53 lines, 53 as scripted`, the
+demo will work. If it doesn't, it names the line that broke and you have not been
+surprised in front of anybody.
+
+---
+
+## The five minutes, if you only have five
+
+Say the wake word — **"open brain"** — before each one. After it answers, the floor stays
+open for a few seconds, so follow-ups need no wake word.
+
+**1. It knows what it is** (10 seconds)
+
+> *what can you do*
+> — "22 things, all on this device with nothing sent anywhere: your books, 682 facts,
+> arithmetic and timers. Try 'what do the books say about entropy'. Say 'list everything'
+> if you want all of them."
+
+**2. The instant class — no model, no network** (20 seconds)
+
+> *what is twenty percent of eighty* — "20 percent of 80 is 16." (260 µs)
+> *what is one third plus one sixth* — "One third plus one sixth is one half." (exact, from
+> a proven kernel — not floating point)
+> *how many kilometres in twelve miles* — "12 miles is 19.31 kilometres."
+
+Point at the timings. These never touch a model.
+
+**3. The card** (60 seconds) — this is the one that lands.
+
+> *how many books do you have*
+> — "3 books on the card: … There's also 3 in the reference shelf, across 31 volumes —
+> 314,128 passages in all."
+>
+> *what do the books say about entropy* — a passage, with the book it came from.
+> *tell me more about that* — it follows the subject.
+
+Then pull the network cable out and do it again.
+
+**4. It is worth talking to** (60 seconds)
+
+> *tell me something interesting* — one of 682, and it never repeats.
+> *another one* · *tell me a physics fact* · *tell me more about that*
+> *flip a coin* · *roll two dice* · *tell me a riddle* → *I give up*
+> *open the pod bay doors* — "I'm afraid I can't do that. Mostly because there aren't any,
+> and I don't have hands."
+
+**5. The ladder, and consent** (60 seconds) — the argument of the whole product.
+
+> Ask something it cannot answer here. It says so and offers, by name:
+> — "I can't do that here. I could ask the model on this device, or the Mac. Which one?"
+>
+> Say **no**. Nothing happens, and it says so.
+> Say **the Mac**. It goes over the LAN and comes back with the answer.
+
+`python3 demo.py --lanes` prints the same ladder as a table, including what is *not*
+ready — the phone rung is switched off and is never offered.
+
+**To light the cloud rung before the meeting** (two edits on the device, no code):
 
 ```bash
-deploy/install_v2.sh openhome@192.168.1.23 --start   # stops the kiosk: one mic, one owner
+# 1. switch a provider on
+nano ~/astral-voice/hub-v2/data/routes.json      # "anthropic": {"enabled": true, ...}
+# 2. give it a key, readable only by you
+printf '{"anthropic":"sk-..."}' > ~/astral-voice/state/keys.json
+chmod 600 ~/astral-voice/state/keys.json
+python3 demo.py --lanes                          # it now says: cloud: Claude — yes
 ```
 
-Then check the line it prints:
+Any of eight providers works the same way — Claude, ChatGPT, Gemini, Groq, Mistral,
+DeepSeek, Grok, OpenRouter — and each is offered by its own name. A provider switched on
+with no key is deliberately *not* offered: a route that cannot answer is worse than no
+route.
 
+**To light the cloud rung before the meeting** (two edits on the device, no code):
+
+```bash
+# 1. switch a provider on
+nano ~/astral-voice/hub-v2/data/routes.json      # "anthropic": {"enabled": true, ...}
+# 2. give it a key, readable only by you
+printf '{"anthropic":"sk-..."}' > ~/astral-voice/state/keys.json && chmod 600 ~/astral-voice/state/keys.json
+python3 demo.py --lanes                          # it now says: cloud: Claude — yes
 ```
-wake:       open brain, open home (phrase recogniser)
-kernel:     astral-kernel 2.2.0 (compiled, system python)
-library:    6 sources: books, docs, reference
-slate:      active          # exact mathematics, warm ~40s after a restart
-astral-hub: active
-```
 
-If `slate` has just restarted, give it a minute before asking for calculus — it will say
-so itself if you don't ("the maths kernel is still starting").
+Any of eight providers works the same way — Claude, ChatGPT, Gemini, Groq, Mistral,
+DeepSeek, Grok, OpenRouter — and each is offered by its own name. A provider that is
+switched on with no key is deliberately *not* offered: a route that cannot answer is
+worse than no route.
 
-Speaker at about 40%. The microphone is a metre from the speaker on this hardware; step
-closer than that and everything below works first time.
+**6. It never goes quiet** (20 seconds)
 
-## The five minutes that show what it is
+> *why didn't that work* — it tells you, from the real decision, not an apology.
+> *what did you say* — it repeats.
 
-Say each one as one sentence. **Do not wait for a chime** — the wake word and the question
-belong together, which is the whole point.
+---
 
-**1. It is instant, and it is exact.**
-> "Open brain, what is twenty percent of twenty four thousand three hundred and fifty two."
+## What to say about the numbers
 
-*20 percent of 24352 is 4870.4.* — a table lookup, microseconds, no model anywhere.
+- **3,250 checks on a Mac, ~3,290 on the DevKit, none failing.** The suites are named after
+  what they prove, not the files they touch.
+- **0.00 s** between the thinking tone stopping and the first word of the answer — measured
+  on the device, because a silent second while somebody waits is the thing that makes a
+  device feel broken.
+- **314,128 passages**, indexed in about three minutes, looked up in 1–58 ms.
+- **1.5 s** for mechanical comprehension of a question it has never seen — no model.
+- One evening of real use produced four bugs, all now permanent checks. That is the process,
+  and it is worth saying out loud.
 
-**2. It reads your own books.**
-> "Open brain, what does the book say about list comprehensions?"
+## If something goes wrong on the day
 
-Answers from your Python handbook, with the book named.
-
-**3. It knows the shape of them.**
-> "Open brain, what is in chapter forty of modern C plus plus?"
-
-*31 under chapter 40: Range-based Loops, Initializer Lists, Move Semantics…* — read from
-the book's own table of contents, with page numbers.
-
-**4. It tells you what it has before it reads at you.**
-> "Open brain, tell me about Turing machines."
-
-*I have 31 passages on Turing machines, in one source: Encyclopedia Of Computer Science.
-Most of it is under 4.3.* Then: **"read me the first one."**
-
-**5. It asks before it spends anything.**
-> "Open brain, summarise Turing machines."
-
-The passage's own sentences, then: *"I can put that in my own words instead — about a
-minute on this device. Want that?"* Say yes and the local model answers; every word it
-adds that is not in the passage is refused out loud.
-
-**6. It stays quiet when it should.**
-> "Open brain, the weather is nice today."
-
-Nothing. Not a shrug, not a guess — a quiet tone, because that was not a question.
-
-## If somebody asks "what happens when it can't?"
-
-Turn on a cloud provider (`hub/data/routes.json`, plus a key in
-`~/astral-voice/state/keys.json`) and ask something out of reach:
-
-> *"I can't do that here. I could ask the Mac, the OpenHome agent, or Claude. Which one?"*
-
-Say **"Claude"** and it goes to Claude. Say **"yes"** and it takes the nearest one — never
-the cloud. Say **"no"** and nothing leaves the house. That is the product.
-
-## Through OpenHome's own agent
-
-Needs one thing first: the trigger words registered on agent 595324 at app.openhome.com.
-After that, their wake word and their speech-to-text drive the same engine, and the same
-answers come back — measured through their dispatch at 0.2 to 0.9 seconds.
-
-## What to say about the parts that are not finished
-
-Say them. They are more convincing than the parts that work:
-
-- The wake word is a phrase recogniser, not a trained keyword: **zero false wakes in five
-  minutes of a quiet room**, and it will wake at a television saying "open home".
-- The local model is a 1B on an SD card: **a minute a go**, and it invents names, which is
-  why every answer it gives is checked against the passage and refused if it drifted.
-- Exact mathematics needs its kernel warm — **forty seconds after a boot**.
-- The daemon that answers without a trigger word is written and tested against a faked
-  platform, and has never run against the real one.
+- Nothing answers → `systemctl --user status astral-hub` on the device; `--user`, not root.
+- It answers but sounds quiet → *turn the chimes up*, out loud. It is a setting now.
+- A line in the script fails → run `python3 demo.py --section <name>` to see just that part.
+- The Mac rung is offered but unreachable → start the listener on the Mac:
+  `python3 hub/lan.py serve`.
