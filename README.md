@@ -226,6 +226,24 @@ silent by omission. Through OpenHome the same rule holds, with their agent cover
 we decline; the background daemon says out loud when it cannot reach the device at all,
 and says when it is back.
 
+**The ladder, and where a question climbs to.** Every class walks the same four rungs, in
+this order: *mechanical here* (tables, kernels, MECH — microseconds), *a model here* (a
+GGUF on the card — tens of seconds, and asked for), *the house* (the Mac or your phone
+over the LAN), *the cloud* (named providers — Claude, ChatGPT, Gemini, the OpenHome agent
+— off by default, never silent). Two rungs and it names both: *"I can't do that here. I
+could ask the Mac, the OpenHome agent, or Claude. Which one?"* A bare "yes" takes the
+nearest, never the cloud.
+
+**The model on the device answers in its own words, and is checked.** llama.cpp is built
+on the DevKit with Llama 3.2 1B and 3B on the card. Measured on a Pi 4: the 1B reads at
+9.8 tokens a second and writes at 3.6, and loading it off the card is most of the 60
+seconds a rewrite takes — so it is *offered*, with the measured wait quoted, and it runs
+only on a spoken yes. Every answer it gives is diffed against the passage it was given:
+asked to rewrite one sentence about Turing machines, it invented "Stephen Cook" once and
+"Alan Post" the next time, so any name or number it adds is now refused out loud. It is
+never offered for arithmetic or algebra — those have exact kernels, and a model that is
+merely fluent about them is worse than silence.
+
 **One kernel for the machine.** Slate takes 41 seconds to compile itself and milliseconds
 to answer after that, so `hub/slate_server.py` owns one and both callers ask it over a
 Unix socket. Before this the ability paid the start on every turn — 43 seconds, twice in a
