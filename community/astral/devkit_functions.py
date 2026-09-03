@@ -96,7 +96,13 @@ def hub(*args, timeout=10):
     try:
         r = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout)
         out = json.loads((r.stdout or "").strip().splitlines()[-1])
-        return out if isinstance(out, dict) and out.get("ok") else None
+        if isinstance(out, dict) and out.get("ok"):
+            return out
+        # A hub that ANSWERED with a failure is not a hub that is absent, and the two
+        # must not be reported as the same thing: absent means "try the kernel", failed
+        # means "this device has a hub and it is broken".
+        return {"ok": True, "kind": "broken", "why": (out or {}).get("error")
+                if isinstance(out, dict) else None}
     except subprocess.TimeoutExpired:
         # Slow is not the same as impossible, and the caller must be able to tell them
         # apart: a cold mathematics kernel is tens of seconds in a fresh process.
@@ -152,6 +158,10 @@ def respond(*words):
         return
 
     # 3. neither, and it says so rather than going quiet
+    if out and out.get("kind") == "broken":
+        _emit_success("The local engine is installed but it failed to answer. "
+                      "Ask me again, or check the hub.", {"query": q, "from": "broken"})
+        return
     if out is None:
         _emit_success(why_nothing_works(), {"query": q, "from": "nothing"})
         return
