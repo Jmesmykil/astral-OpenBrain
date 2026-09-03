@@ -211,3 +211,35 @@ engineered by somebody determined enough — and it is not obfuscation theatre. 
 same protection every compiled commercial library has, arranged the way this platform's
 own documentation says dependencies arrive.
 
+## The local model: what it is for, and what it did
+
+The second rung of the ladder is real now — llama.cpp built on the device, Llama 3.2 1B
+and 3B (Q4_K_M) on the card — and everything about it is offered rather than assumed,
+because everything about it is expensive or unreliable or both.
+
+**Measured on the Pi 4, not estimated.** The 3B reads a prompt at 2.5 tokens a second and
+writes at 1.3: a sixty-token answer is a minute and a half. The 1B reads at 9.8 and writes
+at 3.6, and the model is loaded off the SD card every time, which is most of the wait — 60
+seconds end to end for a two-sentence rewrite. The offer quotes the measured number,
+loading included, because a promise of "half a minute" that takes a minute is the kind of
+small lie that makes a device feel broken.
+
+**It invents things, and it is caught doing it.** Asked to rewrite one sentence — "Turing
+machines were first introduced independently by Turing and Post in 1936" — the 1B answered
+"Alan Turing and Stephen Cook" on one run and "Alan Turing and Alan Post" on the next.
+Neither name is in the passage. So every model answer is now checked against the passage
+it was given: any name or number in the answer that is not in the source is a fabrication,
+and the answer is refused out loud — *"The model added something the passage doesn't say —
+Stephen — so I won't read you its version."* The mechanical summary, which is the
+passage's own sentences, has already been spoken and is still true.
+
+**It is only offered for what a model is for.** `costs.MODEL_CLASSES` holds summarising,
+reading and conversation. It is never offered for arithmetic, algebra or anything with one
+right answer: those have exact kernels, and a model that is merely fluent about them is
+worse than silence. Before that rule existed, the ranking offered a 1B model as a way to
+integrate x squared.
+
+**What is not done:** nothing keeps the model resident, so every use pays the load. A
+resident server — the shape `slate_server.py` already uses — would remove most of the
+wait, at the cost of about a gigabyte held permanently.
+
