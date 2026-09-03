@@ -392,3 +392,38 @@ modules before being trusted.
 One operational lesson worth keeping: DEPLOY BEFORE YOU REBUILD. The kernel was rebuilt
 from the device's older copy of the sources, and the fix appeared not to work for a whole
 round of investigation.
+
+## 2026-09-03 — the premortem before the meeting
+
+An adversarial pass with five auditors, each finding reproduced or killed by a second
+auditor on the device. 57 findings, 24 verified, 13 reproduced. What it changed, and
+what it could not.
+
+**The one that explains the rest.** The loop on the device had been running the 07:59
+code all morning: `install_v2.sh` copies files and never restarted the service, so every
+fix of the day was on the card and none of it was running. That is the shape of "you
+keep claiming it's ready and I keep catching problems." The deploy now restarts a loop it
+finds running. The restart branch is committed but has not yet been exercised by a real
+deploy — the one run since found the loop already stopped.
+
+**Fixed and proved on the device** (`~/astral-checks/zz_evidence.py`, 22 of 23 sentences
+now answered correctly, the 23rd — "dim the bedroom lights" — is an honest refusal for a
+house with no hub): onboarding crashed before its microphone existed; "I'm starving"
+overwrote the owner's name; any sentence with "in Spanish" switched the language for
+good; "how do I stop hiccups" and "stop the bleeding" were device commands; "what is a
+neural network" read out the IP address; "what sound does a cow make" was a chime
+setting; "where is Paris" was a C++ page list; "who was the first person on the moon" was
+fifty seconds of Python homework; passages ended mid-clause; "why didn't that work" said
+"kernel had no answer"; nothing could make it louder; "the pan is on fire" got silence;
+"I don't want you to take notes" started taking notes; saying no to being remembered was
+ignored after giving a name; a docs-only reindex across a version change would have
+deleted the whole library; a test run armed a real 8 pm alarm and set the speaker to 100%.
+
+**Open, and not fixable before Monday without his voice.** The phrase recogniser wakes on
+a television: 34 wakes in a few minutes of one evening, each a chime at the room. The
+wake chime is now withheld after three false wakes in a row and returns on the next real
+answer — deployed at 11:02, not yet observed against room audio, because the room went
+quiet. The real fix is a trained wake model from his own takes (`wake_takes.py`).
+
+**Not audited.** The auditor checking the 682 written facts for accuracy was blocked by
+a content filter and never ran. The facts have not been independently checked.
