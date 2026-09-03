@@ -473,3 +473,34 @@ that is still his to set by ear is the master.
   of `tests/`. The device count reported earlier today (3,583 held, 2 failed) ran those two
   stale suites; the runner now puts `tests/` first and refuses a shadowed suite, and the full
   device run is being repeated. Mac: 3,571 checks, 0 failed.
+
+**Later still, 2026-09-03, after "the volume is all over the place" and "find a way".**
+
+- **The sounds were never at one level.** Measured on the device as RMS of a 16-bit sample:
+  the wake chime 16,862, dismiss 13,585, accept 10,262, the tick 5,776, the ready tune 3,146,
+  and speech about 4,500 while peaking at full scale — five to one between loudest and
+  quietest before any setting touched them, which is why no setting could make them
+  consistent. Every file and every sentence is now brought to one target level before its
+  relative and the chime lift apply (proved: every chime at 6,750, sentences at 3,900 to
+  4,500). Shipped at master 65, chimes 70, tick 70, speech 100; only a person moves the
+  master, and OpenHome's own playback file is written with the same number.
+- **The demo was resetting the settings.** Its end-of-run restore wrote back everything it
+  captured at the start, over anything set while it ran. It now puts back only the chime
+  and tick relatives its own lines change, and only if nobody else has touched them since.
+- **The facts, audited by hand.** Two agents sent to check the 682 facts were blocked by a
+  content filter on their own output, so all twenty files were read and every claim judged.
+  Thirty were corrected: eight outright wrong (a glacier border credited to Norway and
+  Sweden; an hourglass "weighing less"; synaesthesia at one in ten thousand; J as the only
+  letter absent from element names; an octopus with two hearts stopping; a blue-whale
+  artery a child could crawl through; milk "pasteurised in the 1860s"; the railway-gauge
+  myth stated in history and debunked in engineering), the rest over-certain. The facts
+  suite still holds at 2,123.
+- **The device suite's stall, found and fixed.** It stopped after `barge`, in `daemon`: that
+  suite imports the ability's background module in-process, which started a maths kernel
+  of its own and waited up to three minutes for it behind orphan kernels from earlier
+  killed runs. Where a kernel server exists, nothing spawns a second kernel now, and the
+  daemon suite runs on the device in a third of a second.
+- **The Python crashes on the Mac are not this project.** Every crash report from the
+  afternoon is Homebrew Python 3.13 dying inside `pysplishsplash` (an SPH fluid library),
+  launched from a Terminal shell by the SlimeShot fluid campaign running on the same
+  machine. This project's checks run under Xcode's Python 3.9 and none has crashed.
