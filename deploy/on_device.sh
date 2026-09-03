@@ -114,6 +114,29 @@ StandardError=append:%h/astral-voice/astral-hub.log
 [Install]
 WantedBy=default.target
 UNIT
+# The model, kept in memory, when there is one and a server to run it. Loading 800 MB off
+# the card is most of what a rewrite costs — 60 seconds end to end, of which reading and
+# writing were barely half. Optional in both directions: no server and the summariser
+# still works through a subprocess, slowly and correctly.
+MODEL=$(ls -S ~/astral-voice/models/*.gguf 2>/dev/null | tail -1)
+if [ -x ~/astral-voice/llama.cpp/build/bin/llama-server ] && [ -n "$MODEL" ]; then
+cat > ~/.config/systemd/user/astral-model.service <<UNIT
+[Unit]
+Description=Astral local model, resident (one load, many answers)
+
+[Service]
+ExecStart=%h/astral-voice/llama.cpp/build/bin/llama-server -m $MODEL --host 127.0.0.1 --port 8791 -t 3 -c 2048 --no-webui
+Restart=always
+RestartSec=10
+Nice=5
+StandardOutput=append:%h/astral-voice/astral-model.log
+StandardError=append:%h/astral-voice/astral-model.log
+
+[Install]
+WantedBy=default.target
+UNIT
+fi
+
 # One kernel for the whole machine. Slate costs 43 seconds to start and milliseconds to
 # answer, so the process that owns it must outlive any one question — and the OpenHome
 # ability is a fresh process per turn, which is why exact mathematics was being offered
@@ -179,7 +202,12 @@ if [ -f ~/.config/systemd/user/astral-slate.service ]; then
   systemctl --user enable astral-slate.service >/dev/null 2>&1 || true
   systemctl --user restart astral-slate.service || true
 fi
+if [ -f ~/.config/systemd/user/astral-model.service ]; then
+  systemctl --user enable astral-model.service >/dev/null 2>&1 || true
+  systemctl --user restart astral-model.service || true
+fi
 echo "kiosk:      $(systemctl --user is-active openhome-dashboard.service || true)"
+echo "model:      $(systemctl --user is-active astral-model.service 2>/dev/null || echo absent)$([ -n "$(ls ~/astral-voice/models/*.gguf 2>/dev/null)" ] && echo " ($(basename $(ls -S ~/astral-voice/models/*.gguf | tail -1)))")"
 echo "slate:      $(systemctl --user is-active astral-slate.service 2>/dev/null || echo absent)"
 echo "astral-hub: $(systemctl --user is-active astral-hub.service || true)"
 echo "oracle:     $(ls ~/slate/ada/slate_exact/lib/libslate_exact_c.so 2>/dev/null || echo absent)"
