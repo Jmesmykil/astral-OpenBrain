@@ -263,3 +263,76 @@ did not already say, and hands the turn up the ladder instead. What that exposes
 reader's real limit: it answers definitional questions well ("what is a lighthouse") and
 open ones poorly. That is a MECH question, not a routing one, and it is still open.
 
+
+## The compiled kernel disagrees with its own source on three phrases (2026-09-03)
+
+`astral_kernel.answer()` and `engine.answer()` give different answers for exactly three
+of the 181 phrases the suite checks, all of them arithmetic said in words:
+
+```
+convert ten pounds to kilograms   engine: 10 pounds is 4.54 kilograms.
+                                  kernel: 1 pounds is 0.45 kilograms.
+minus four plus ten               engine: -4 plus 10 is 6.        kernel: None
+fifteen plus twenty seven         engine: 15 plus 27 is 42.       kernel: None
+```
+
+**What has been ruled out.** The installed extension is byte-identical to the newest
+wheel (sha256 `62cca876dd21c181`), the wheel was built at 04:20 from the current sources,
+and the generated `_engine.pyx` contains calc's number-word table — four occurrences of
+"fifteen", the same as `calc.py`. So this is not a stale artifact, not a stale install,
+and not a missing module. Cython was also found missing for the system interpreter while
+present in the venv, which is why the deploy's build had been silently skipping for some
+time; that is fixed by building with the venv interpreter, and it did not cause this.
+
+**What it affects.** The OpenHome ability path only. On the device the hub answers first
+and the kernel is the fallback for when the hub is not running, so a person talking to
+the DevKit never sees it. It matters for the shipped ability, and it matters because two
+things that are supposed to be the same thing are not.
+
+**Where to look next.** `build_ability.build_block()` transforms the source it splices —
+renames `engine.answer` to `astral_answer`, strips markers, and skips formatting. The
+next step is to diff the spliced calc block against `calc.py` line by line, and to check
+whether the compiled module's regex alternation survives the transform with its
+longest-first ordering intact: "ten" answering as 1 looks exactly like an alternation
+matching a shorter branch first.
+
+## Open, as of 2026-09-03 05:45
+
+Measured, reproducible, and not fixed. Each one is here because it is better written down
+than remembered.
+
+**1. Thirty-eight percent of wakes produce no words.** Of 480 wake events in one evening's
+log, 182 were followed by a burst with nothing usable in it. Some of those are a person
+saying the wake word and then pausing, which is correct behaviour; the rest are false
+wakes. The log carries no timestamps, so the two cannot be separated after the fact, and a
+controlled quiet-room measurement is the only way to get the real number. That measurement
+is the right next step before any work on a trained wake model, because it is the number a
+trained model has to beat — and the last attempt at one scored 0.999 against its own
+threshold and would have woken at nothing.
+
+**2. The reader's corpus contains web-development text.** MECH answered "when did the
+roman empire fall" with "Roman installed helvetica", and "whats the weather" with "Weather
+is towards the side exposed to wind". Both are now routed away — history and absent
+capabilities are answered before the reader sees them — but the corpus itself is a
+separate product's data and still holds material like that. Anything that reaches tier two
+can still produce a sentence of it.
+
+**3. Two names still get a gloss.** "Who is Ada Lovelace" and "who is Avicenna" answer
+"…is a name for a particular person, place, or thing", because the encyclopedia passage
+that mentions them does not contain the surname as a separate word for the containment
+check to find. The check exists to stop a Python manual being offered as an answer about
+Ada Lovelace, which it did. A better rule would score the passage rather than require a
+word.
+
+**4. Britannica has no page numbers.** The 29 volumes arrived as gzipped scanner text with
+no page breaks, so 224,021 passages carry page zero and "what is on page 412 of Britannica"
+cannot be answered. It now says so plainly. Fixing it properly means re-fetching the
+volumes as PDFs — a download, not a code change.
+
+**5. Britannica volume 29 is unreadable.** Its gzip is corrupt at the source, not
+truncated, so nothing can be recovered from this copy. It is reported by name as unread
+rather than silently dropped. Volume 3 was truncated and 1,236,485 words of it were
+recovered.
+
+**6. The compiled kernel disagrees with its source on three phrases.** See the section
+above. Ability path only.

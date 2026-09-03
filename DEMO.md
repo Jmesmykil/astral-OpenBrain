@@ -43,7 +43,7 @@ Point at the timings. These never touch a model.
 
 > *how many books do you have*
 > — "3 books on the card: … There's also 3 in the reference shelf, across 31 volumes —
-> 314,128 passages in all."
+> 308,946 passages in all."
 >
 > *what do the books say about entropy* — a passage, with the book it came from.
 > *tell me more about that* — it follows the subject.
@@ -109,12 +109,12 @@ worse than no route.
 
 ## What to say about the numbers
 
-- **3,250 checks on a Mac, ~3,290 on the DevKit, none failing.** The suites are named after
+- **3,438 checks on a Mac, 3,467 on the DevKit.** The suites are named after
   what they prove, not the files they touch.
 - **0.00 s** between the thinking tone stopping and the first word of the answer — measured
   on the device, because a silent second while somebody waits is the thing that makes a
   device feel broken.
-- **314,128 passages**, indexed in about three minutes, looked up in 1–58 ms.
+- **308,946 passages**, indexed in about three minutes, looked up in 1–58 ms.
 - **1.5 s** for mechanical comprehension of a question it has never seen — no model.
 - One evening of real use produced four bugs, all now permanent checks. That is the process,
   and it is worth saying out loud.
