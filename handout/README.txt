@@ -43,15 +43,6 @@ RE-RENDERING THE PDF AFTER AN EDIT
   from a CSS counter over those sheets, and the total ("of 13") is written in the
   .folio .pg::after rule near the top of the file; update it if you add or remove a sheet.
 
-OWNER TO COMPLETE — the boxes left blank in the document
-  p. 7  (Section 5, The bridge)  When you started, and what pulled you into this.
-  p. 7  (Section 5, The bridge)  a. What the custom transformer and inference work does.
-                                 b. The machines you own, and which is the bottleneck.
-  p. 9  (Section 6, The ask)     How long this has taken, in one sentence.
-  p. 10 (Section 6, The ask)     Who, if anyone, you would bring in on a funded scope.
-  p. 13 (Section 9, Contact)     Repository / project URL, and phone.
-  p. 13 (Section 9, Contact)     Agreed next step and the date it is due.
-
 SOURCES
   Every number in the handout is taken from MEETING-SCRIPT.md, GRANT-APPLICATION.md,
   MEETING.md, README.md or KNOWN-BUGS.md in the parent directory, plus the demo
@@ -60,3 +51,4 @@ SOURCES
 
   Page 8 is "Previous work": the three public OpenHome repositories under the account
   Jmesmykil are linked in full; the private ones are named "private, available on request".
+  The document is complete. There are no blanks left to fill in before the meeting.

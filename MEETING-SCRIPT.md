@@ -1,7 +1,7 @@
 # Spoken script: Brady / OpenHome, 30 minutes, 2026-09-04
 
 Read this out loud once before the call. Everything stated as a number below was measured
-on the DevKit or the Mac and is in KNOWN-BUGS.md with its date. yours to say, so don't read the bracket.
+on the DevKit or the Mac and is in KNOWN-BUGS.md with its date.
 
 ---
 

@@ -647,8 +647,8 @@
     <li><strong>Languages.</strong> It hears about a hundred and says which one it heard, and it
     answers in English, rather than translating its own sentences with a 1B model that invents
     names.</li>
-    <li><strong>A second household</strong>: a DevKit running a month in a home that is not the
-    developer's. That is the test one person cannot run alone.</li>
+    <li><strong>A second household</strong>: a DevKit running a month in a home that isn't mine.
+    That's the test I can't run alone.</li>
   </ul>
 
   <div class="note"><strong>What OpenHome gets from the ladder.</strong> Every turn answered on the
@@ -706,11 +706,8 @@
     what travels between them: the same lanes and the same seam.</figcaption>
   </figure>
 
-  <div class="fillbox">
-    <div class="fb-h">Owner to complete</div>
-    <p>When you started, and what pulled you into this. Your own history, one line.</p>
-    <div class="fline"></div>
-  </div>
+  <p>I have been building this on my own for about three years, and the Astral engine has been the
+  centre of it since spring.</p>
 
   <h3>The orchestration engine</h3>
   <p>Prime directives gate what any process may do; product isolation keeps two projects from ever
@@ -732,16 +729,12 @@
   C ABI. Slate on the DevKit is that same Julia lane, shrunk to fit a Pi.</p>
 
   <h3>The model side</h3>
-  <p>Adapters have been trained; a from-scratch pretrain is running for the component that may only
-  propose, never answer.</p>
-
-  <div class="fillbox">
-    <div class="fb-h">Owner to complete</div>
-    <p><strong>a.</strong> What the custom transformer and inference work does: architecture, objective, purpose. Two sentences.</p>
-    <div class="fline"></div><div class="fline"></div>
-    <p style="margin-top:2.4mm;"><strong>b.</strong> The machines you own, what each is doing today, and which one is the bottleneck.</p>
-    <div class="fline"></div>
-  </div>
+  <p>Two of my fine-tuned models already run, a role-tuned 4B in July and a behaviour-tuned 0.8B in
+  August. A from-scratch transformer I call the subconscious is 34,000 steps into pretraining on the
+  Mac mini, and it is the component that may only propose, never answer.</p>
+  <p>I train on a 16 GB M4 Mac mini that panics when its swap fills, a Linux box with 23 GB of RAM,
+  an RTX 2060 with 6 GB that cannot hold a training run, and an RX 580. The training lane is the
+  bottleneck in all of it.</p>
 
   <p class="small" style="margin-bottom:0;">None of that is finished. The point is that the DevKit product is
   what happens when I aim the same discipline at one small board, and there, measured, today, it works.</p>
@@ -805,7 +798,7 @@
   will keep building this without money, slower and out of pocket. I am not asking for $50,000. I am
   showing what each amount does.</p>
 
-  <figure>
+  <figure style="width:82%;margin-left:auto;margin-right:auto;">
     <svg viewBox="0 0 900 150" role="img" aria-label="Five milestones on one line, with the workstation called out">
       <g font-family="Helvetica,Arial,sans-serif">
         <line x1="60" y1="52" x2="840" y2="52" stroke="#BFC7C9" stroke-width="2"/>
@@ -841,6 +834,16 @@
     </tbody>
   </table>
 
+  <h3>Where I'm building from today</h3>
+  <p>I built everything here on hardware I already owned and paid for myself: a 16 GB M4 Mac mini
+  that panics when its swap fills, a second Linux box with 23 GB of RAM, an RTX 2060 with 6 GB that
+  cannot hold a training run, an RX 580, and the DevKit. Over the last one to three years I have
+  spent about $10,000 on this work in total, all out of pocket, most of it renting compute I would
+  rather own. Two fine-tuned models of mine already run, a role-tuned 4B in July and a
+  behaviour-tuned 0.8B in August, and a from-scratch transformer I call the subconscious is 34,000
+  steps into pretraining on the Mac mini. I'm a student with no income. That is the ceiling the
+  machine removes.</p>
+
   <h3>The machine</h3>
   <p>The single purchase that changes what I can do is a Minisforum MS-S1 MAX in the 128 GB
   unified-memory edition: an AMD Ryzen AI Max+ 395, Radeon 8060S graphics, a 2 TB SSD and dual
@@ -850,11 +853,9 @@
   can train and run the comprehension tier at home. The same machine builds the library index in
   minutes instead of hours on the Pi, and it serves as the LAN rung for milestone 2.</p>
 
-  <div class="fillbox" style="margin-top:2mm;">
-    <div class="fb-h">Owner to complete</div>
-    <p>How long this has taken, in one sentence.</p>
-    <div class="fline"></div>
-  </div>
+  <p class="small" style="margin-top:2mm;"><strong>How long this has taken.</strong> About three
+  years of research on my own, the Astral engine since spring, and the OpenHome work over the last
+  month.</p>
 
   <div class="folio"><span>Jamesmykil Weber · for OpenHome</span><span class="pg"></span></div>
 </section>
@@ -894,11 +895,9 @@
     <li><strong>Three.</strong> Trigger words registered on agent 595324, and whether the wake phrase should stay "open home".</li>
   </ul>
 
-  <div class="fillbox">
-    <div class="fb-h">Owner to complete</div>
-    <p>Who, if anyone, you would bring in on a funded scope.</p>
-    <div class="fline"></div>
-  </div>
+  <h3>Who is on it</h3>
+  <p>Me. At the full amount I'd bring in part-time help for packaging and review so milestone 1
+  lands in weeks.</p>
 
   <div class="folio"><span>Jamesmykil Weber · for OpenHome</span><span class="pg"></span></div>
 </section>
@@ -1229,33 +1228,24 @@
     <div class="box">
       <h3>Contact</h3>
       <p class="small" style="margin-bottom:1mm;"><strong>Jamesmykil Weber</strong><br>Sole developer: architecture, kernel, router, library, audio, deploy, tests</p>
-      <p class="small" style="margin-bottom:2.5mm;">mykiljames253@gmail.com</p>
-      <div class="small" style="color:#4a4a4a;margin-bottom:.8mm;">Repository / project URL</div>
-      <div class="fline"></div>
-      <div class="small" style="color:#4a4a4a;margin:2mm 0 .8mm 0;">Phone</div>
-      <div class="fline"></div>
+      <p class="small" style="margin-bottom:1.2mm;">mykiljames253@gmail.com<br>+1 253 392 9204</p>
+      <p class="small" style="margin-bottom:1.2mm;"><span class="mono">https://github.com/Jmesmykil</span></p>
+      <p class="small" style="margin-bottom:0;">I'm in the OpenHome Discord and in touch with your developer relations team.</p>
     </div>
     <div class="box">
       <h3>Next steps</h3>
       <ul class="tight small" style="padding-left:4mm;">
-        <li>Name which conversation this is: grant, sponsored integration, or a role.</li>
-        <li>Confirm a paid, milestone-based integration and its first date.</li>
-        <li>Register the trigger words on agent 595324, and decide the wake phrase.</li>
-        <li>Say where the kernel wheel should live, so milestone three can start, and send review
-        feedback on the MIT shim.</li>
+        <li>Decide which conversation this is: grant, sponsored integration, or both.</li>
+        <li>Agree the award level and the milestones it buys.</li>
+        <li>Register the trigger words on agent 595324, and agree where the kernel wheel lives, PyPI or a release asset.</li>
+        <li>A second call once milestone 1 is installable from the catalogue.</li>
       </ul>
       <p class="small" style="margin-bottom:0;"><strong>Reproducing it:</strong> one deploy script, and
       the demo runs by voice, "open brain, run the demo".</p>
     </div>
   </div>
 
-  <div class="fillbox" style="margin:2.2mm 0 0 0;">
-    <div class="fb-h">Owner to complete</div>
-    <p style="margin-bottom:2mm;">Agreed next step and the date it is due, written down before the call ends.</p>
-    <div class="fline"></div>
-  </div>
-
-  <div class="folio"><span>Jamesmykil Weber · for OpenHome</span><span class="pg"></span></div>
+    <div class="folio"><span>Jamesmykil Weber · for OpenHome</span><span class="pg"></span></div>
 </section>
 
 </body>
