@@ -504,3 +504,27 @@ that is still his to set by ear is the master.
   afternoon is Homebrew Python 3.13 dying inside `pysplishsplash` (an SPH fluid library),
   launched from a Terminal shell by the SlimeShot fluid campaign running on the same
   machine. This project's checks run under Xcode's Python 3.9 and none has crashed.
+
+**Evening, 2026-09-03.**
+
+- **Power was cut at about 13:28; clean boot at 15:33, 37.9 °C.** The voice loop was not
+  enabled to start at boot — OpenHome's services and the maths kernel came up, the loop did
+  not. Enabled now; it starts with the device. OpenHome's node server sets the speaker to
+  38 percent at every boot; the loop applies the owner's remembered master once, at boot,
+  and never again during the run.
+- **Sound packs.** OpenHome's house set is the default. The `astral` pack is real recordings
+  — one drop cut from a Commons recording (CC BY-SA 4.0), a struck glass from Freesound
+  (CC0), attributions in `data/sounds/astral/LICENSES.txt` — copied onto the card; the
+  synthesised version stays only as a fallback. Any folder dropped into `sounds/packs/` is a
+  pack. Chosen by voice: "use the astral sounds".
+- **Before a slow answer it says a line** — "I'll think about that", "Hold on", "I'm looking",
+  "Let me think" — then ticks. Summaries and code explanations count as slow whatever the
+  profile measured. A background errand ticks at a third of the tick level and any speech
+  stops it. Mid-conversation, a statement addressed to it is acknowledged — "Yeah", "OK",
+  "I understand" — at most once every six seconds, never on a wake-word turn.
+- **False wakes, live.** With a video playing near the device in the afternoon it woke a
+  handful of times, each dismissed with the tone; the chime-withholding after three in a
+  row was never reached, so it remains deployed but unobserved. Quiet room: zero wakes in
+  the twenty minutes after the 15:59 restart.
+- **Mac: 3,590 checks, 0 failed.** The device count is being produced by a detached run on
+  the Pi and goes here with its date when it lands.
