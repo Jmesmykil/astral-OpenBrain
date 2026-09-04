@@ -676,3 +676,28 @@ every failure is in what it says or stays silent about):
   after boot (one per session), and a plain ssh shell can bind to the empty one, where
   pactl shows only auto_null; the loop binds to the right one.
 
+## 2026-09-04, after the call
+
+- **Hardware note from OpenHome (Bradyn):** the DevKit's audio cable connections need
+  reseating from time to time. That is a candidate cause for the deaf starts and the
+  suspended sink seen this week; check the cables before blaming the stream.
+- **The level hold never ran.** For a day `_hold_levels` raised a NameError on its first
+  line (`settings` was imported inside main, not at module level) and a bare except
+  swallowed it, so the device booted at mic 30 % and speaker 16 % after every reboot and
+  nothing put them back. Fixed: the thread reads the settings through one function, says
+  so if it fails, and the gate runs the real thread body. Proved live: moved to 40/90, back
+  to 65/160 in eight seconds with two `[mixer]` lines.
+- **The library:** the 65 DK volumes went into `reference/dk/` and indexed in 116 s:
+  397,706 entries from 191 sources, a 660 MB index. Two volumes had no text layer (the
+  Marvel Comics encyclopedia and the Visual Encyclopedia of Dinosaurs); they need OCR. The
+  first library question after the index grew took 50 s cold.
+- **Shipping v2:** the kernel wheel is a GitHub release (v2.2.0) and requirements.txt
+  installs it by URL; `community/astral/config.json` carries the CLI's schema
+  (unique_name, matching_hotwords, category local); my CLI's validator applied the
+  capability-worker rules to devkit_functions.py, which rejects every valid DevKit
+  ability including OpenHome's own devkit-stats template, and is fixed on its main
+  branch (not yet published to npm). `openhome login`, deploy, assign and the trigger
+  registration on agent 595324 are the owner's commands.
+- **Roadmap from the call:** tap-to-mute and an emergency off switch honoured by the
+  local loop; a screen or mini display; the Hermes/OpenClaw bridge for DIY harnesses.
+
