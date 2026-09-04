@@ -785,3 +785,48 @@ Open after this pass:
 - The flat-audio ear rule is a false positive in a quiet room (the HAT gates silence to
   exact zeros); the no-bytes rule and the start-up kick do the protecting.
 - The chime pack: only one of the sounds in use is liked; the rest sound like xylophones.
+
+## 2026-09-04, late morning, the levels are OpenHome's and the sounds are mastered
+
+- **The owner's rule:** all volume is mastered on our side and handed to the OpenHome app
+  for control; nothing OpenHome has a surface for is hardcoded here. What OpenHome
+  surfaces, read from their code on the device: the app's slider sets the speaker (their
+  node server runs `pactl set-sink-volume` and persists SPEAKER_VOLUME in ~/.env; in local
+  mode the same slider also moves the XMOS playback control through amixer), and their
+  boot sets the microphone from MIC_SENSITIVITY in the same file. The app has no slider
+  for the microphone. Today that file holds SPEAKER_VOLUME=14 and MIC_SENSITIVITY=30.
+- **What changed.** The loop no longer sets the speaker or the microphone at boot and the
+  five-second hold is gone; the unit file no longer pins the microphone. After a reboot the
+  speaker will be at OpenHome's 14 until the app's slider moves it, and chime, tick and
+  speech stay fixed proportions of that. The deploy writes MIC_SENSITIVITY=160 into
+  OpenHome's ~/.env once, and only while it still holds their default of 30, because the
+  wake was measured deaf at 30 ("open brain, run the demo" at peak 112 on the morning of
+  the meeting); a value chosen later, by them or by the owner, is never overwritten. The
+  health line names that key when the microphone is below 160, so a quiet ear is loud in
+  the log.
+- **Measured, and not what the percent says.** Two seconds of room at mic 30, 65, 100 and
+  160 percent gave RMS 117, 102, 57 and 572: below 100 the HAT's capture level barely
+  moves with the setting, and pulse's reported decibels (12.25 dB at 30 percent, the same
+  as at 160) do not describe it either. A software gain derived from the percent would
+  have been wrong by an unknown factor, which is why the value went into OpenHome's
+  configuration instead of into a formula.
+- **Mastered.** The astral pack's cues were levelled at play time to one RMS with a fixed
+  lift, which flattens any offsets an author sets. A MASTERED file beside a pack now means
+  it is played as authored, and the play-time levelling stays for packs nobody mastered.
+  The second edition of the pack, glass struck once per cue in A major with one EQ and
+  matched hit loudness (wake 0.213 of full scale over its loudest 0.3 s, ready +2.5 dB,
+  accept -1, handoff -2, decline -3, dismiss -7, the drip 9 dB under the old one and 1.9 s
+  between drops), was approved by the owner at 10:45 ("its good", after the drop was
+  mastered to the set: 6 dB under the wake strike, the same EQ, a crest to match, a clean
+  loop point) and is the pack in play on the device: every cue resolves to the new file,
+  mastered, no trim and no lift, checked under the loop's own interpreter.
+- **The deploy did not carry the pack.** The rsync rules included `data/sounds/` and its
+  wav files but not the pack's own directory, so two deploys left the card playing the
+  pack from the afternoon before while the pack maker found nothing new to copy. Fixed in
+  `deploy/install_v2.sh` and gated: the shipped directory, its licences and its MASTERED
+  marker now travel with every deploy. Five deploys today in all; kernel 2.2.1's release
+  asset was replaced after each rebuild and downloads back byte for byte.
+- **Still not proven by voice since the merges:** wake to whisper to answer to speech,
+  barge-in, backchannels on the floor, and the level change itself. The voice pass plays
+  test phrases through the device's own speaker and needs the owner's say-so.
+
