@@ -67,9 +67,16 @@ if [ -f ~/astral-voice/hub-v2/build_kernel.py ] && [ -n "$($PY -c 'import import
     for INTERP in "sudo python3" "$PY"; do
       HAVE=$($INTERP -c 'import astral_kernel; print(astral_kernel.__version__)' 2>/dev/null || echo none)
       INSTALLED=$($INTERP -c 'import astral_kernel._engine as e; print(e.__file__)' 2>/dev/null || echo /nonexistent)
+      # Replacing the installed copy outright, and it is not belt and braces. During
+      # development the version stays at 2.2.0 while the engine inside it changes every
+      # hour, and pip answers "Requirement already satisfied" and installs NOTHING. The
+      # device then runs a kernel built at some earlier hour, reports the right version,
+      # and passes every check except the one comparing the installed bytes with the
+      # wheel's. That check caught it; this is the fix.
+      REPLACE="--force-reinstall --no-deps"
       if [ "$HAVE" != "$WANT" ] || [ "$WHEEL" -nt "$INSTALLED" ]; then
-        $INTERP -m pip install --break-system-packages --quiet --root-user-action=ignore "$WHEEL" >/dev/null 2>&1 \
-          || $INTERP -m pip install --quiet "$WHEEL" >/dev/null 2>&1 || true
+        $INTERP -m pip install --break-system-packages --quiet --root-user-action=ignore $REPLACE "$WHEEL" >/dev/null 2>&1 \
+          || $INTERP -m pip install --quiet $REPLACE "$WHEEL" >/dev/null 2>&1 || true
       fi
     done
   fi
