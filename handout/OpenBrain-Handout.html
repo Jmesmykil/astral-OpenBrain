@@ -710,12 +710,14 @@
   centre of it since spring.</p>
 
   <h3>The orchestration engine</h3>
-  <p>Prime directives gate what any process may do; product isolation keeps two projects from ever
-  being conflated into one build path; and a coordination bus makes a process claim the work before
-  it touches anything.</p>
+  <p>It is model-agnostic orchestration with a delegation hierarchy, persistent memory, budgets and
+  a task board, and it routed the work on this project. Prime directives set what any process may
+  do, product isolation keeps two projects from being conflated into one build path, and a
+  coordination bus makes a process claim the work before it touches anything.</p>
 
   <h3>MECH, the deterministic comprehension engine</h3>
-  <p>Its law is that a reading becomes a <em>belief</em>, not a fact: revisable, carrying its
+  <p>It carries no model weights and does no sampling. Its law is that a reading becomes a
+  <em>belief</em>, not a fact: revisable, carrying its
   inferential provenance and a condition that would overturn it, and only a gate promotes anything
   to actual. It stores a sentence one of two ways. The first reads "this document states…", with no
   subject bound, and by design it can never be promoted. The second is a typed reading with a real
@@ -811,40 +813,36 @@
 
   <div class="kicker">Section 5 · continued</div>
   <h2><span class="num">5.</span> Previous work</h2>
-  <p class="lede">Three public repositories in the OpenHome ecosystem, and the private stack the
-  DevKit work is cut from.</p>
+  <p class="lede">The work I'm proudest of is the harness and the engines under it. This device is the
+  small end of that, and the first piece to ship through someone else's review.</p>
 
-  <p>I already ship into OpenHome, specifically into the ability system. The ability in this handout is public, the abilities repository is
-  public, and the command-line tool I wrote for deploying and validating abilities is public. The
-  engine underneath stays private, and I am happy to open any of it for review on request. The rest
-  of the list is here because it is the same discipline applied to other problems, and because two of
-  those private repositories run on the DevKit today.</p>
-
-  <table>
-    <caption>My repositories under the account Jmesmykil, ordered by what matters to this conversation.</caption>
-    <thead><tr><th style="width:20%">Repository</th><th style="width:11%">Language</th><th style="width:19%">Availability</th><th style="width:50%">What it is</th></tr></thead>
+  <table style="font-size:7.6pt;">
+    <thead><tr><th style="width:17%">Project</th><th style="width:15%">Language</th><th style="width:11%">Availability</th><th style="width:57%">What it is</th></tr></thead>
     <tbody>
-      <tr><td><strong>astral-OpenBrain</strong></td><td>Python</td><td>public</td><td>This project. A deterministic layer for OpenHome: it answers the exact-answer class (time, date, math, money, unit conversions, telemetry) on-device without the LLM, and everything else passes to the agent.<br><span class="mono" style="font-size:7.4pt;color:#0F5C6B">https://github.com/Jmesmykil/astral-OpenBrain</span></td></tr>
-      <tr><td><strong>abilities</strong></td><td>Python</td><td>public</td><td>Open-source abilities for OpenHome agents.<br><span class="mono" style="font-size:7.4pt;color:#0F5C6B">https://github.com/Jmesmykil/abilities</span></td></tr>
-      <tr><td><strong>openhome-cli</strong></td><td>TypeScript</td><td>public</td><td>CLI for managing OpenHome voice abilities: deploy, validate, and scaffold from your terminal.<br><span class="mono" style="font-size:7.4pt;color:#0F5C6B">https://github.com/Jmesmykil/openhome-cli</span></td></tr>
-      <tr><td><strong>astral-hub</strong></td><td>Python</td><td>private, available on request</td><td>The engine half of this project: routing, tables, kernels and the library. The shipped ability is a thin MIT shim over a compiled wheel built from these sources.</td></tr>
-      <tr><td><strong>Slate</strong></td><td>Julia</td><td>private, available on request</td><td>The mathematics lane behind MECH. It runs on the DevKit today as the maths kernel service.</td></tr>
-      <tr><td><strong>Strata</strong></td><td>Julia</td><td>private, available on request</td><td>The reading lane behind MECH.</td></tr>
-      <tr><td><strong>AstralBrainEngine</strong></td><td>Python</td><td>private, available on request</td><td>The orchestration brain for the Astral ecosystem.</td></tr>
-      <tr><td><strong>Tessera</strong></td><td>Python</td><td>private, available on request</td><td>3D models in, game-ready sprite sheets out. No image model in the path.</td></tr>
-      <tr><td><strong>modly</strong></td><td>TypeScript</td><td>private, available on request</td><td>Desktop app that builds 3D models from images on your own GPU, with nothing leaving the machine.</td></tr>
-      <tr><td><strong>DemoGraph</strong></td><td>Rust</td><td>private, available on request</td><td>Rust systems work.</td></tr>
-      <tr><td><strong>QNX</strong></td><td>C++</td><td>public</td><td>Custom firmware launcher work for the Nintendo Switch, in the Atmosph&#232;re ecosystem. Systems-level C++.<br><span class="mono" style="font-size:7.4pt;color:#0F5C6B">https://github.com/Jmesmykil/QNX</span></td></tr>
-      <tr><td><strong>SlimeShot-Unity</strong></td><td>C#</td><td>private, available on request</td><td>A game in production. Physics and rendering.</td></tr>
-      <tr><td><strong>soloDOLO</strong></td><td>Python</td><td>private, available on request</td><td>An animated series in production. Rigging and tooling.</td></tr>
-      <tr><td><strong>VoidIDE, AstralWorkspace, AstralEngineKit, BrainManager</strong></td><td>Swift</td><td>private, available on request</td><td>The macOS applications around the engine.</td></tr>
+      <tr><td><strong>Astral Brain Engine</strong></td><td>Python, Rust, Shell, Dart</td><td>private</td><td>The harness. A model-agnostic orchestration layer with a delegation hierarchy, persistent memory, budgets and a task board. 607 commits. It routed the work on this project.</td></tr>
+      <tr><td><strong>Strata</strong> <span style="color:#4a4a4a">(Astral MECH)</span></td><td>Julia, Rust, Ada SPARK</td><td>private</td><td>A language comprehension engine with no model weights and no sampling: a typed role graph for every sentence, memory that keeps its sources, byte-identical output for the same input, and an honest refusal when it cannot read. 436 commits. Ships as a signed macOS app over a Flutter surface.</td></tr>
+      <tr><td><strong>Slate</strong></td><td>Julia</td><td>private</td><td>The mathematics lane. It runs on the DevKit today as the kernel service.</td></tr>
+      <tr><td><strong>Q OS</strong> <span style="color:#4a4a4a">(QNX, QOS)</span></td><td>C++, Rust</td><td>public</td><td>A windowed desktop environment for the Nintendo Switch that replaces the home menu, with a real file manager. Verified on hardware: Erista, Atmosphere and Hekate.<br><span class="mono" style="font-size:7.2pt;color:#0F5C6B">https://github.com/Jmesmykil/QNX</span></td></tr>
+      <tr><td><strong>Void IDE</strong></td><td>Swift</td><td>private</td><td>A native macOS editor that speaks to the engine. 82 commits.</td></tr>
+      <tr><td><strong>Void CLI</strong></td><td>Rust</td><td>private</td><td>A terminal for the engine, with six or more model providers behind one binary. 86 commits.</td></tr>
+      <tr><td><strong>Astral Workspace, BrainManager, AstralEngineKit</strong></td><td>Swift</td><td>private</td><td>The macOS apps and the shared package around the engine daemon.</td></tr>
+      <tr><td><strong>ASCII</strong></td><td>JavaScript</td><td>private</td><td>A glyph-grid render kernel that composites any signal on the GPU in one draw call. 77 commits. It hosts ASCII Studio for Unity 6, a shipped package, ASCII Studio for Blender, and Tessera: 3D models in, sprite sheets out, with no image model in the path.</td></tr>
+      <tr><td><strong>sCAN</strong> <span style="color:#4a4a4a">(CryptoBuddy)</span></td><td>HTML, JavaScript, Rust, PostgreSQL</td><td>private</td><td>A desktop-style crypto research workspace with a Rust gateway. 179 commits.</td></tr>
+      <tr><td><strong>SlimeShot</strong></td><td>C#, Unity</td><td>private</td><td>A game with its own physics kernel. Close to done.</td></tr>
+      <tr><td><strong>MoBA</strong></td><td>C#, Unity</td><td>private</td><td>A server-authoritative online game, close to mechanically done. 579 commits.</td></tr>
+      <tr><td><strong>soloDOLO</strong></td><td>Python, Blender</td><td>private</td><td>An animated series in production. 87 commits.</td></tr>
+      <tr><td><strong>SourceBound</strong></td><td>C#</td><td>private</td><td>A 2D adventure RPG that teaches coding by having the player code regions into existence.</td></tr>
+      <tr><td><strong>Filament</strong></td><td>Swift</td><td>private</td><td>A hardware-in-the-loop workbench for firmware work with local models.</td></tr>
+      <tr><td><strong>EMULive</strong></td><td>Python, Rust</td><td>private</td><td>A living Game Boy emulator with a mind layer. Alpha.</td></tr>
+      <tr><td><strong>astral-OpenBrain</strong></td><td>Python</td><td>public</td><td>This project.<br><span class="mono" style="font-size:7.2pt;color:#0F5C6B">https://github.com/Jmesmykil/astral-OpenBrain</span></td></tr>
+      <tr><td><strong>openhome-cli</strong></td><td>TypeScript</td><td>public</td><td>The CLI that deploys and assigns OpenHome abilities from the terminal.<br><span class="mono" style="font-size:7.2pt;color:#0F5C6B">https://github.com/Jmesmykil/openhome-cli</span></td></tr>
+      <tr><td><strong>abilities</strong></td><td>Python</td><td>public</td><td>Open-source abilities for OpenHome agents.<br><span class="mono" style="font-size:7.2pt;color:#0F5C6B">https://github.com/Jmesmykil/abilities</span></td></tr>
     </tbody>
   </table>
 
-  <div class="note"><strong>The pattern across all of it.</strong> I build local-first, with no cloud
-  in the path unless I choose to put it there, and I ship tools other people use. Slate is the clearest
-  case: the same Julia lane serves my comprehension research on a workstation and answers arithmetic
-  on a Raspberry Pi.</div>
+  <div class="note"><strong>The pattern across all of it.</strong> I build local first, with no cloud in
+  the path unless I choose to put it there, and I ship tools other people use. Counts above are commit
+  counts, and repositories I forked from other authors are left out on purpose.</div>
 
   <div class="folio"><span>Jamesmykil Weber · for OpenHome</span><span class="pg"></span></div>
 </section>
