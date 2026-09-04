@@ -43,7 +43,9 @@ rsync -rlt --delete --chmod=ugo=rwX -e "${SSHC[*]}" \
   --include='data/lan.token' --include='data/sounds/' \
   `# data/costs is deliberately absent: a host's cost profile is measured ON that host,` \
   `# and copying this machine's numbers over the device's would make the fits table a fiction.` \
-  --include='data/sounds/*.wav' --include='data/books/' --include='data/books/*.txt' --include='data/books/*.md' \
+  --include='data/sounds/*.wav' \
+  `# the shipped astral pack, every file: the sounds, their licences, and the MASTERED marker` \
+  --include='data/sounds/astral/' --include='data/sounds/astral/*' --include='data/books/' --include='data/books/*.txt' --include='data/books/*.md' \
   --include='data/decks/' --include='data/decks/*.txt' \
   `# one file per field, and any the owner adds beside them` \
   --include='data/facts/' --include='data/facts/*.json' \
