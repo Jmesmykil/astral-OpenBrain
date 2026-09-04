@@ -223,9 +223,9 @@ Measured on the DevKit:
 | | |
 |---|---|
 | files read | 126 (Britannica, World History, Physical Science, my books, the Python docs) |
-| passages | **308,952** |
+| passages | **397,706** |
 | full rebuild from nothing | **about 3 minutes** |
-| index on the card | 570 MB |
+| index on the card | 660 MB |
 | peak memory while building | 169 MB (measured at 231k passages) |
 | answering a question | **1-58 ms** |
 

@@ -50,7 +50,7 @@ about a millisecond and a half, end to end.
 > *how many books do you have*
 > "3 books on the card: Modern C++ For Absolute Beginners, The Ultimate Python Handbook,
 > The Lamp At Low Tide. There's also 2 sets of documentation in 66 files and 29 reference
-> works in 57 volumes, 308,952 passages in all."
+> works in 57 volumes, 397,706 passages in all."
 >
 > *what do the books say about entropy*, a passage, with the book it came from.
 > *tell me more about that*, it follows the subject.
@@ -112,7 +112,7 @@ route.
   what they prove, not the files they touch.
 - **The thinking tick runs until the first word** and can no longer start after the answer
   chime; a silent second while somebody waits is the thing that makes a device feel broken.
-- **308,952 passages**, indexed in about three minutes, looked up in 1 to 58 ms.
+- **397,706 passages**, indexed in about three minutes, looked up in 1 to 58 ms.
 - **1.5 s** for mechanical comprehension of a question it has never seen, no model.
 - One evening of real use produced four bugs, all now permanent checks. That is the process,
   and it is worth saying out loud.
