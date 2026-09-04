@@ -50,7 +50,7 @@
     font-size:7.6pt;color:var(--grey);
     border-top:.6pt solid var(--rule);padding-top:2mm;
   }
-  .folio .pg::after{content:"Page " counter(sheet) " of 13";}
+  .folio .pg::after{content:"Page " counter(sheet) " of 14";}
 
   /* ---- type ---- */
   h1{font-size:24pt;line-height:1.12;margin:0 0 4mm 0;font-weight:700;letter-spacing:-.01em;}
@@ -746,6 +746,70 @@
   <div class="run"><span><strong>Astral / OpenBrain</strong> · local-first voice on the OpenHome DevKit</span><span>4 September 2026</span></div>
 
   <div class="kicker">Section 5 · continued</div>
+  <h2><span class="num">5.</span> Research areas, and where the information comes from</h2>
+  <p class="lede">The route from this device to the larger systems is work and funding. Each row says
+  what runs today, what it stands on, and what comes next.</p>
+
+  <table style="font-size:7.7pt;">
+    <thead><tr><th style="width:16%">Area</th><th style="width:34%">What exists today</th><th style="width:26%">What it draws on</th><th style="width:24%">Next</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><strong>The mechanical assistant</strong><br><span style="color:#4a4a4a">this device</span></td>
+        <td>3,636 checks held on the DevKit across 26 suites and 3,630 on the Mac, 0 failed. Tier 0 answers between 28 µs and 3.9 ms. Twelve of twelve demo lines answered by voice.</td>
+        <td>The library and the 682 facts on the card, and the open-source speech stack.</td>
+        <td>Milestones 1 to 4.</td>
+      </tr>
+      <tr>
+        <td><strong>Local inference</strong></td>
+        <td>Two lanes I run: a Rust server with candle serving GGUF on the CPU, and an MLX lane on the GPU running my own server rather than the stock one. Two fine-tuned models: a role-tuned 4B on 1 July, LoRA r8 over 300 iterations, and a behaviour-tuned 0.8B on 28 August. The from-scratch transformer I call the subconscious sits at step 34,300, validation 2.31.</td>
+        <td>Open weights fetched once onto my own drives, my own training data, and the MLX and candle runtimes.</td>
+        <td>The comprehension tier trained and evaluated on the machine.</td>
+      </tr>
+      <tr>
+        <td><strong>MECH</strong><br><span style="color:#4a4a4a">comprehension</span></td>
+        <td>A reading becomes a belief that stays revisable, carries its inferential provenance and a condition that would overturn it, and only a promotion check can make it actual. Two reading lanes, measured on the live ledger: 120,927 claims at 99.9% in the bridge lane with no subject bound, and 136 typed readings. It abstains rather than guess.</td>
+        <td>The books I own and attested, a 605 MB ledger indexed into one 727 MB SQLite file, and the toddler baseline of 3 books and 22 sentences.</td>
+        <td>A re-read with comprehension on, which typed 17.5% of one documentation set, then the reading lane on the DevKit.</td>
+      </tr>
+      <tr>
+        <td><strong>Verified mathematics</strong></td>
+        <td>Julia computes the exact answer and Python re-derives it, so the pair decides instead of approximating. In Ada/SPARK I closed 35 open verification conditions by running the prover per subprogram at level 2, with level 3 for float multiplication monotonicity. Rust libraries sit behind one C ABI.</td>
+        <td>Julia, Ada/SPARK with gnatprove, and Rust.</td>
+        <td>It proves what it can and refuses the rest: a codec body outside SPARK is labelled assumed and never proved, and a block whose scale saturates is rejected rather than silently zeroed.</td>
+      </tr>
+      <tr>
+        <td><strong>The Astral Brain Engine</strong></td>
+        <td>Local-first orchestration under twelve prime directives. PD-1, evidence or silence, refuses a claim that arrives without a receipt. PD-3, nothing orphaned and nothing conflated, resolves every file I touch to one product and no other. PD-4, plan then prove then build, holds destructive work until I authorise it by hand. A coordination bus makes a process claim the work before it touches anything.</td>
+        <td>The product map, the receipt ledger and the bus, all on my own machines.</td>
+        <td>Move each directive from advisory text into code that enforces it.</td>
+      </tr>
+      <tr>
+        <td><strong>The knowledge shelf</strong></td>
+        <td>On the card: 57 reference files and a 570 MB index over 308,952 passages, holding the 24 Encyclopedia of Physical Science and Technology volumes, Britannica across 29 files, the seven-volume World History set, the Encyclopedia of Computer Science, and Ancient and Forbidden Knowledge. Staged and converting today: 65 DK volumes, 6.4 GB of PDFs.</td>
+        <td>Encyclopedias and books I bought and own, converted to text on my own hardware.</td>
+        <td>Build the index on a real machine and ship it built, so the card gets the full shelf without hours of indexing on a Pi.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Sources</h3>
+  <p class="small" style="margin-bottom:1.6mm;">The open-source stack: whisper.cpp, piper, vosk,
+  llama.cpp, openWakeWord, PipeWire, SQLite FTS5, Julia, Ada/SPARK and Rust. The encyclopedias and
+  books I own. My own corpora and training runs. The measurements ledger in the repository,
+  KNOWN-BUGS.md, where every number carries its date. OpenHome's SDK and its local-ability contract.
+  My coursework at SNHU, where I am reading for a BS in Computer Science with a Software Engineering
+  concentration.</p>
+
+  <div class="note">Every row above is running or measured today. The machine and the time are what
+  turn the next column into the exists column.</div>
+
+  <div class="folio"><span>Jamesmykil Weber · for OpenHome</span><span class="pg"></span></div>
+</section>
+
+<section class="sheet">
+  <div class="run"><span><strong>Astral / OpenBrain</strong> · local-first voice on the OpenHome DevKit</span><span>4 September 2026</span></div>
+
+  <div class="kicker">Section 5 · continued</div>
   <h2><span class="num">5.</span> Previous work</h2>
   <p class="lede">Three public repositories in the OpenHome ecosystem, and the private stack the
   DevKit work is cut from.</p>
@@ -790,15 +854,14 @@
 
   <div class="kicker">Section 6</div>
   <h2><span class="num">6.</span> The ask: five milestones, and what each level buys</h2>
-  <p class="lede">The advancement is a fully mechanical assistant. A device that answers most of a
-  household's questions on its own hardware in milliseconds, with no model call and nothing sent
-  anywhere, and says so when it cannot.</p>
+  <p class="lede">The full grant is $50,000. Below is what each level buys, down to nothing, because I'm going to keep building this either way.</p>
 
-  <p>That runs today. Each level of funding buys more of it. I am a student with no income, and I
-  will keep building this without money, slower and out of pocket. I am not asking for $50,000. I am
-  showing what each amount does.</p>
+  <p>Every hour of compute today comes out of my own pocket and every test runs on one Pi. The
+  advancement is a fully mechanical assistant: a device that answers most of a household's questions
+  on its own hardware in milliseconds, with no model call and nothing sent anywhere, and says so
+  when it can't. That runs today. Each level buys more of it.</p>
 
-  <figure style="width:82%;margin-left:auto;margin-right:auto;">
+  <figure style="width:44%;margin-left:auto;margin-right:auto;">
     <svg viewBox="0 0 900 150" role="img" aria-label="Five milestones on one line, with the workstation called out">
       <g font-family="Helvetica,Arial,sans-serif">
         <line x1="60" y1="52" x2="840" y2="52" stroke="#BFC7C9" stroke-width="2"/>
@@ -815,14 +878,13 @@
           <text x="838" y="90" fill="#000">the comprehension tier</text><text x="838" y="104" fill="#4a4a4a" font-size="9.5">my own model work</text>
         </g>
         <rect x="60" y="122" width="780" height="24" fill="#E7F0F2" stroke="#0F5C6B" stroke-width="1"/>
-        <text x="72" y="139" font-size="11" fill="#000">One workstation, $3,800 to $4,750, is what milestones 1, 2, 3 and 5 all wait on.</text>
+        <text x="72" y="139" font-size="11" fill="#000">One machine, from $2,000 up, is what milestones 1, 2, 3 and 5 all wait on.</text>
       </g>
     </svg>
-    <figcaption><b>Figure 6.</b> The five milestones. Milestone 1 finishes the device that exists
-    today; the rest widen what it can answer without asking anyone for permission.</figcaption>
+    <figcaption><b>Figure 6.</b> The five milestones.</figcaption>
   </figure>
 
-  <table>
+  <table style="font-size:8pt;">
     <caption>What each milestone delivers, and what it costs.</caption>
     <thead><tr><th style="width:20%">Milestone</th><th style="width:53%">What is delivered</th><th style="width:27%">Cost</th></tr></thead>
     <tbody>
@@ -844,14 +906,20 @@
   steps into pretraining on the Mac mini. I'm a student with no income. That is the ceiling the
   machine removes.</p>
 
-  <h3>The machine</h3>
-  <p>The single purchase that changes what I can do is a Minisforum MS-S1 MAX in the 128 GB
-  unified-memory edition: an AMD Ryzen AI Max+ 395, Radeon 8060S graphics, a 2 TB SSD and dual
-  10 GbE. It is $3,799 on the maker's store today and $4,749 at list, and a Mac Studio at the same
-  level does the same job.</p>
-  <p>Memory the GPU can use is the point. 128 GB holds a 70-billion-parameter model quantised, so I
-  can train and run the comprehension tier at home. The same machine builds the library index in
-  minutes instead of hours on the Pi, and it serves as the LAN rung for milestone 2.</p>
+  <h3>Hardware, by level</h3>
+  <p>I'm upfront about my limits because they are the reason I'm asking. Today the training lane is a
+  16 GB Mac mini and a 6 GB RTX 2060 that cannot hold a training run. There are levels, and each one
+  buys real speed.</p>
+  <ul class="tight small">
+    <li><strong>$2,000 to $5,000.</strong> A GPU with real memory, plus RAM for my second machine.
+    That alone moves training and the library index off the mini and onto a card that can hold them.</li>
+    <li><strong>$3,800 to $4,750.</strong> A Minisforum MS-S1 MAX with 128 GB of unified memory, a
+    Ryzen AI Max+ 395, Radeon 8060S graphics and a 2 TB SSD, at $3,799 on the maker's store today, or
+    a Mac Studio at the same level. 128 GB the GPU can use holds a 70-billion-parameter model quantised.</li>
+    <li><strong>The full build.</strong> A board with two full-lane PCIe slots, two cards at 32 to
+    48 GB of VRAM each, and the RAM to match. That is the machine that trains the comprehension tier
+    and serves the LAN rung at once.</li>
+  </ul>
 
   <p class="small" style="margin-top:2mm;"><strong>How long this has taken.</strong> About three
   years of research on my own, the Astral engine since spring, and the OpenHome work over the last
