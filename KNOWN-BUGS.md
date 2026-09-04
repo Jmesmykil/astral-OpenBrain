@@ -621,3 +621,58 @@ hooks, notes and memory unchanged) and chasing "interruption is not working":
 - Suites at this commit: Mac 3,630 held, 0 failed; device voice suite under the
   service's interpreter (kws-venv) 141 held, 0 failed.
 
+## 2026-09-04, 08:00, the sweeps before the call: 645 utterances, 88 flows, one voice pass
+
+Fixed and deployed before the call, each with a check proved red first: a filler word in
+front of a question ("uh, define osmosis") made the router call it silent, so it went to
+the dismiss tone with no words; fillers are stripped before the request test now. "Are
+you recording", "is anything sent to the cloud" and their kin answered "I couldn't work
+that one out"; they answer with what is true. The device reported the open floor as 8
+seconds when it keeps it for 25.
+
+Open, found the same morning and not yet fixed (no crash and no state leak in any of it;
+every failure is in what it says or stays silent about):
+
+- "I'm having chest pain", "my chest hurts", "I can't breathe" class as silent and get a
+  dismissal tone. The emergency pattern fires on phrasings that ask for help, not on
+  symptoms. Widen it, and gate the symptom sentences.
+- After "remember me", "my name is Jordan" is dismissed at the gate although the memory
+  handler was ready for it; only "call me Jordan" gets through. The gate must ask the
+  memory what it can take.
+- "Wake me at 6.30" sets an alarm for 6:00 and says so; the half hour is dropped without
+  a word. "Remind me to call mum at five" asks when, stores nothing; a reminder that does
+  store keeps "This is your reminder" and loses what it was for. "Set an alarm for seven
+  am" asks "for what time?" and cannot take the answer. Nothing pending can be asked
+  about ("what timers do I have").
+- A bare "stop", "stop the quiz" and "how do I pick a lock" reach the device-control
+  path and answer with the MQTT sentence. "Never mind", "cancel", "shut up" on the open
+  floor close it in silence, with no sign it heard.
+- "What time is it New York City" and "what's the time London right now" answer with the
+  local time; only the fully formed "what time is it in London" is guarded.
+- Arithmetic with an unparsed tail answers the wrong number with full confidence: "one
+  billion divided by three" becomes one divided by three, "two plus two times three"
+  becomes four, "one plus one sixth" becomes two. The parser must refuse when it did not
+  consume the whole sentence.
+- Once a fact has been told, "tell me about Antarctica" and "when was he born" can come
+  back as a random fact. "What about 15 percent" after "20 percent of 80" resolves to "20
+  percent of 15 percent" and is answered.
+- "Louder", "quieter", "change the voice" classify silent at the gate while the settings
+  handler would have answered; "make it louder" gets through.
+- "Why didn't that work" after a reader refusal repeats the refusal instead of the
+  reason; "why are you quiet" after a dismissed turn says nothing happened.
+- Two questions in one breath answer one of them; non-English on a transcript gets a
+  bare tone; "got it", "cool", "nice one" on the floor close it in silence.
+- The ear watch's flat-frame rule is a false positive on this HAT: the microphone array
+  outputs exact zeros in silence, so "flat audio for five seconds" fires in a quiet
+  room and the three kicks per boot are spent in the first fifteen seconds. The
+  start-up kick and the no-bytes rule are the useful parts; the flat rule should go.
+- From the voice pass on the device the same hour: a turn is 10 to 13 s from the end of
+  the question to the answer for the mechanical classes (burst capture until 0.8 s of
+  silence, then transcription, then the voice), 18 to 23 s for a tier-2 refusal and its
+  "why", 29 s for the first library question after a cold boot. Twice a heard question
+  produced no route and no answer, both at the moment the loop was restarted for a
+  deploy; not reproduced since. The log records the length of what was said, not the
+  words; the answers had to be recovered from the speech file. Two PipeWire stacks run
+  after boot (one per session), and a plain ssh shell can bind to the empty one, where
+  pactl shows only auto_null; the loop binds to the right one.
+
