@@ -542,3 +542,43 @@ was `silence`: 420 hostile sentences through the router, a third of a second on 
 no index and fifteen minutes on the DevKit where each can reach the library. It has a
 ninety-second deadline now and says how many it covered. The earlier stalls after `barge`
 were that, plus checks spawning a second maths kernel — both fixed above.
+
+## 2026-09-03, evening — the ear was two seconds behind the room; locked in at 18:00
+
+Found while running the demo under scrutiny (12 of 12 lines answered, 216 s, settings,
+hooks, notes and memory unchanged) and chasing "interruption is not working":
+
+- **The microphone ran two seconds late.** `parec` opened with no stated latency gets
+  pipewire-pulse's default record fragment, two seconds. Measured: a sound played after a
+  flush was heard 2.00 s later, whatever the pipe size or backlog. Every wake phrase,
+  every interruption and every "flush" acted on the room as it was two seconds ago —
+  which is why the device kept talking after "open brain", why a flush after speaking
+  could not stop it hearing its own tail as a wake ('the open floor' after "It's 5:13
+  pm"), and why the burst after a barge held its own words. With `--latency-msec=50` the
+  same sound is heard 0.66 s after its player is *launched* (the player's start-up), with
+  or without eight seconds unread. The pipe is widened to 1 MB so a flush really empties
+  it: with the 64 KB default, 7.9 s of stale audio arrived in the second after a flush.
+- **Barge-in is qualified, and a false one is harmless.** A wake matched while the device
+  speaks counts only if the last 0.8 s at the microphone is above 1200 RMS (its own echo
+  measures 982 median, 3151 at the 90th percentile, and produced no wake match in 18 s
+  through a ready recogniser). A barge that comes to nothing — nothing usable, not a
+  request, the wrong language — finishes the sentence from just before the cut instead
+  of losing it. Three false wakes in a row switch barging off until a real answer. The
+  recogniser is reset after every uninterrupted sentence, and whatever queued on the
+  microphone while the voice was being made is dropped before it plays.
+- **What barge-in cannot do without echo cancellation.** With the interrupter played from
+  the device's own speaker over its own speech at equal loudness, the recogniser caught
+  "open brain" in the controlled trial (1.2 s after the phrase began) but not inside the
+  loop, where speech plays at the trim gain (louder). A person has to be clearly louder
+  than the device to interrupt it. PipeWire's `module-echo-cancel` with WebRTC is
+  installed on the DevKit; loaded at runtime it creates `ec_source`/`ec_sink`, but under
+  the pro-audio profile the source delivered zeros — the graph needs `pw-link` work
+  before it is usable. Not shipped; the path is known.
+- **The owner's verdict at 18:00: "the audio is perfect, lock it in."** Sink 65 %,
+  speech 100, chime 70, tick 70, parec at 50 ms, 1 MB pipe. Frozen as deployed;
+  hub-v2 on the card is byte-identical to this commit.
+- Suites at the lock: Mac 3,607 held, 0 failed; device voice suite under the service's
+  interpreter 128 held, 0 failed (the system python has no vosk, and a wake listener
+  that is not ready returns None for every frame — an earlier "no match on the echo"
+  run was that, not a result).
+
