@@ -1,4 +1,4 @@
-# Astral — OpenHome Ability
+# Astral. OpenHome Ability
 ![Community](https://img.shields.io/badge/OpenHome-Community-orange?style=flat-square)
 ![Local](https://img.shields.io/badge/Category-Local-green?style=flat-square)
 
@@ -28,7 +28,7 @@ Also: day of the week, addition, subtraction, multiplication, division, percenta
 
 ## For students
 
-The same idea, aimed at the questions that come up in a course. These are the ones a model answers fluently and sometimes wrongly, which is exactly why they should not go to a model.
+The same idea, aimed at the questions that come up in a course. These are the ones a model answers fluently and sometimes wrongly, which is why they should not go to a model.
 
 | Ask | Answer |
 |-----|--------|
@@ -47,7 +47,7 @@ Grades: what you need on the final, weighted course totals, percent to letter, s
 
 Two things it says out loud rather than assuming. Anything that depends on a grading scale names the scale, because the scale is a convention and not a fact. A standard deviation says whether it is the sample or the population one, because those are different numbers and a course grades you on which you used.
 
-**Device control (MQTT).** It understands the command, not just on and off. It extracts action, device, attribute, and value from plain speech, so "turn on the kitchen light", "dim the bedroom light to 30", "set the thermostat to 72", and "lock the front door" all parse, and it publishes to `home/<device>/...` with no LLM. It remembers the last device, so a follow-up like "turn it off" resolves. Universal by topic, so it works before you set up a device registry; without an MQTT broker it says so plainly instead of failing silently.
+**Device control (MQTT).** It understands the command, not only on and off. It extracts action, device, attribute, and value from plain speech, so "turn on the kitchen light", "dim the bedroom light to 30", "set the thermostat to 72", and "lock the front door" all parse, and it publishes to `home/<device>/...` with no LLM. It remembers the last device, so a follow-up like "turn it off" resolves. Universal by topic, so it works before you set up a device registry; without an MQTT broker it says so plainly instead of failing silently.
 
 ## Suggested trigger words
 
@@ -72,9 +72,9 @@ An empty `spoken_response` means no exact answer, so the agent takes the turn.
 **Without a trigger word (`background.py`).** Trigger words only cover the turns somebody
 thought to register. The optional background daemon covers the rest: it starts with the
 session, reads the live transcript with `get_full_message_history()`, offers every turn to
-the same `respond` on the device, and — only when the device has an exact answer — calls
+the same `respond` on the device, and, only when the device has an exact answer, calls
 `send_interrupt_signal()` and speaks it. When the device has nothing, which is most turns,
-it does nothing at all and OpenHome's normal routing handles the turn exactly as before.
+it does nothing at all and OpenHome's normal routing handles the turn the way before.
 The local layer is a filter in front of the agent, not a replacement for it, and the
 failure mode of the filter is silence.
 
@@ -86,7 +86,7 @@ alongside the same `devkit_functions.py`. Two things about it are honest unknown
 runs on hardware, and both fail safe: whether a non-`local` ability may call
 `send_devkit_capability_action` at all (if it may not, every call returns an error, which
 this reads as "not mine", and the daemon stays silent forever), and whether the daemon
-consistently beats the agent to the turn. See `KNOWN-BUGS.md`.
+every time beats the agent to the turn. See `KNOWN-BUGS.md`.
 
 ## Speech to text is an option
 
@@ -107,10 +107,10 @@ Both paths use the same engine. Local speech-to-text is the default when it is a
 
 ## Files
 
-- `main.py` — the cloud-side capability. Deterministic dispatch, no LLM.
-- `devkit_functions.py` — the device side. One self-contained file: the time/date and math/money/conversion engine is inlined, so it needs no siblings.
-- `background.py` — the optional background daemon. Same engine, no trigger word, plus due timers.
-- `requirements.txt` — standard library only.
+- `main.py`, the cloud-side capability. Deterministic dispatch, no LLM.
+- `devkit_functions.py`, the device side. One self-contained file: the time/date and math/money/conversion engine is inlined, so it needs no siblings.
+- `background.py`, the optional background daemon. Same engine, no trigger word, plus due timers.
+- `requirements.txt`, standard library only.
 
 ## Extending it
 
