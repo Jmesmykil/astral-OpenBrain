@@ -701,3 +701,74 @@ every failure is in what it says or stays silent about):
 - **Roadmap from the call:** tap-to-mute and an emergency off switch honoured by the
   local loop; a screen or mini display; the Hermes/OpenClaw bridge for DIY harnesses.
 
+
+## 2026-09-04, midday, the sweep fixes merged and the loop shipped
+
+Three review passes ran after the call, each in its own worktree, each defect reproduced
+and gated red before its fix. Merged into the hub, whole suite 3,849 checks held, 0
+failed, 11 skipped, no tracebacks. Deployed as one push.
+
+- **Alarms and reminders.** "Wake me at 6.30" armed 6:00, the decimal dropped. Every
+  reminder phrasing asked "When should I remind you?" and one that got through stored
+  "This is your reminder." with no content. Alarms were deaf to word numbers ("seven am"
+  after "For what time?" got nothing). Nothing pending could be asked about. Fixed, with
+  a new `hooks` suite: 69 checks. Only two digits after the dot count as minutes, so
+  "a timer for 1.5 hours" is untouched; a time with no am or pm is read as said and
+  rolls to tomorrow if passed; a reminder needs a cue (at, around, by) before a clock time
+  so "buy one apple" is not 1 am; the pending list is ordered by when things fire.
+- **Arithmetic tails and the world clock.** "Three plus four times two" answered the
+  first two numbers; "billion" was skipped as an unknown word; "one hundred and fifty plus
+  two" was cut at the number's own "and"; "2 point five" raised a ValueError out of the
+  engine with no answer and no reason. The whole expression is read now, with times and
+  over before plus and minus, and any leftover refuses: "I couldn't read all of that as
+  one calculation, so I won't answer part of it." "What is 3 less than 8" used to answer
+  "3 minus 8 is -5"; it is silent now and goes to the agent. The clock finds any place it
+  knows anywhere after the time word, two places give two clauses, a dangling "in"
+  refuses. Answers suite 257 checks.
+- **The facts hijack.** "Tell me about antarctica" was answered with a fact about the
+  Pacific, and "when was he born" with one about concrete, because a field that merely
+  mentioned a word counted as a field about it and names matched on any substring ("he"
+  inside chemistry). `facts.filed()` is the one decider: whole words, three letters or
+  more, name or alias; an unfiled subject is a miss and is said so.
+- **The follow-up resolver fabricated questions.** "What about 15 percent" after "what is
+  20 percent of 80" became "what is 20 percent of 15 percent" and answered 3. A follow-up
+  that does not fit the open question comes back unchanged and is judged as itself.
+- **A verb inside a question was a device command.** "How do I pick a lock" reached the
+  registry as lock; a bare "stop" was a command with no device. A question counts as a
+  command only when it also reads as an imperative, and a command names the thing it acts on.
+- **A bare stop.** With the command path fixed, "stop" alone went on to the reader, which
+  on the board is a model replying to the word stop. "Stop the music" was answered with the
+  oldest known musical instruments, through the fallback that sends a refused question to
+  the books and the facts. Now: a live quiz, timer or notes session claims its own stop;
+  with nothing live, "stop", "cancel", "never mind" and "stop reading" get "Okay.", and
+  "stop the quiz" with no quiz says there is none. An imperative with a thing after the
+  verb no longer becomes a question about the thing. The hub is built with no local runner,
+  so a capability it routes to itself speaks its own sentence for not being able and never
+  the orchestrator's "[ran state.cancel]" placeholder.
+- **Backchannels shut the floor.** "Got it", "cool", "nice one" and "thanks" on the open
+  floor were fragments of the room and closed it; "okay thanks" was acknowledged only
+  because it starts with ok. A whole sentence that is a backchannel is addressed now, gets
+  a person's acknowledgement, and a second one inside the six-second throttle is heard
+  without another word instead of shutting the floor.
+- **The suite in a worktree.** The `facts` and `fun` suites fail in a fresh checkout with
+  "no cost profile measured on mac-16g-arm64": the measured profiles are not tracked, so a
+  worktree has none and every class with a cost need goes silent. Not a code defect;
+  measuring the host clears it. Worth tracking a profile per host or generating one.
+- **A live-state hazard.** `python3 hooks.py <phrases>` wrote three real alarms into the
+  card's hooks.json during the review, because the module's own demo path does not set
+  ASTRAL_STATE. Fixed the same day: the demo path uses a scratch copy unless told
+  otherwise.
+- **The kernel suite's fake server** printed a broken-pipe traceback in the slow case
+  (the client had already given up). Quieted; it was harness noise, not the product.
+- **ssh from the Mac hung again** at the public-key step: the launchd agent socket. The
+  deploy script hides the agent; anything ad hoc must too (`SSH_AUTH_SOCK= ssh …`).
+
+Open after this pass:
+
+- "Turn off the music" still reaches the reader (there is no music to turn off, and the
+  device should say so the way it does for "play some jazz").
+- "And the date" after "what time is it" comes back unglued and is judged silent, so the
+  loop plays the dismiss tone rather than reading the date.
+- The flat-audio ear rule is a false positive in a quiet room (the HAT gates silence to
+  exact zeros); the no-bytes rule and the start-up kick do the protecting.
+- The chime pack: only one of the sounds in use is liked; the rest sound like xylophones.
