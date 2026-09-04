@@ -582,3 +582,42 @@ hooks, notes and memory unchanged) and chasing "interruption is not working":
   that is not ready returns None for every frame — an earlier "no match on the echo"
   run was that, not a result).
 
+## 2026-09-04, the morning of the meeting — the boot race, the app's slider, follow-ups
+
+- **The microphone came up at 30 %.** The Pi rebooted at 06:05. Our unit's ExecStartPre
+  sets the mic to 160 %, OpenHome's node server sets its 30 % default fifteen seconds
+  after boot, and whoever runs last wins. The device heard "open brain, run the demo" at
+  peak 112 and threw the burst away as too quiet. The loop now pins the mic from the
+  settings at boot (`device.mic`, default 160) the way it pins the speaker, and holds
+  both for as long as it runs, reading the settings fresh every five seconds so a
+  "louder" said to the device is kept.
+- **The speaker moved on its own: 65 → 38 → 43 → 41.** OpenHome's cloud sends
+  `set_source_volume` when the speaker slider moves in their app; their client applies
+  it to the default sink. The hold puts it back within five seconds and logs
+  `[mixer] the speaker was moved to 41 percent by something else; back to 65`. One knob,
+  and it is the owner's: change the volume by voice or in settings, not in the app.
+- **The ear can come up deaf.** Half the loop starts this morning heard nothing: parec
+  attached and running, one error on the input node, bytes flowing (97,966 in 3 s) and
+  the recogniser running on them, and no wake ever. A momentary second capture client
+  cured it every time. The loop now kicks its own stream once, three seconds after
+  opening the microphone, watches for a read that waits more than four seconds or five
+  seconds of dead-flat frames, and kicks again (three times at most). It logs
+  `[ear] …` when it does and a `[health] mic … sink … room peak … kicks …` line every
+  minute — the first live analytics the loop has had.
+- **Follow-ups on the open floor were thrown away.** "And in London?" after "what time
+  is it in Tokyo" was judged as chatter before context completed it; the completed form
+  also doubled the preposition ("in in london") and the unit ("20 milesmiles"). The
+  fragment is completed first now, and the resolver replaces the last "<preposition>
+  thing" of the previous question. Heard by voice at 06:56: Tokyo, then "and in
+  London" → "what time is it in london", then twelve miles, then "and in twenty miles"
+  → "how many kilometers in 20 miles", all answered; chatter on the floor still
+  dismissed, a follow-up after the floor closed still ignored.
+- **The first library question after a cold boot costs 40 s** (the 570 MB index on the
+  SD card, read for the first time); the second takes 81 ms. A boot warm-up that read
+  the whole file was tried and withdrawn (too heavy while the loop starts). Open.
+- **What is not there yet, said plainly:** no stress test, no profile of the ranking
+  under load, no live dashboard; the `[health]` line and the demo's timing summary are
+  what exists. Echo cancellation is installed but unusable under the pro-audio profile.
+- Suites at this commit: Mac 3,630 held, 0 failed; device voice suite under the
+  service's interpreter (kws-venv) 141 held, 0 failed.
+
