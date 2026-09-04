@@ -1,0 +1,45 @@
+Astral / OpenBrain, the scripted voice demo, run on the DevKit on 2026-09-04 at 06:19 HST
+Asked by voice: "Open brain. Run the demo." Every line below is the device's own log.
+
+[wake] score=1.00 word='open brain'
+[heard] 'run the demo' (command)
+[demo] ask: 'how many books do you have'
+[demo] say: "3 books on the card: Modern C++ For Absolute Beginners, The Ultimate Python Handbook, The Lamp At Low Tide. There's also 2 sets of documentation in 66 files ..."
+[demo] ask: 'what page are lambdas on'
+[demo] say: 'Lambdas are on pages 208, 221, 222 and 225 of Modern C++ For Absolute Beginners. Say read me that page to hear it.'
+[demo] ask: 'what do the books say about entropy'
+[demo] say: 'Not in the books. From the reference shelf, Physical Science Measurements, Techniques, And Instrumentation: This result corresponds to Boltzmann's definition ...'
+[demo] ask: 'tell me something interesting'
+[demo] say: 'The Riemann Hypothesis is worth a million dollars and concerns where a certain function equals zero. ...'
+[demo] ask: 'what time is it in tokyo'
+[demo] say: "In Tokyo it's 1:21 am, Saturday."
+[demo] ask: 'how many kilometres in twelve miles'
+[demo] say: '12 miles is 19.31 kilometres.'
+[demo] ask: 'what is one third plus one sixth'
+[demo] say: 'One third plus one sixth is one half.'
+[demo] ask: 'tell me a riddle'
+[demo] say: 'What has hands but cannot clap?'
+[demo] ask: 'open the pod bay doors'
+[demo] say: "I'm afraid I can't do that. Mostly because there aren't any, and I don't have hands."
+[demo] ask: 'what is the capital of Mongolia'
+[demo] say: "I couldn't work that one out, and I won't guess."
+[demo] ask: "why didn't that work"
+[demo] say: 'It went to the part of me that works things out, and that came back with nothing it was sure of. I would rather say nothing than invent an answer.'
+[demo] ask: 'what can you do'
+[demo] say: '28 things, all on this device with nothing sent anywhere: your books, 682 facts, arithmetic and timers. Try "what do the books say about entropy". ...'
+  12 lines, 12 as scripted, 0 not, 0 skipped for missing parts
+  slowest: 40033 ms, 'how many books do you have' (the first library question after a cold boot; 878 ms warm)
+  median:  11 ms
+  whole run: 271.9 s (216 s warm, measured 2026-09-03)
+State after the run: settings unchanged, hooks unchanged, notes unchanged.
+Levels: mic 160 %, speaker 65 %, held by the loop. Nothing was sent anywhere.
+
+Multi-turn, by voice, 2026-09-04 06:56 HST:
+[heard] 'what time is it in tokyo' (query)            -> answered (mechanical, tier 0)
+[context] 'and in london' -> 'what time is it in london'  -> answered, no wake word
+[heard] 'how many kilometers in 12 miles' (query)       -> answered (calc, tier 0)
+[context] 'and in 20 miles' -> 'how many kilometers in 20 miles' -> answered, no wake word
+
+Cold reboot, 2026-09-04 07:27 HST: back on the network at 07:28:06, loop ready 07:29:00,
+mic 160 %, speaker 65 %, the ear kicked its own capture stream once, then Tokyo, London
+and "what can you do" answered.
