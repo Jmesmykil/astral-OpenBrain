@@ -82,6 +82,21 @@ if [ -f ~/astral-voice/hub-v2/build_kernel.py ] && [ -n "$($PY -c 'import import
   fi
 fi
 
+# The microphone level is OpenHome's: their node server sets it at boot from MIC_SENSITIVITY
+# in ~/.env, and their app has no slider for it. Their default, 30, was measured deaf for the
+# wake ("open brain" at peak 112). The value the wake needs is written ONCE into their
+# configuration, only while it still holds their default, so a number they or the owner
+# choose later is never overwritten; the loop itself never touches the mixer. The speaker is
+# the app's slider (SPEAKER_VOLUME), and nothing here writes it.
+ENVF=~/.env
+if [ -f "$ENVF" ]; then
+  MICNOW=$(grep '^MIC_SENSITIVITY=' "$ENVF" | tail -1 | cut -d= -f2)
+  case "${MICNOW:-none}" in
+    none) echo "MIC_SENSITIVITY=160" >> "$ENVF"; echo "mic:        MIC_SENSITIVITY=160 added to OpenHome's ~/.env (their boot sets it)";;
+    30|30.0|30.00) sed -i 's/^MIC_SENSITIVITY=.*/MIC_SENSITIVITY=160/' "$ENVF"; echo "mic:        MIC_SENSITIVITY 30 -> 160 in OpenHome's ~/.env (their boot sets it)";;
+    *) echo "mic:        MIC_SENSITIVITY=$MICNOW in OpenHome's ~/.env, left as chosen";;
+  esac
+fi
 CAPS=~/openhome_devkit/local_capabilities
 SHIPPED=~/astral-voice/hub-v2/shipped/devkit_functions.py
 if [ -d "$CAPS/astral" ]; then
@@ -111,7 +126,6 @@ After=pipewire.service
 WorkingDirectory=%h/astral-voice/hub-v2
 Environment=PATH=%h/opt/julia/bin:%h/.cargo/bin:/usr/local/bin:/usr/bin:/bin
 Environment=LD_LIBRARY_PATH=%h/astral-voice/whisper.cpp/build/bin
-ExecStartPre=/usr/bin/pactl set-source-volume @DEFAULT_SOURCE@ 160%
 ExecStart=%h/astral-voice/kws-venv/bin/python3 live_hub.py
 Restart=always
 RestartSec=3
