@@ -1,7 +1,7 @@
 # Friday 2026-09-04, 8:30, 30 minutes with Brady
 
 **Before the call.** Device on, quiet room, no video playing near it. Say "open brain, run
-the demo" once to yourself; it takes about three minutes and ends with its own count.
+the demo" once to yourself; it takes about four minutes and ends with its own count.
 
 **Show (in this order).** 1. "open brain, run the demo", let it run. 2. "what page are
 lambdas on", then "what chapter is page 88 in". 3. "what is the capital of Mongolia", then

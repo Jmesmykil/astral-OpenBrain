@@ -3,7 +3,6 @@
 Fields 1 to 8 are yours (name, email, phone, referrer, location, GitHub, Discord, address).
 Referrer: put Brady's name if he sent you the form. Fields 9 to 18 below are drafted from
 SUBMISSION.md, DEMO.md and KNOWN-BUGS.md, and every number in them was measured on the DevKit.
-Edit the voice to yours; do not add claims that are not in those three files.
 
 ---
 
@@ -27,7 +26,7 @@ Related work: on-device wake words (openWakeWord, Porcupine) and on-device speec
 
 Build: everything ships as an MIT shim plus a compiled kernel wheel, the way OpenHome's local ability docs describe it, and BOUNDARY.md documents the line. The local loop deploys with one script (deploy/install_v2.sh) and runs as a user service beside OpenHome's own.
 
-Test: the product carries 3,630 checks in 26 suites on my Mac and 3,636 on the DevKit, run against a scratch copy of the device's state so a check can never touch the card. Every new check is proved to fail before its fix goes in. Beyond the suite I test it by asking it everything. One adversarial review day found 57 defects, 13 of them verified on the device and fixed the same day, each with a check that holds it. Latencies, loudness at the device's own microphone, and the demo's length in words and seconds are in the documents with the dates they were taken.
+Test: the product carries 3,630 checks in 26 suites on my Mac and 3,636 on the DevKit, run against a scratch copy of the device's state so a check can never touch the card. Every new check is proved to fail before its fix goes in. Beyond the suite I test it by asking it everything. One adversarial review day found 57 defects, 24 of them verified and 13 reproduced on the device and fixed the same day, each with a check that holds it. Latencies, loudness at the device's own microphone, and the demo's length in words and seconds are in the documents with the dates they were taken.
 
 Milestones for the grant (see 16): the mechanical assistant finished and installable from the OpenHome catalogue; the consent ladder live with a machine in the house and named cloud providers; the reference library at full size with its index built on a real machine and shipped built; the device measured in other people's homes; and the model work that makes the comprehension tier good enough to trust.
 
@@ -85,6 +84,6 @@ Public work you can open now: https://github.com/Jmesmykil/astral-OpenBrain (thi
 
 ## 18. Anything else we should know?
 
-Everything claimed here can be reproduced on the hardware in about ten minutes with the deploy script, and the demo runs by voice: "open brain, run the demo". The bug ledger, KNOWN-BUGS.md, lists what is still open with numbers and dates. I have a call booked with Brady on 2026-09-04. [Referrer, if any, and how you heard of the program.]
+Everything claimed here can be reproduced on the hardware in about ten minutes with the deploy script, and the demo runs by voice: "open brain, run the demo". The bug ledger, KNOWN-BUGS.md, lists what is still open with numbers and dates. I heard about the program from Brady at OpenHome, I'm in the OpenHome Discord and in touch with your developer relations team there, and I have a call booked with Brady on 2026-09-04. You can reach me at mykiljames253@gmail.com or +1 253 392 9204.
 
-Affiliation: independent developer, no institution. Previous projects: openhome-cli and the abilities repository, both public and in use with OpenHome; AstralBrainEngine, Strata, Slate, Tessera, modly, DemoGraph, SlimeShot and soloDOLO, private and available on request; QNX, public.
+Affiliation: independent developer and student, no institution. Everything so far was built on hardware I already owned (a 16 GB M4 Mac mini, a second Linux box with 23 GB of RAM, an RTX 2060 with 6 GB, an RX 580, and the DevKit), and I've spent about $10,000 on this work over the last one to three years, all out of pocket. Previous projects: openhome-cli and the abilities repository, both public and in use with OpenHome; AstralBrainEngine, Strata, Slate, Tessera, modly, DemoGraph, SlimeShot and soloDOLO, private and available on request; QNX, public.

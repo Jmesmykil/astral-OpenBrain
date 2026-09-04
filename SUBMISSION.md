@@ -12,7 +12,7 @@ v2 is the rest of that idea, on the same hardware and the same platform, with no
 
 ## What it does now
 
-**It answers 27 classes of question on the DevKit, and says how many, because the number
+**It answers 28 classes of question on the DevKit, and says how many, because the number
 is computed from its own cost table for the host it is on.** The time, arithmetic, unit
 conversions with both spellings, exact fractions checked against a proven kernel,
 chemistry, physics, statistics, the moon, definitions with every sense, 682 written-down
@@ -32,7 +32,7 @@ holds it. What remains is written down in KNOWN-BUGS.md, with numbers.
 only job is to prove nothing ever fails silently: it reads the reasons out of the source
 and fails the build if any path can go quiet.
 
-**It climbs a ladder, with consent at every rung.** Mechanical here → a small model here →
+**It climbs a ladder, with consent at every rung.** The local rungs are live today; the LAN and cloud rungs are designed and switched off, because no measured class needs them yet. Mechanical here → a small model here →
 a machine in the house over the LAN → a named cloud provider. Each rung is offered BY
 NAME, "the Mac, or Claude?", because "the cloud" is not something a person can choose
 between. Nothing leaves the device without a spoken yes. The cloud ships switched off, and
@@ -55,7 +55,7 @@ when you tell it you are tired.
 | Mechanical comprehension (MECH) | 1.5 s, no model, no network |
 | Spoken demo, 12 questions | 392 words, 2 min 28 s of speech at 159 words a minute; answers median 11 ms |
 | The thinking tick | runs until the first word; cannot start after the answer chime (checked) |
-| Checks passing | 3,593 on a Mac; 3,636 on the DevKit, all 26 suites, 2026-09-03 (KNOWN-BUGS.md has the per-suite record) |
+| Checks passing | 3,630 on a Mac; 3,636 on the DevKit, all 26 suites, 2026-09-03 (KNOWN-BUGS.md has the per-suite record) |
 
 ## How it ships to you
 

@@ -194,7 +194,7 @@ kernel. Measured on the device through OpenHome's own dispatch path: "define ubi
 0.9 s, "sing twinkle twinkle" 0.6 s, "integral of x squared" 0.6 s, "what is 20 percent of
 24352" 0.2 s.
 
-**And when it cannot answer, it says so and asks where to send it.** "I can't do that
+**And when it cannot answer, it says so and asks where to send it.** (Designed and switched off today: no measured class needs the LAN or the cloud yet.) "I can't do that
 here. Want me to ask the Mac, or the cloud?", a question, answered out loud, naming the
 machines. A machine in the house is asked over the LAN and the answer is spoken; the cloud
 means this ability stays quiet and OpenHome's own agent takes the turn it would have taken
@@ -215,7 +215,7 @@ glossary, which is how terminology for a whole field gets on there. The dictiona
 your shelves before it answers from WordNet: measured on the device, WordNet holds 20 of
 25 academic terms, and knows nothing of gradient descent, a Lagrangian, or big O notation.
 
-**It was stress-tested with a fourteen-volume encyclopedia.** The 1911 Britannica is 41 GB
+**It was stress-tested with Britannica in twenty-nine files.** The 1911 Britannica is 41 GB
 of scanned page images and 96 MB of searchable text, and the text is the part worth having,
 so gzipped archives are read where they lie, and nothing is extracted onto the card.
 Measured on the DevKit:
@@ -225,7 +225,7 @@ Measured on the DevKit:
 | files read | 126 (Britannica, World History, Physical Science, my books, the Python docs) |
 | passages | **308,952** |
 | full rebuild from nothing | **about 3 minutes** |
-| index on the card | 544 MB |
+| index on the card | 570 MB |
 | peak memory while building | 169 MB (measured at 231k passages) |
 | answering a question | **1-58 ms** |
 
@@ -245,7 +245,7 @@ silent by omission. Through OpenHome the same rule holds, with their agent cover
 we decline; the background daemon says out loud when it cannot reach the device at all,
 and says when it is back.
 
-**The ladder, and where a question climbs to.** Every class walks the same four rungs, in
+**The ladder, and where a question climbs to.** (The two local rungs are live; the house and cloud rungs are designed and switched off today.) Every class walks the same four rungs, in
 this order: *mechanical here* (tables, kernels and MECH, in microseconds), *a model here*
 (a GGUF on the card, tens of seconds, and asked for), *the house* (the Mac or your phone
 over the LAN), *the cloud* (named providers, off by default and never silent: Claude,

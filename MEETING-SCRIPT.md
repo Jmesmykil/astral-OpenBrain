@@ -1,8 +1,7 @@
 # Spoken script: Brady / OpenHome, 30 minutes, 2026-09-04
 
 Read this out loud once before the call. Everything stated as a number below was measured
-on the DevKit or the Mac and is in KNOWN-BUGS.md with its date. Anything in `[YOU: …]` is
-yours to say, so don't read the bracket.
+on the DevKit or the Mac and is in KNOWN-BUGS.md with its date. yours to say, so don't read the bracket.
 
 ---
 
@@ -31,8 +30,7 @@ of Britannica, world history and physical science, about three hundred thousand 
 six hundred and eighty-two curated facts, and twenty-eight local abilities.
 
 Two more numbers matter more to me than the features. Three thousand six hundred and
-thirty-six checks held on the DevKit across twenty-six suites, zero failed; three thousand
-six hundred and thirteen on the Mac, zero failed. And every new gate I write, I prove red
+thirty-six checks held on the DevKit across twenty-six suites, zero failed; three thousand six hundred and thirty on the Mac, zero failed. And every new gate I write, I prove red
 before I trust it green, because if a check has never failed, I don't know that it checks
 anything.
 
@@ -136,7 +134,7 @@ running a month in a home that isn't mine. That's the test I can't run alone."
 "I want to be straight about where this came from, because it explains why the device is
 built the way it is. The DevKit work is the smallest node of a local-first system I've
 been building.
-[YOU: one line on when you started and what pulled you into it, your history, not the repo's.]
+I've been at this for about three years on my own, teaching myself as I went. What pulled me in was wanting machines that answer without a subscription and without a data centre, and finding out that nobody had built the mechanical half properly.
 
 Underneath it there's an orchestration engine I run locally: prime directives that gate
 what any process may do, product isolation so two projects can never be conflated into one
@@ -163,9 +161,8 @@ fit a Pi.
 
 Then there's the model side. I've trained adapters, and a from-scratch pretrain is running
 for the component that may only propose and never answer.
-[YOU: two sentences on what your custom transformer and inference work actually does,
-architecture, objective, what it's for, in your own words.]
-[YOU: name the machines you own, what each is doing today, and which is the bottleneck.]
+My own model work is real and small. Two fine-tuned models of mine already run, a role-tuned four-billion model from July and a behaviour-tuned point-eight-billion model from August, and a from-scratch transformer I call the subconscious is thirty-four thousand steps into pretraining on my own corpus, on the Mac mini. The inference side is my own server in Rust with candle on the CPU and an MLX lane on the GPU. That's where the comprehension tier goes: a small model I trained, on hardware I own.
+Everything you've heard runs on hardware I already owned: a sixteen gigabyte M4 Mac mini that panics when its swap fills, a second Linux box with twenty-three gigabytes of RAM, an RTX 2060 with six gigabytes that can't hold a training run, an RX 580, and the DevKit. The mini is the bottleneck. Over the last one to three years I've spent about ten thousand dollars on this in total, all out of pocket, most of it renting compute I'd rather own.
 
 Those aren't finished, and I'm not claiming they are. The DevKit product is what happens
 when that discipline is aimed at one small board, and there, measured, today, it works."
@@ -202,8 +199,8 @@ Three things I want out of this conversation, in order. First, tell me which con
 | "Can it be interrupted?" | Yes, echo-gated so its own voice can't trigger it. The limit: a person has to be louder than the speaker by a clear margin. Proper echo cancellation on this HAT needs graph work I haven't shipped. |
 | "Other languages?" | It hears about a hundred and says which one it heard. It answers in English, because translating its own sentences with a 1B model that invents names would be worse than saying so. |
 | "What's still broken?" | KNOWN-BUGS.md, and it's dated: the cold-boot warm-up, the phone rung being off, echo cancellation, and Britannica's OCR damage, which it reads as it finds it. |
-| "How long did this take?" | [YOU: your real timeline, in one sentence.] |
-| "Who else is on it?" | Me. At the full amount I'd bring in part-time help for packaging and review. [YOU: say whether you'd bring anyone in on a funded scope.] |
+| "How long did this take?" | About three years of research on my own, the engine since spring, and the OpenHome work over the last month. |
+| "Who else is on it?" | Me. At the full amount I'd bring in part-time help for packaging and review so milestone one lands in weeks. |
 | "Could we build it ourselves?" | Then I'd rather be the reference implementation and contribute upstream. That's why v1 is already merged. |
 
 ---
