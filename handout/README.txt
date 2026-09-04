@@ -1,4 +1,4 @@
-OpenBrain meeting handout — 2026-09-04
+OpenBrain meeting handout: 2026-09-04
 =======================================
 
 FILES
@@ -15,7 +15,7 @@ ABOUT THE DOCX
 
       textutil -convert docx -output OpenBrain-Handout.docx OpenBrain-Handout.html
 
-  The inline SVG figures do NOT survive that conversion — the DOCX carries the text,
+  The inline SVG figures do NOT survive that conversion: the DOCX carries the text,
   headings and tables only. The PDF is the version to hand over or print; the DOCX is for
   anyone who needs to edit the wording.
 
@@ -38,7 +38,7 @@ RE-RENDERING THE PDF AFTER AN EDIT
         --print-to-pdf=OpenBrain-Handout.pdf OpenBrain-Handout.html
 
   Each printed page is one <section class="sheet"> of fixed height (296 mm). If you add
-  text to a section, check it still fits inside its own sheet — content that overruns a
+  text to a section, check it still fits inside its own sheet: content that overruns a
   sheet is not pushed to a new page, it runs under the footer rule. The page numbers come
   from a CSS counter over those sheets, and the total ("of 13") is written in the
   .folio .pg::after rule near the top of the file; update it if you add or remove a sheet.

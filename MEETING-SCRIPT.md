@@ -171,13 +171,13 @@ when that discipline is aimed at one small board, and there, measured, today, it
 
 ## 5. The ask (4 minutes)
 
-"I'm not here to ask for fifty thousand dollars. I'm here to show you what each amount does, because I'm going to keep building this either way. I'm a student with no income, and right now every hour of compute comes out of my pocket and every test runs on one Pi.
+"The full grant is fifty thousand dollars, and I'll show you what each level buys, down to nothing, because I'm going to keep building this either way. Right now every hour of compute comes out of my own pocket and every test runs on one Pi.
 
 The advancement is what you heard. A device that answers most of what a household asks on its own hardware, in milliseconds, with no model call and nothing sent anywhere, and that tells you when it can't. That runs today. Each level buys more of it.
 
 There are five milestones. One, the mechanical assistant finished: every exact-answer class complete, the suite kept at zero failures, the wheel published, the ability installable from your catalogue, the runbook and the bug ledger current. That's my time. Two, the ladder live: a machine in the house as the LAN rung and named cloud providers as the last rung, each offered by name and consented to by voice, measured end to end. Three, the library at full size: the encyclopedias I already own on the card, sixty-five more volumes are converted and waiting today, with the index built on a real machine and shipped built, so an offline device answers from an encyclopedia in under a second. Four, measured in other homes: two more DevKits in homes that aren't mine for a month each, every failure read from the logs and fixed. Five, the comprehension tier: my own inference and transformer work applied to the one tier that still uses a stock model, so the device can hold a conversation the way it holds a fact.
 
-One purchase changes what I can do, and I want to name it plainly. A Minisforum MS-S1 MAX with 128 gigabytes of unified memory, or a Mac Studio at the same level. It's thirty-eight hundred dollars on sale today, forty-seven fifty at list. The memory is the point: 128 gigabytes the GPU can use holds a seventy-billion-parameter model quantised, so I can train and run the comprehension tier at home. The same box builds the library index in minutes instead of hours on the Pi, runs as the LAN rung, and stops me renting compute for a product whose whole argument is that a household shouldn't have to rent.
+One purchase changes what I can do, and I want to name it plainly. A Minisforum MS-S1 MAX with 128 gigabytes of unified memory, or a Mac Studio at the same level. It's thirty-eight hundred dollars on sale today, forty-seven fifty at list. The memory is the point: 128 gigabytes the GPU can use holds a seventy-billion-parameter model quantised, so I can train and run the comprehension tier at home. The same box builds the library index in minutes instead of hours on the Pi, runs as the LAN rung, and stops me renting compute for a product whose whole argument is that a household shouldn't have to rent. I'm a student, so that one purchase is the difference between months and weeks.
 
 So the ladder. At fifty thousand, all five milestones, the machine, the hardware for testing, the training compute and frontier model access for the comprehension tier, and part-time help with packaging and review so milestone one lands in weeks instead of months. At ten thousand, milestones one, two and three in full and the machine: a fully mechanical assistant, installable, with the ladder live and the library at full size. At thirty-eight hundred to forty-seven fifty, the machine, and with it milestones one and three. At five hundred to two thousand, one more DevKit and test hardware, and milestone one on my own time. At nothing, I keep building it on the Pi, slower.
 
@@ -202,6 +202,12 @@ Three things I want out of this conversation, in order. First, tell me which con
 | "How long did this take?" | About three years of research on my own, the engine since spring, and the OpenHome work over the last month. |
 | "Who else is on it?" | Me. At the full amount I'd bring in part-time help for packaging and review so milestone one lands in weeks. |
 | "Could we build it ourselves?" | Then I'd rather be the reference implementation and contribute upstream. That's why v1 is already merged. |
+| "Who owns the engine, and what licence is the wheel under?" | I own it. The shim is MIT and the wheel ships under my own licence as a dependency, the way your local-ability docs allow. For a sponsored integration we can scope a licence that fits you. |
+| "How many people besides you have used it?" | Nobody yet, and that's milestone four: two more DevKits in homes that aren't mine, a month each, with the logs read. |
+| "How long to milestone one?" | Weeks, not months, once the wheel has a home. Most of it runs today; the work is packaging, the catalogue, and keeping the ledger current. |
+| "Wouldn't cloud credits serve you better than a box?" | Credits run out and leave nothing behind. The box builds the index, trains the comprehension tier and runs the LAN rung for years, and it's the same argument the product makes: own it, don't rent it. |
+| "Are you committed elsewhere?" | I'm a student, and this is the work I'm doing. Nothing else has a claim on the time. |
+| "Did you write these documents with help?" | Yes, drafting help, and every number in them was measured on the device and is in the ledger with its date. |
 
 ---
 
