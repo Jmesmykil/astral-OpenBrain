@@ -27,11 +27,11 @@ open for a few seconds, so follow-ups need no wake word.
 **1. It knows what it is** (10 seconds)
 
 > *what can you do*
-> "27 things, all on this device with nothing sent anywhere: your books, 682 facts,
+> "28 things, all on this device with nothing sent anywhere: your books, 682 facts,
 > arithmetic and timers. Try 'what do the books say about entropy'. Say 'list everything'
 > if you want all of them."
 >
-> (27 on the DevKit. The number is computed from the cost table for whichever machine it is
+> (28 on the DevKit. The number is computed from the cost table for whichever machine it is
 > on, a Mac says a different one, which is the point: it counts what it can do.)
 
 **2. The instant class, no model, no network** (20 seconds)
@@ -122,5 +122,5 @@ route.
 - Nothing answers → `systemctl --user status astral-hub` on the device; `--user`, not root.
 - It answers but sounds quiet → *turn the chimes up*, out loud. It is a setting now.
 - A line in the script fails → run `python3 demo.py --section <name>` to see that part.
-- The Mac rung is offered but unreachable → start the listener on the Mac:
+- If you switch the Mac rung on to show it, it is offered but unreachable → start the listener on the Mac:
   `python3 hub/lan.py serve`.
