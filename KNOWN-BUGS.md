@@ -528,3 +528,17 @@ that is still his to set by ear is the master.
   the twenty minutes after the 15:59 restart.
 - **Mac: 3,590 checks, 0 failed.** The device count is being produced by a detached run on
   the Pi and goes here with its date when it lands.
+
+**The DevKit count, 2026-09-03 evening.** Every suite run on the device, one at a time,
+each under a five-minute cap so a stall would be named rather than waited on:
+
+| suite | held | failed | skipped | seconds |
+|---|---|---|---|---|
+| answers 222 · kernels 20 · ranking 66 · classes 43 · meta 55 · study 41 · library 167 · notes 46 · conversation 50 · voice 98 · duplex 11 · barge 11 · daemon 32 · ability 30 · clouds 33 · languages 69 · settings 30 · facts 2,123 · fun 202 · memory 88 · lanes 43 · pages 28 · wake_takes 14 · shipped 22 · honesty 22 | 3,566 | 0 | 5 | 118 in all, kernels 46 |
+| silence | 70 | 0 | 2 | 107 |
+
+**3,636 held, 0 failed, 7 skipped, 26 suites.** The one that had looked like a hang all day
+was `silence`: 420 hostile sentences through the router, a third of a second on a Mac with
+no index and fifteen minutes on the DevKit where each can reach the library. It has a
+ninety-second deadline now and says how many it covered. The earlier stalls after `barge`
+were that, plus checks spawning a second maths kernel — both fixed above.

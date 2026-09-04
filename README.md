@@ -284,7 +284,7 @@ chime is withheld until a real answer. `KNOWN-BUGS.md` has the measurements.
 One runner, `python3 hub/tests/run.py`, and twenty-six suites named for what they prove —
 answers, kernels, ranking, classes, meta, study, library, notes, conversation, voice, duplex,
 barge, daemon, ability, clouds, languages, settings, facts, fun, memory, lanes, pages,
-wake_takes, silence, shipped, honesty. 3,562 checks on the Mac, every one run against a
+wake_takes, silence, shipped, honesty. 3,593 checks on the Mac and 3,636 on the DevKit (2026-09-03), every one run against a
 scratch copy of the device's state so a check can never touch the card. The byte contract is the centre of
 it: 167 phrases asserted BYTE-EXACT against known-good strings, the questions Astral
 must stay silent on included, so the agent keeps the turn. Byte comparisons, not
