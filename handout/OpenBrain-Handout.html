@@ -404,7 +404,7 @@
   <p class="small">The card is what makes the upper tiers possible here rather than somewhere else:
   the dictionary is Open English WordNet with 135,969 lexemes and 107,519 defined senses; the
   comprehension core reads against 133,218 dictionary entries and 52,571 phrases from a 456 MB data
-  set; 308,952 indexed passages sit beside them. A LAN route exists for anything the device
+  set; 397,706 indexed passages sit beside them. A LAN route exists for anything the device
   cannot hold, and today nothing in this table needs it.</p>
 
   <div class="folio"><span>Jamesmykil Weber · for OpenHome</span><span class="pg"></span></div>
@@ -785,7 +785,7 @@
       </tr>
       <tr>
         <td><strong>The knowledge shelf</strong></td>
-        <td>On the card: 57 reference files and a 570 MB index over 308,952 passages, holding the 24 Encyclopedia of Physical Science and Technology volumes, Britannica across 29 files, the seven-volume World History set, the Encyclopedia of Computer Science, and Ancient and Forbidden Knowledge. Staged and converting today: 65 DK volumes, 6.4 GB of PDFs.</td>
+        <td>On the card: 57 reference files and a 660 MB index over 397,706 passages, holding the 24 Encyclopedia of Physical Science and Technology volumes, Britannica across 29 files, the seven-volume World History set, the Encyclopedia of Computer Science, and Ancient and Forbidden Knowledge. Staged and converting today: 65 DK volumes, 6.4 GB of PDFs.</td>
         <td>Encyclopedias and books I bought and own, converted to text on my own hardware.</td>
         <td>Build the index on a real machine and ship it built, so the card gets the full shelf without hours of indexing on a Pi.</td>
       </tr>
@@ -890,7 +890,7 @@
     <tbody>
       <tr><td><strong>1. The mechanical assistant, finished</strong></td><td>Every exact-answer class complete: time, date, math, money, units, definitions, facts, the library, timers, notes and memory. The no-silent-failure suite held at zero failures, the kernel wheel published, the ability installable from the OpenHome catalogue, the runbook and the bug ledger current.</td><td>my time</td></tr>
       <tr><td><strong>2. The ladder, live</strong></td><td>A machine in the house as the LAN rung and named cloud providers as the last rung, each offered by name and consented to by voice, measured end to end.</td><td>the machine, provider credits, my time</td></tr>
-      <tr><td><strong>3. The library at full size</strong></td><td>The encyclopedias I already own, with 65 more volumes converted and waiting today, on the card. The index gets built on a real machine and ships built, so an offline device answers from an encyclopedia in under a second.</td><td>the machine, my time</td></tr>
+      <tr><td><strong>3. The library at full size</strong></td><td>The encyclopedias I already own, with 65 DK volumes on the card and indexed today, on the card. The index gets built on a real machine and ships built, so an offline device answers from an encyclopedia in under a second.</td><td>the machine, my time</td></tr>
       <tr><td><strong>4. Measured in other homes</strong></td><td>Two more DevKits in homes that are not mine, a month each, with false wakes, loudness and every failure read out of the logs and fixed.</td><td>two DevKits, speakers and microphones for testing, travel, my time</td></tr>
       <tr><td><strong>5. The comprehension tier</strong></td><td>My own inference and transformer work applied to the one tier that still uses a stock model, trained and evaluated completely on the machine, so the device can hold a conversation the way it holds a fact.</td><td>training compute, frontier model access for evaluation, my time</td></tr>
     </tbody>
@@ -1071,9 +1071,9 @@
     the tier it resolves to, where the answer physically comes from, and the time measured on the device.</caption>
     <thead><tr><th style="width:4%">#</th><th style="width:27%">The question</th><th style="width:15%">Class · tier</th><th style="width:34%">Where the answer comes from</th><th class="num" style="width:20%">Measured</th></tr></thead>
     <tbody>
-      <tr><td class="num" style="text-align:left;padding-right:2mm">1</td><td>"how many books do you have"</td><td>library · tier 1</td><td>the SQLite index on the card (570 MB)</td><td class="num">878 ms warm<br><span style="color:#4a4a4a">40,033 ms cold, once</span></td></tr>
+      <tr><td class="num" style="text-align:left;padding-right:2mm">1</td><td>"how many books do you have"</td><td>library · tier 1</td><td>the SQLite index on the card (660 MB)</td><td class="num">878 ms warm<br><span style="color:#4a4a4a">40,033 ms cold, once</span></td></tr>
       <tr><td class="num" style="text-align:left;padding-right:2mm">2</td><td>"what page are lambdas on"</td><td>library · tier 1</td><td>the back-of-book index</td><td class="num">81 ms</td></tr>
-      <tr><td class="num" style="text-align:left;padding-right:2mm">3</td><td>"what do the books say about entropy"</td><td>library · tier 1</td><td>full-text search across the books, then the reference shelf (~300k passages)</td><td class="num">sub-second warm</td></tr>
+      <tr><td class="num" style="text-align:left;padding-right:2mm">3</td><td>"what do the books say about entropy"</td><td>library · tier 1</td><td>full-text search across the books, then the reference shelf (~400k passages)</td><td class="num">sub-second warm</td></tr>
       <tr><td class="num" style="text-align:left;padding-right:2mm">4</td><td>"tell me something interesting"</td><td>facts · tier 0/1</td><td>the 682 curated facts on the card</td><td class="num">milliseconds</td></tr>
       <tr><td class="num" style="text-align:left;padding-right:2mm">5</td><td>"what time is it in tokyo"</td><td>mechanical · tier 0</td><td>the device’s own clock and time zones</td><td class="num">~1 ms</td></tr>
       <tr><td class="num" style="text-align:left;padding-right:2mm">6</td><td>"how many kilometres in twelve miles"</td><td>calc · tier 0</td><td>exact arithmetic</td><td class="num">~1 ms</td></tr>
@@ -1106,7 +1106,7 @@
         <circle cx="38" cy="62" r="11.5" fill="#0F5C6B"/>
         <text x="38" y="66" text-anchor="middle" font-size="10.5" font-weight="700" fill="#fff">1</text>
         <text x="62" y="63" font-size="12.5" font-weight="700" fill="#000">&#8220;how many books do you have&#8221;</text>
-        <text x="62" y="78" font-size="9.8" fill="#4a4a4a">library index on the card, SQLite, 570 MB</text>
+        <text x="62" y="78" font-size="9.8" fill="#4a4a4a">library index on the card, SQLite, 660 MB</text>
         <rect x="648" y="53" width="46" height="18" fill="#E7F0F2" stroke="#0F5C6B" stroke-width=".8"/>
         <text x="671" y="66" text-anchor="middle" font-size="9.5" fill="#0F5C6B" font-weight="700">tier 1</text>
         <text x="880" y="66" text-anchor="end" font-size="12" font-weight="700" fill="#000">878 ms</text>
@@ -1120,7 +1120,7 @@
         <circle cx="38" cy="150" r="11.5" fill="#0F5C6B"/>
         <text x="38" y="154" text-anchor="middle" font-size="10.5" font-weight="700" fill="#fff">3</text>
         <text x="62" y="151" font-size="12.5" font-weight="700" fill="#000">&#8220;what do the books say about entropy&#8221;</text>
-        <text x="62" y="166" font-size="9.8" fill="#4a4a4a">books, then the reference shelf, ~300k passages</text>
+        <text x="62" y="166" font-size="9.8" fill="#4a4a4a">books, then the reference shelf, ~400k passages</text>
         <rect x="648" y="141" width="46" height="18" fill="#E7F0F2" stroke="#0F5C6B" stroke-width=".8"/>
         <text x="671" y="154" text-anchor="middle" font-size="9.5" fill="#0F5C6B" font-weight="700">tier 1</text>
         <text x="880" y="154" text-anchor="end" font-size="12" font-weight="700" fill="#000">sub-second</text>

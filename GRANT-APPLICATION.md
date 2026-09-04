@@ -12,7 +12,7 @@ Astral for OpenHome: a DevKit that answers without the network
 
 ## 10. Project Description
 
-Astral is a local voice layer for the OpenHome DevKit. It answers most of what people ask a kitchen speaker on the device itself: the time, arithmetic, unit conversions, chemistry and physics, definitions, 682 written-down facts, and questions against 308,952 indexed passages from books, encyclopedias and documentation on the SD card. The answers come back in milliseconds and nothing is sent anywhere. The wake word, the speech-to-text, the reasoning and the voice all run on the Raspberry Pi 4.
+Astral is a local voice layer for the OpenHome DevKit. It answers most of what people ask a kitchen speaker on the device itself: the time, arithmetic, unit conversions, chemistry and physics, definitions, 682 written-down facts, and questions against 397,706 indexed passages from books, encyclopedias and documentation on the SD card. The answers come back in milliseconds and nothing is sent anywhere. The wake word, the speech-to-text, the reasoning and the voice all run on the Raspberry Pi 4.
 
 Version 1 shipped as an OpenHome ability, merged into dev as PR #361 on 2026-08-31. It catches "what time is it" before it becomes a cloud round trip. Version 2 is the rest of that idea: a full local loop on the same hardware, with a ladder of consent above it. Mechanical answers come first, then a small model on the Pi, then a machine in the house over the LAN, then a named cloud provider, and nothing leaves the device without a spoken yes. I want the grant to turn this from one developer's card into a supported path on the DevKit: hardened, documented and installable the ordinary way.
 
@@ -20,7 +20,7 @@ Version 1 shipped as an OpenHome ability, merged into dev as PR #361 on 2026-08-
 
 Voice assistants today send nearly every sentence to a data centre, including the ones a table lookup could answer. That costs money per turn, fails without a network, and leaks the household's speech. The DevKit is the right hardware to prove the alternative. It has a microphone array and a speaker on a Pi 4, and the platform already lets a local ability take a turn before the cloud does.
 
-Related work: on-device wake words (openWakeWord, Porcupine) and on-device speech-to-text (whisper.cpp) are mature. On-device answering is not. Home Assistant's local intents cover device control, and nobody covers "what do the books say about entropy" locally on a Pi. Astral contributes a ranked router over deterministic tables, a 300k-passage full-text library on a card, a consent ladder that offers each rung by name, and a product rule against silent failures held by a test suite that reads every refusal reason out of the source. For OpenHome the value is direct. Every turn answered locally is a turn that costs the platform nothing.
+Related work: on-device wake words (openWakeWord, Porcupine) and on-device speech-to-text (whisper.cpp) are mature. On-device answering is not. Home Assistant's local intents cover device control, and nobody covers "what do the books say about entropy" locally on a Pi. Astral contributes a ranked router over deterministic tables, a 400k-passage full-text library on a card, a consent ladder that offers each rung by name, and a product rule against silent failures held by a test suite that reads every refusal reason out of the source. For OpenHome the value is direct. Every turn answered locally is a turn that costs the platform nothing.
 
 ## 12. Methodology
 
@@ -40,7 +40,7 @@ My stack for this project is whisper.cpp, piper, vosk, llama.cpp, SQLite FTS5 an
 
 ## 14. Technologies Used
 
-Raspberry Pi 4 (OpenHome DevKit); vosk phrase recogniser for the wake word; whisper.cpp base.en, quantised, for speech-to-text; piper for the voice; llama.cpp with Llama 3.2 1B Instruct for paraphrase and summary; a Cython-compiled deterministic kernel for the table answers; a Julia math kernel as a service; SQLite FTS5 for the 308,952-passage library; PipeWire for audio; systemd user services; Python 3.13. The OpenHome SDK and its local-ability contract on the platform side.
+Raspberry Pi 4 (OpenHome DevKit); vosk phrase recogniser for the wake word; whisper.cpp base.en, quantised, for speech-to-text; piper for the voice; llama.cpp with Llama 3.2 1B Instruct for paraphrase and summary; a Cython-compiled deterministic kernel for the table answers; a Julia math kernel as a service; SQLite FTS5 for the 397,706-passage library; PipeWire for audio; systemd user services; Python 3.13. The OpenHome SDK and its local-ability contract on the platform side.
 
 ## 15. Team
 
@@ -60,7 +60,7 @@ What the money buys. The advancement here is a mechanical assistant: a device th
 |---|---|---|
 | 1. The mechanical assistant, finished | every exact-answer class complete (time, date, math, money, units, definitions, facts, the library, timers, notes, memory), the no-silent-failure suite kept at zero failures, the kernel wheel published, the ability installable from the OpenHome catalogue, the runbook and the bug ledger current | my time |
 | 2. The ladder, live | a machine in the house as the LAN rung and named cloud providers as the last rung, each offered by name and consented to by voice, measured end to end | the machine below, provider credits, my time |
-| 3. The library at full size | the encyclopedias I already own (65 more volumes are converted and waiting) on the card, the index built on a real machine and shipped built, so an offline device answers from an encyclopedia in under a second | the machine below, my time |
+| 3. The library at full size | the rest of the encyclopedias I own on the card (65 DK volumes went on today, 397,706 passages indexed), the index built on a real machine and shipped built, so an offline device answers from an encyclopedia in under a second | the machine below, my time |
 | 4. Measured in other homes | two more DevKits in homes that aren't mine for a month each, with false wakes, loudness and every failure read from the logs and fixed | two DevKits, speakers and microphones for testing, travel, my time |
 | 5. The comprehension tier | my own inference and transformer work applied to the one tier that still uses a stock model, trained and evaluated on the machine, so the device can hold a conversation the way it holds a fact | training compute, frontier model access for evaluation, my time |
 

@@ -16,7 +16,7 @@ v2 is the rest of that idea, on the same hardware and the same platform, with no
 is computed from its own cost table for the host it is on.** The time, arithmetic, unit
 conversions with both spellings, exact fractions checked against a proven kernel,
 chemistry, physics, statistics, the moon, definitions with every sense, 682 written-down
-facts across 20 fields, and 308,952 indexed passages from the books, encyclopedias and
+facts across 20 fields, and 397,706 indexed passages from the books, encyclopedias and
 documentation on its own SD card, searched in single-digit milliseconds.
 
 **It was tested by asking it everything.** Three sweeps ran overnight: 2,534 spoken
@@ -51,7 +51,7 @@ when you tell it you are tired.
 |---|---|
 | Wake word | vosk phrase recogniser, 2 phrases + everything-else; the room is never transcribed |
 | Table answers, router end to end | the time 0.4 ms, arithmetic 1.4 ms, what-can-you-do 2.9 ms (median, DevKit) |
-| 308,952 passages, 34 sources, 126 files | indexed in ~3 minutes; looked up in 1-58 ms |
+| 397,706 passages, 34 sources, 126 files | indexed in ~3 minutes; looked up in 1-58 ms |
 | Mechanical comprehension (MECH) | 1.5 s, no model, no network |
 | Spoken demo, 12 questions | 392 words, 2 min 28 s of speech at 159 words a minute; answers median 11 ms |
 | The thinking tick | runs until the first word; cannot start after the answer chime (checked) |
