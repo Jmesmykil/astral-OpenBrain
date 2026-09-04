@@ -172,7 +172,7 @@ at app.openhome.com, which needs an account login.
 
 **The local loop, ours.** Wake, speech-to-text, every tier and the voice all run on the
 device or on the LAN, and nothing leaves the house. It costs the two things above: the
-wake word is "hey mycroft" rather than the product word, and transcription takes two to
+wake phrase is recognised, not trained — "open brain" or "open home" — and transcription takes two to
 three seconds. It buys the chimes, timers that survive a restart, a quiz that holds its
 place across turns, barge-in, and the fits table deciding what runs where.
 
@@ -222,11 +222,11 @@ on the DevKit:
 
 | | |
 |---|---|
-| files read | 92 (Britannica, his books, the Python docs, the glossaries) |
-| passages | **231,170** |
-| full rebuild from nothing | **2.3 minutes** |
-| index on the card | 472 MB |
-| peak memory while building | 169 MB |
+| files read | 126 (Britannica, World History, Physical Science, his books, the Python docs) |
+| passages | **308,952** |
+| full rebuild from nothing | **about 3 minutes** |
+| index on the card | 544 MB |
+| peak memory while building | 169 MB (measured at 231k passages) |
 | answering a question | **1–58 ms** |
 
 "What does the encyclopedia say about the steam engine" comes back in 17 ms with Watt's
@@ -271,17 +271,21 @@ While it is warming it says so rather than going quiet.
 
 ## The wake word
 
-It answers to **"hey mycroft"**. The product word, "Open Brain", has a trained model in
-`hub/wake/` that does not ship: graded against ninety seconds of the real room through the
-real microphone it scores 0.999 against its own 0.95 threshold, which means it wakes at
-nothing. `KNOWN-BUGS.md` has the measurements and the reason. The loader refuses any model
-that has not passed that gate, so it cannot be enabled by accident.
+It answers to **"open brain"** and **"open home"**, recognised as phrases by a small
+streaming recogniser (vosk) with the two phrases as its whole grammar — no training, and
+the room is never transcribed. The trained model in `hub/wake/` does not ship: graded
+against ninety seconds of the real room it scored 0.999 against its own 0.95 threshold,
+which means it woke at nothing. The phrase recogniser's own weakness is the opposite one:
+it wakes on a television, and after three wakes in a row that come to nothing the wake
+chime is withheld until a real answer. `KNOWN-BUGS.md` has the measurements.
 
 ## Tests
 
-One runner, `python3 hub/tests/run.py`, and fifteen suites named for what they prove:
-answers, kernels, ranking, classes, meta, study, library, voice, duplex, barge, daemon,
-ability, silence, shipped, honesty. 530 checks on the Mac, 522 on the device. The byte contract is the centre of
+One runner, `python3 hub/tests/run.py`, and twenty-six suites named for what they prove —
+answers, kernels, ranking, classes, meta, study, library, notes, conversation, voice, duplex,
+barge, daemon, ability, clouds, languages, settings, facts, fun, memory, lanes, pages,
+wake_takes, silence, shipped, honesty. 3,562 checks on the Mac, every one run against a
+scratch copy of the device's state so a check can never touch the card. The byte contract is the centre of
 it: 167 phrases asserted BYTE-EXACT against known-good strings, the questions Astral
 must stay silent on included, so the agent keeps the turn. Byte comparisons, not
 approximate ones: a changed constant, a changed rounding rule, or one subject stealing
@@ -315,3 +319,13 @@ python3 community/astral/devkit_functions.py respond "what time is it"
 python3 community/astral/devkit_functions.py respond "convert ten pounds to kilograms"
 python3 community/astral/devkit_functions.py respond "eighteen percent tip on forty five dollars"
 ```
+
+## Sound packs
+
+Every chime and the thinking tick come from a pack: a folder holding any of seven files —
+`ready`, `wake`, `working`, `accept`, `handoff`, `decline`, `dismiss` — in wav, mp3, ogg or
+flac. OpenHome's house set is the default, so the DevKit sounds as it ships. `astral` is made
+on the device — glass for the chimes, a water drop for the tick. Drop your own folder into
+`~/astral-voice/sounds/packs/<name>/` and it is a pack; a meaning it lacks falls back for
+that one sound. Say **"use the astral sounds"**, or **"what sound packs are there"**.
+Loudness is levelled when played, so record at any level.
