@@ -82,7 +82,7 @@ side.
 
 ## 15. Team
 
-[Your name] — sole developer: architecture, kernel, router, library, audio, deploy, tests.
+Jamesmykil Weber — sole developer: architecture, kernel, router, library, audio, deploy, tests.
 GitHub: [your URL]. (Add collaborators only if they will actually work on the grant.)
 
 ## 16. Elaborate on the details of your project
