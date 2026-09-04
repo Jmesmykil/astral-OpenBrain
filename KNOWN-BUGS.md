@@ -680,12 +680,12 @@ every failure is in what it says or stays silent about):
 
 - **Hardware note from OpenHome (Bradyn):** the DevKit's audio cable connections need
   reseating from time to time. That is a candidate cause for the deaf starts and the
-  suspended sink seen this week; check the cables before blaming the stream.
+  suspended sink seen this week; check the cables first, then the stream.
 - **The level hold never ran.** For a day `_hold_levels` raised a NameError on its first
   line (`settings` was imported inside main, not at module level) and a bare except
   swallowed it, so the device booted at mic 30 % and speaker 16 % after every reboot and
   nothing put them back. Fixed: the thread reads the settings through one function, says
-  so if it fails, and the gate runs the real thread body. Proved live: moved to 40/90, back
+  so if it fails, and the gate runs the thread body itself. Proved live: moved to 40/90, back
   to 65/160 in eight seconds with two `[mixer]` lines.
 - **The library:** the 65 DK volumes went into `reference/dk/` and indexed in 116 s:
   397,706 entries from 191 sources, a 660 MB index. Two volumes had no text layer (the
