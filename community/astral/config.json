@@ -1,0 +1,22 @@
+{
+  "unique_name": "astral",
+  "name": "Astral",
+  "description": "Answers the exact-answer class on the DevKit itself: time, date, arithmetic, money, unit conversions, definitions, facts and the books on the card. Nothing is sent anywhere.",
+  "category": "local",
+  "matching_hotwords": [
+    "what time",
+    "what's the time",
+    "what's the date",
+    "what day is it",
+    "calculate",
+    "how much is",
+    "percent of",
+    "square root of",
+    "convert",
+    "how many",
+    "what does",
+    "define",
+    "what do the books say",
+    "tell me something interesting"
+  ]
+}
