@@ -169,6 +169,8 @@ when that discipline is aimed at one small board, and there, measured, today, it
 
 ---
 
+"And it isn't only engines. Around them is an ecosystem I built: Q OS, a windowed desktop for the Nintendo Switch that replaces the home menu and is verified on hardware; Void IDE in Swift and Void CLI in Rust, both speaking to the engine; Astral Workspace; the ASCII render kernel with hosts for Unity and Blender; sCAN, a crypto research desktop with a Rust gateway; two games, SlimeShot close to done and MoBA close to mechanically done; and soloDOLO, an animated series in production. The device you heard today is the small end of that, and the first piece of it to ship through someone else's review."
+
 ## 5. The ask (4 minutes)
 
 "The full grant is fifty thousand dollars, and I'll show you what each level buys, down to nothing, because I'm going to keep building this either way. Right now every hour of compute comes out of my own pocket and every test runs on one Pi.
