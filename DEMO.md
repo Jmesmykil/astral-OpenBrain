@@ -12,7 +12,8 @@ python3 demo.py --section books just one part
 python3 demo.py --json out.json the whole transcript
 ```
 
-**Run `python3 demo.py` before the meeting.** If it prints `53 lines, 53 as scripted`, the
+**Run `python3 demo.py` before the meeting.** It writes nothing to the card — no timer, no
+note, settings put back. If it prints `56 lines, 56 as scripted`, the
 demo will work. If it doesn't, it names the line that broke and you have not been
 surprised in front of anybody.
 
@@ -26,24 +27,30 @@ open for a few seconds, so follow-ups need no wake word.
 **1. It knows what it is** (10 seconds)
 
 > *what can you do*
-> — "22 things, all on this device with nothing sent anywhere: your books, 682 facts,
+> — "27 things, all on this device with nothing sent anywhere: your books, 682 facts,
 > arithmetic and timers. Try 'what do the books say about entropy'. Say 'list everything'
 > if you want all of them."
+>
+> (27 on the DevKit. The number is computed from the cost table for whichever machine it is
+> on — a Mac says a different one — which is the point: it counts what it can actually do.)
 
 **2. The instant class — no model, no network** (20 seconds)
 
-> *what is twenty percent of eighty* — "20 percent of 80 is 16." (260 µs)
+> *what is twenty percent of eighty* — "20 percent of 80 is 16." (about a millisecond and a half,
+> router end to end, measured on the DevKit)
 > *what is one third plus one sixth* — "One third plus one sixth is one half." (exact, from
 > a proven kernel — not floating point)
 > *how many kilometres in twelve miles* — "12 miles is 19.31 kilometres."
 
-Point at the timings. These never touch a model.
+These never touch a model: the time answers in under half a millisecond, arithmetic in
+about a millisecond and a half, end to end.
 
 **3. The card** (60 seconds) — this is the one that lands.
 
 > *how many books do you have*
-> — "3 books on the card: … There's also 3 in the reference shelf, across 31 volumes —
-> 308,946 passages in all."
+> — "3 books on the card: Modern C++ For Absolute Beginners, The Ultimate Python Handbook,
+> The Lamp At Low Tide. There's also 2 sets of documentation in 66 files and 29 reference
+> works in 57 volumes — 308,952 passages in all."
 >
 > *what do the books say about entropy* — a passage, with the book it came from.
 > *tell me more about that* — it follows the subject.
@@ -60,11 +67,18 @@ Then pull the network cable out and do it again.
 
 **5. The ladder, and consent** (60 seconds) — the argument of the whole product.
 
-> Ask something it cannot answer here. It says so and offers, by name:
-> — "I can't do that here. I could ask the model on this device, or the Mac. Which one?"
+> *what is the capital of Mongolia*
+> — "I couldn't work that one out, and I won't guess."
+> *why didn't that work*
+> — "It went to the part of me that works things out, and that came back with nothing it
+> was sure of. I would rather say nothing than invent an answer."
 >
-> Say **no**. Nothing happens, and it says so.
-> Say **the Mac**. It goes over the LAN and comes back with the answer.
+> That is the consent argument as it stands today: it refuses rather than guesses, and it
+> can say why. An offer BY NAME — "I could ask the Mac. Want that?" — is made only when a
+> class does not fit on this machine and does fit on another, and with today's cost
+> profiles no class is in that position, so the device does not make the offer. The lane is
+> live and reachable (`python3 demo.py --lanes` shows it); what it lacks is a question that
+> needs it. KNOWN-BUGS.md has this under the premortem.
 
 `python3 demo.py --lanes` prints the same ladder as a table, including what is *not*
 ready — the phone rung is switched off and is never offered.
@@ -109,12 +123,11 @@ worse than no route.
 
 ## What to say about the numbers
 
-- **3,438 checks on a Mac, 3,467 on the DevKit.** The suites are named after
+- **3,593 checks on a Mac and 3,636 on the DevKit, all 26 suites, 2026-09-03.** The suites are named after
   what they prove, not the files they touch.
-- **0.00 s** between the thinking tone stopping and the first word of the answer — measured
-  on the device, because a silent second while somebody waits is the thing that makes a
-  device feel broken.
-- **308,946 passages**, indexed in about three minutes, looked up in 1–58 ms.
+- **The thinking tick runs until the first word** and can no longer start after the answer
+  chime; a silent second while somebody waits is the thing that makes a device feel broken.
+- **308,952 passages**, indexed in about three minutes, looked up in 1–58 ms.
 - **1.5 s** for mechanical comprehension of a question it has never seen — no model.
 - One evening of real use produced four bugs, all now permanent checks. That is the process,
   and it is worth saying out loud.
