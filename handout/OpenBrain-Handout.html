@@ -1,0 +1,1262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Astral / OpenBrain: a local-first voice device on the OpenHome DevKit</title>
+<style>
+  :root{
+    --ink:#000000;
+    --accent:#0F5C6B;
+    --accent-pale:#E7F0F2;
+    --rule:#BFC7C9;
+    --grey:#4a4a4a;
+  }
+  *{box-sizing:border-box;}
+  html{background:#f2f2f2;}
+  body{
+    margin:0;
+    font-family:"Helvetica Neue",Helvetica,Arial,"Segoe UI",sans-serif;
+    color:var(--ink);
+    font-size:9.7pt;
+    line-height:1.36;
+    -webkit-font-smoothing:antialiased;
+  }
+  .sheet{
+    width:210mm;
+    height:296mm;
+    padding:13mm 16mm 15mm 16mm;
+    background:#ffffff;
+    position:relative;
+    margin:0 auto 8mm auto;
+    box-shadow:0 1px 6px rgba(0,0,0,.25);
+    page-break-after:always;
+    break-after:page;
+    counter-increment:sheet;
+  }
+  .sheet:last-child{page-break-after:auto;break-after:auto;}
+
+  /* ---- running header / folio ---- */
+  .run{
+    display:flex;justify-content:space-between;align-items:baseline;
+    font-size:7.4pt;letter-spacing:.045em;text-transform:uppercase;
+    color:var(--grey);
+    border-bottom:.6pt solid var(--rule);
+    padding-bottom:1.6mm;margin-bottom:4.6mm;
+  }
+  .run strong{color:var(--accent);font-weight:700;}
+  .folio{
+    position:absolute;left:16mm;right:16mm;bottom:8mm;
+    display:flex;justify-content:space-between;align-items:baseline;
+    font-size:7.6pt;color:var(--grey);
+    border-top:.6pt solid var(--rule);padding-top:2mm;
+  }
+  .folio .pg::after{content:"Page " counter(sheet) " of 13";}
+
+  /* ---- type ---- */
+  h1{font-size:24pt;line-height:1.12;margin:0 0 4mm 0;font-weight:700;letter-spacing:-.01em;}
+  h2{
+    font-size:14pt;margin:0 0 1.2mm 0;font-weight:700;letter-spacing:-.005em;
+  }
+  h2 .num{color:var(--accent);}
+  .kicker{
+    font-size:8pt;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);
+    font-weight:700;margin:0 0 1.5mm 0;
+  }
+  .lede{font-size:10.2pt;line-height:1.38;margin:0 0 3.4mm 0;}
+  h3{font-size:9.9pt;margin:3.2mm 0 .8mm 0;font-weight:700;}
+  p{margin:0 0 2.1mm 0;}
+  ul{margin:0 0 2.4mm 0;padding-left:5mm;}
+  li{margin:0 0 .9mm 0;}
+  .accentrule{height:1.6mm;background:var(--accent);width:38mm;margin:0 0 5mm 0;}
+  .hr{border:0;border-top:.6pt solid var(--rule);margin:4mm 0;}
+  .small{font-size:8.6pt;}
+  .tight li{margin-bottom:.6mm;}
+  .mono{font-family:"SF Mono",Menlo,Consolas,monospace;font-size:8.6pt;}
+
+  /* ---- cover ---- */
+  .cover{display:flex;flex-direction:column;height:266mm;}
+  .cover-top{flex:0 0 auto;}
+  .cover-mid{flex:1 1 auto;display:flex;flex-direction:column;justify-content:center;}
+  .cover-bottom{flex:0 0 auto;}
+  .cover-meta{border-top:1.2pt solid var(--ink);padding-top:4mm;display:flex;gap:10mm;}
+  .cover-meta div{flex:1;}
+  .cover-meta .lab{font-size:7.6pt;letter-spacing:.11em;text-transform:uppercase;color:var(--grey);margin-bottom:1.2mm;}
+  .cover-meta .val{font-size:11pt;font-weight:700;}
+
+  /* ---- tables ---- */
+  table{width:100%;border-collapse:collapse;font-size:8.5pt;margin:0 0 2.4mm 0;}
+  caption{caption-side:top;text-align:left;font-size:7.8pt;color:var(--grey);padding-bottom:1.2mm;line-height:1.3;}
+  th{
+    text-align:left;font-size:7.8pt;letter-spacing:.06em;text-transform:uppercase;
+    border-bottom:1pt solid var(--ink);padding:1.1mm 2mm 1.1mm 0;vertical-align:bottom;
+  }
+  td{padding:.9mm 2mm .9mm 0;border-bottom:.5pt solid var(--rule);vertical-align:top;}
+  td.num,th.num{text-align:right;padding-right:0;font-variant-numeric:tabular-nums;white-space:nowrap;}
+  tr.tierhead td{background:var(--accent-pale);font-weight:700;font-size:8pt;
+    letter-spacing:.04em;text-transform:uppercase;padding:1mm 2mm;}
+  tbody tr:last-child td{border-bottom:1pt solid var(--ink);}
+
+  /* ---- figures ---- */
+  figure{margin:1mm 0 3.2mm 0;}
+  figure svg{width:100%;height:auto;display:block;}
+  figcaption{font-size:7.8pt;color:var(--grey);margin-top:1.2mm;line-height:1.3;}
+  figcaption b{color:var(--ink);}
+
+  /* ---- fill-in box ---- */
+  .fillbox{
+    border:1.2pt solid var(--accent);
+    padding:2.4mm 3mm 2.8mm 3mm;
+    margin:2.6mm 0 3mm 0;
+    background:#fff;
+  }
+  .fillbox .fb-h{
+    font-size:7.6pt;letter-spacing:.12em;text-transform:uppercase;
+    color:#fff;background:var(--accent);display:inline-block;
+    padding:.7mm 2mm;margin:-2.4mm 0 2mm -3mm;font-weight:700;
+  }
+  .fillbox p{font-size:8.6pt;margin:0 0 2.4mm 0;}
+  .fline{border-bottom:.7pt solid #8a9497;height:6mm;}
+  .fline + .fline{margin-top:0;}
+
+  /* ---- callouts ---- */
+  .note{
+    border-left:2.2pt solid var(--accent);background:var(--accent-pale);
+    padding:2.2mm 2.8mm;margin:0 0 2.8mm 0;font-size:8.8pt;
+  }
+  .note strong{color:var(--accent);}
+  .cols2{display:flex;gap:6mm;}
+  .cols2.tables{gap:5mm;align-items:flex-start;}
+  .cols2 > *{flex:1;min-width:0;}
+  .box{border:.8pt solid var(--rule);padding:2.5mm;}
+  .box h3{margin-top:0;}
+  .stat{display:flex;gap:5mm;margin:0 0 3.2mm 0;}
+  .stat div{flex:1;border-top:1.2pt solid var(--ink);padding-top:2mm;}
+  .stat .n{font-size:15.5pt;font-weight:700;line-height:1;letter-spacing:-.02em;}
+  .stat .l{font-size:8pt;color:var(--grey);margin-top:1.2mm;line-height:1.3;}
+
+  @page{size:210mm 297mm;margin:0;}
+  @media print{
+    html{background:#fff;}
+    .sheet{margin:0;box-shadow:none;}
+  }
+</style>
+</head>
+<body>
+
+<section class="sheet">
+  <div class="cover">
+    <div class="cover-top">
+      <div class="accentrule"></div>
+      <div class="kicker">For OpenHome · developer grant conversation</div>
+    </div>
+
+    <div class="cover-mid">
+      <h1>Astral / OpenBrain<br>a local-first voice device on the OpenHome DevKit</h1>
+      <p class="lede" style="max-width:150mm;">
+        The whole loop runs on the Pi 4 with the XMOS HAT: wake phrase, speech-to-text,
+        the answer, and the voice. Nothing leaves the device in the answer path.
+        Every number in this document was measured on that hardware or on the
+        development Mac, and each is recorded with its date in the project's bug ledger.
+      </p>
+
+      <figure style="margin-top:8mm;">
+        <svg viewBox="0 0 900 150" role="img" aria-label="Device boundary containing the full answer loop">
+          <rect x="4" y="4" width="892" height="126" rx="8" fill="none" stroke="#0F5C6B" stroke-width="2" stroke-dasharray="7 5"/>
+          <text x="450" y="30" text-anchor="middle" font-family="Helvetica,Arial,sans-serif" font-size="13" font-weight="700" fill="#0F5C6B" letter-spacing="1.6">RASPBERRY PI 4 + XMOS HAT · THE ANSWER PATH ENDS HERE</text>
+          <g font-family="Helvetica,Arial,sans-serif" font-size="12.5" fill="#000">
+            <rect x="30" y="50" width="150" height="34" fill="#E7F0F2" stroke="#0F5C6B" stroke-width="1"/>
+            <text x="105" y="72" text-anchor="middle">wake</text>
+            <rect x="205" y="50" width="150" height="34" fill="#E7F0F2" stroke="#0F5C6B" stroke-width="1"/>
+            <text x="280" y="72" text-anchor="middle">speech-to-text</text>
+            <rect x="380" y="50" width="140" height="34" fill="#E7F0F2" stroke="#0F5C6B" stroke-width="1"/>
+            <text x="450" y="72" text-anchor="middle">router</text>
+            <rect x="545" y="50" width="150" height="34" fill="#E7F0F2" stroke="#0F5C6B" stroke-width="1"/>
+            <text x="620" y="72" text-anchor="middle">answer</text>
+            <rect x="720" y="50" width="150" height="34" fill="#E7F0F2" stroke="#0F5C6B" stroke-width="1"/>
+            <text x="795" y="72" text-anchor="middle">voice</text>
+          </g>
+          <g stroke="#000" stroke-width="1.2" fill="none">
+            <path d="M182 67 h19"/><path d="M357 67 h19"/><path d="M522 67 h19"/><path d="M697 67 h19"/>
+          </g>
+          <g fill="#000"><polygon points="201,67 195,64 195,70"/><polygon points="376,67 370,64 370,70"/><polygon points="541,67 535,64 535,70"/><polygon points="716,67 710,64 710,70"/></g>
+          <text x="450" y="112" text-anchor="middle" font-family="Helvetica,Arial,sans-serif" font-size="11.5" fill="#4a4a4a">no network in the answer path · no room transcription for the wake word · memory only after a spoken yes</text>
+        </svg>
+      </figure>
+    </div>
+
+    <div class="cover-bottom">
+      <div class="cover-meta">
+        <div>
+          <div class="lab">Prepared by</div>
+          <div class="val">Jamesmykil Weber</div>
+        </div>
+        <div>
+          <div class="lab">Date</div>
+          <div class="val">4 September 2026</div>
+        </div>
+        <div>
+          <div class="lab">Purpose</div>
+          <div class="val">Developer grant conversation</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="sheet">
+  <div class="run"><span><strong>Astral / OpenBrain</strong> · local-first voice on the OpenHome DevKit</span><span>4 September 2026</span></div>
+
+  <div class="kicker">Section 1</div>
+  <h2><span class="num">1.</span> What is on the device today</h2>
+  <p class="lede">One page. What runs, how fast, and what has been held.</p>
+
+  <p>The whole loop is on the Pi 4 with the XMOS HAT, and nothing leaves it. The wake phrase is a
+  Vosk grammar with two phrases and an everything-else bucket, so I never transcribe the room, especially not while it is idle.
+  Speech-to-text is whisper base.en, q5_1. The voice is piper. Above those sits a compiled answer
+  kernel, <span class="mono">astral_kernel</span> 2.2.0, built aarch64 on the device; a Julia
+  mathematics kernel running as a service; and a small model, Llama 3.2 1B Instruct at Q4_K_M,
+  served by llama-server on port 8791. That is the whole stack. There is no network in the answer path.</p>
+
+  <figure>
+    <svg viewBox="0 0 900 250" role="img" aria-label="The on-device stack from microphone to speaker">
+      <rect x="4" y="4" width="892" height="212" rx="8" fill="none" stroke="#0F5C6B" stroke-width="1.8" stroke-dasharray="7 5"/>
+      <text x="18" y="24" font-family="Helvetica,Arial,sans-serif" font-size="12" font-weight="700" fill="#0F5C6B" letter-spacing="1.2">ON THE DEVICE · RASPBERRY PI 4 + XMOS HAT</text>
+      <g font-family="Helvetica,Arial,sans-serif" font-size="11.5" fill="#000">
+        
+        <rect x="14" y="70" width="122" height="86" fill="#fff" stroke="#000" stroke-width="1.1"/>
+        <text x="75" y="98" text-anchor="middle" font-weight="700">microphone</text>
+        <text x="75" y="116" text-anchor="middle" font-size="10" fill="#4a4a4a">XMOS array</text>
+        <text x="75" y="132" text-anchor="middle" font-size="10" fill="#4a4a4a">50 ms latency</text>
+        
+        <rect x="164" y="70" width="122" height="86" fill="#E7F0F2" stroke="#0F5C6B" stroke-width="1.1"/>
+        <text x="225" y="98" text-anchor="middle" font-weight="700">wake</text>
+        <text x="225" y="116" text-anchor="middle" font-size="10" fill="#4a4a4a">Vosk grammar</text>
+        <text x="225" y="132" text-anchor="middle" font-size="10" fill="#4a4a4a">2 phrases + bucket</text>
+        
+        <rect x="314" y="70" width="122" height="86" fill="#E7F0F2" stroke="#0F5C6B" stroke-width="1.1"/>
+        <text x="375" y="98" text-anchor="middle" font-weight="700">speech-to-text</text>
+        <text x="375" y="116" text-anchor="middle" font-size="10" fill="#4a4a4a">whisper base.en</text>
+        <text x="375" y="132" text-anchor="middle" font-size="10" fill="#4a4a4a">q5_1</text>
+        
+        <rect x="464" y="70" width="122" height="86" fill="#E7F0F2" stroke="#0F5C6B" stroke-width="1.1"/>
+        <text x="525" y="98" text-anchor="middle" font-weight="700">router</text>
+        <text x="525" y="116" text-anchor="middle" font-size="10" fill="#4a4a4a">tiers 0 / 1 / 2</text>
+        <text x="525" y="132" text-anchor="middle" font-size="10" fill="#4a4a4a">run · ask · silent</text>
+        
+        <rect x="614" y="58" width="122" height="110" fill="#fff" stroke="#0F5C6B" stroke-width="1.6"/>
+        <text x="675" y="74" text-anchor="middle" font-weight="700" font-size="11">answer</text>
+        <rect x="622" y="82" width="106" height="24" fill="#E7F0F2" stroke="#0F5C6B" stroke-width=".8"/>
+        <text x="675" y="98" text-anchor="middle" font-size="9.5">kernel 2.2.0</text>
+        <rect x="622" y="110" width="106" height="24" fill="#E7F0F2" stroke="#0F5C6B" stroke-width=".8"/>
+        <text x="675" y="126" text-anchor="middle" font-size="9.5">Julia slate</text>
+        <rect x="622" y="138" width="106" height="24" fill="#E7F0F2" stroke="#0F5C6B" stroke-width=".8"/>
+        <text x="675" y="154" text-anchor="middle" font-size="9.5">Llama 3.2 1B</text>
+        
+        <rect x="764" y="70" width="122" height="86" fill="#fff" stroke="#000" stroke-width="1.1"/>
+        <text x="825" y="98" text-anchor="middle" font-weight="700">voice</text>
+        <text x="825" y="116" text-anchor="middle" font-size="10" fill="#4a4a4a">piper</text>
+        <text x="825" y="132" text-anchor="middle" font-size="10" fill="#4a4a4a">→ speaker</text>
+      </g>
+      <g stroke="#000" stroke-width="1.3" fill="none">
+        <path d="M136 113 h20"/><path d="M286 113 h20"/><path d="M436 113 h20"/><path d="M586 113 h20"/><path d="M736 113 h20"/>
+      </g>
+      <g fill="#000">
+        <polygon points="158,113 150,109 150,117"/><polygon points="308,113 300,109 300,117"/>
+        <polygon points="458,113 450,109 450,117"/><polygon points="608,113 600,109 600,117"/>
+        <polygon points="758,113 750,109 750,117"/>
+      </g>
+      <line x1="20" y1="186" x2="880" y2="186" stroke="#BFC7C9" stroke-width="1"/>
+      <text x="450" y="204" text-anchor="middle" font-family="Helvetica,Arial,sans-serif" font-size="11.5" fill="#000">the SD card holds the books, the reference shelf and the facts, and the answer path sits inside this boundary</text>
+      <text x="450" y="238" text-anchor="middle" font-family="Helvetica,Arial,sans-serif" font-size="11" fill="#4a4a4a">nothing in this diagram sends anything anywhere</text>
+    </svg>
+    <figcaption><b>Figure 1.</b> The loop end to end. Every component named here runs on the board;
+    the dashed boundary is not crossed while a question is being answered.</figcaption>
+  </figure>
+
+  <h3>The three levels, measured</h3>
+  <p>The mechanical class covers time, date, arithmetic, unit conversion and "what can you do". It answers in
+  one to eleven milliseconds, median, on the device. The library class, passages out of the books
+  and encyclopedias and the curated facts, is usually sub-second warm. Comprehension in its own words is
+  seconds. One honest number: after a cold reboot, the first library question took forty seconds
+  once. That is the index warming off the card, and a warm-up at boot is the fix.</p>
+
+  <div class="stat">
+    <div><div class="n">3,636</div><div class="l">checks held on the DevKit, 0 failed, across 26 suites</div></div>
+    <div><div class="n">3,630</div><div class="l">checks held on the Mac, 0 failed</div></div>
+    <div><div class="n">12 of 12</div><div class="l">scripted voice demo lines asked and answered, 216 to 272 s</div></div>
+    <div><div class="n">682</div><div class="l">curated facts on the card, audited by hand</div></div>
+  </div>
+
+  <p><strong>On the card:</strong> three books; two documentation sets across sixty-six files; a
+  reference shelf holding Britannica, world history and physical science, about three hundred thousand
+  passages; six hundred and eighty-two curated facts; and twenty-eight local abilities.</p>
+
+  <p>Under the service's own interpreter the device voice suite holds 141 checks, 0 failed. I ran the
+  scripted voice demo under scrutiny the day before this meeting: twelve questions
+  asked and answered by voice, twelve of twelve as scripted, and it left the settings, the hooks
+  and the notes as it found them.</p>
+
+  <div class="note"><strong>The discipline behind the counts.</strong> Every new gate is proved red
+  before it is trusted green. A check that has never failed is not known to check anything.</div>
+
+  <div class="folio"><span>Jamesmykil Weber · for OpenHome</span><span class="pg"></span></div>
+</section>
+
+<section class="sheet">
+  <div class="run"><span><strong>Astral / OpenBrain</strong> · local-first voice on the OpenHome DevKit</span><span>4 September 2026</span></div>
+
+  <div class="kicker">Section 2</div>
+  <h2><span class="num">2.</span> The levels it can hit</h2>
+  <p class="lede">No tier runs anywhere until its cost has been measured on that machine.</p>
+
+  <p>A script runs the engine over the corpus on the host it sits on and writes a cost
+  profile. A second file compares that profile to a budget and produces a fits table. The router
+  reads the table before it runs anything: a class that fits runs, a class that fits somewhere else
+  says what it would need and asks, and a class that fits nowhere stays silent so the agent takes
+  the turn.</p>
+
+  <figure>
+    <svg viewBox="0 0 900 260" role="img" aria-label="Latency bands per tier on a logarithmic scale">
+      <g font-family="Helvetica,Arial,sans-serif">
+        
+        <line x1="130" y1="215" x2="870" y2="215" stroke="#000" stroke-width="1.2"/>
+        <g font-size="10.5" fill="#4a4a4a" text-anchor="middle">
+          <line x1="130" y1="215" x2="130" y2="221" stroke="#000"/><text x="130" y="236">10 µs</text>
+          <line x1="235" y1="215" x2="235" y2="221" stroke="#000"/><text x="235" y="236">100 µs</text>
+          <line x1="340" y1="215" x2="340" y2="221" stroke="#000"/><text x="340" y="236">1 ms</text>
+          <line x1="445" y1="215" x2="445" y2="221" stroke="#000"/><text x="445" y="236">10 ms</text>
+          <line x1="550" y1="215" x2="550" y2="221" stroke="#000"/><text x="550" y="236">100 ms</text>
+          <line x1="655" y1="215" x2="655" y2="221" stroke="#000"/><text x="655" y="236">1 s</text>
+          <line x1="760" y1="215" x2="760" y2="221" stroke="#000"/><text x="760" y="236">10 s</text>
+        </g>
+        <g stroke="#E7F0F2" stroke-width="1">
+          <line x1="235" y1="45" x2="235" y2="212"/><line x1="340" y1="45" x2="340" y2="212"/>
+          <line x1="445" y1="45" x2="445" y2="212"/><line x1="550" y1="45" x2="550" y2="212"/>
+          <line x1="655" y1="45" x2="655" y2="212"/><line x1="760" y1="45" x2="760" y2="212"/>
+        </g>
+        
+        <text x="14" y="70" font-size="12.5" font-weight="700" fill="#000">Tier 0</text>
+        <text x="14" y="86" font-size="10" fill="#4a4a4a">tables, patterns</text>
+        <rect x="151" y="55" width="251" height="20" fill="#0F5C6B"/>
+        <text x="412" y="70" font-size="10.5" fill="#000">28 µs to 3.9 ms measured · one outlier: songs at 640.7 ms</text>
+        <circle cx="617" cy="65" r="5" fill="#fff" stroke="#0F5C6B" stroke-width="1.6"/>
+        
+        <text x="14" y="128" font-size="12.5" font-weight="700" fill="#000">Tier 1</text>
+        <text x="14" y="144" font-size="10" fill="#4a4a4a">kernel, card index</text>
+        <rect x="151" y="113" width="452" height="20" fill="#0F5C6B"/>
+        <text x="613" y="128" font-size="10.5" fill="#000">16 µs (proven kernel) to 320.1 ms (algebra and calculus)</text>
+        <circle cx="823" cy="123" r="5" fill="#fff" stroke="#000" stroke-width="1.6"/>
+        <text x="823" y="152" font-size="9.5" fill="#4a4a4a" text-anchor="middle">40 s, once,</text>
+        <text x="823" y="164" font-size="9.5" fill="#4a4a4a" text-anchor="middle">cold boot</text>
+        
+        <text x="14" y="186" font-size="12.5" font-weight="700" fill="#000">Tier 2</text>
+        <text x="14" y="202" font-size="10" fill="#4a4a4a">comprehension</text>
+        <rect x="676" y="171" width="14" height="20" fill="#0F5C6B"/>
+        <text x="700" y="186" font-size="10.5" fill="#000">1.8 s measured (reading a new question; open conversation)</text>
+      </g>
+      <text x="14" y="26" font-family="Helvetica,Arial,sans-serif" font-size="11" fill="#4a4a4a">logarithmic scale · every value measured on the DevKit</text>
+    </svg>
+    <figcaption><b>Figure 2.</b> The three tiers as latency bands. Hollow markers are the two honest
+    outliers: songs played from the card, and the single cold-boot library question.</figcaption>
+  </figure>
+
+  <p class="small" style="color:#4a4a4a;margin-bottom:1.5mm;">Measured on the DevKit (Pi 4, 8 GB, idle, 30 runs per phrase). The figure in brackets says how
+  it was arrived at. I take a percentile where a class is cheap enough to sample hundreds of times, and the
+  observed maximum where it is not, because a percentile over six samples is a maximum wearing a
+  percentile's name.</p>
+  <div class="cols2 tables">
+    <table>
+      <thead><tr><th>What it answers</th><th class="num">Cost on the DevKit</th></tr></thead>
+      <tbody>
+        <tr class="tierhead"><td colspan="2">Tier 0 · pattern and table code</td></tr>
+        <tr><td>time and date</td><td class="num">100 µs <span style="color:#4a4a4a">(p95/200)</span></td></tr>
+        <tr><td>the device and its OS</td><td class="num">261 µs <span style="color:#4a4a4a">(p95/40)</span></td></tr>
+        <tr><td>grades</td><td class="num">356 µs <span style="color:#4a4a4a">(p95/320)</span></td></tr>
+        <tr><td>sun signs and the moon</td><td class="num">544 µs <span style="color:#4a4a4a">(p95/40)</span></td></tr>
+        <tr><td>physics and the planets</td><td class="num">793 µs <span style="color:#4a4a4a">(p95/1080)</span></td></tr>
+        <tr><td>statistics</td><td class="num">808 µs <span style="color:#4a4a4a">(p95/480)</span></td></tr>
+        <tr><td>number tools</td><td class="num">808 µs <span style="color:#4a4a4a">(p95/1000)</span></td></tr>
+        <tr><td>deciding it has no answer</td><td class="num">870 µs <span style="color:#4a4a4a">(p95/1480)</span></td></tr>
+        <tr><td>chemistry</td><td class="num">1.0 ms <span style="color:#4a4a4a">(p95/680)</span></td></tr>
+        <tr><td>flashcards from the card</td><td class="num">1.0 ms <span style="color:#4a4a4a">(p95/40)</span></td></tr>
+        <tr><td>math, money, conversions</td><td class="num">1.3 ms <span style="color:#4a4a4a">(p95/2000)</span></td></tr>
+        <tr><td>timers, alarms, reminders</td><td class="num">2.9 ms <span style="color:#4a4a4a">(p95/40)</span></td></tr>
+        <tr><td>what it can and cannot do</td><td class="num">3.2 ms <span style="color:#4a4a4a">(p95/40)</span></td></tr>
+        <tr><td>small talk and jokes</td><td class="num">3.9 ms <span style="color:#4a4a4a">(p95/40)</span></td></tr>
+        <tr><td>songs, played and spoken</td><td class="num">640.7 ms <span style="color:#4a4a4a">(p95/40)</span></td></tr>
+      </tbody>
+    </table>
+    <table>
+      <thead><tr><th>What it answers</th><th class="num">Cost on the DevKit</th></tr></thead>
+      <tbody>
+        <tr class="tierhead"><td colspan="2">Tier 1 · kernel or card index</td></tr>
+        <tr><td>exact arithmetic, proven kernel</td><td class="num">16 µs</td></tr>
+        <tr><td>passages from the books</td><td class="num">1.1 ms <span style="color:#4a4a4a">(p95/42)</span></td></tr>
+        <tr><td>every sense of a word</td><td class="num">26.3 ms <span style="color:#4a4a4a">(p95/42)</span></td></tr>
+        <tr><td>algebra and calculus</td><td class="num">320.1 ms <span style="color:#4a4a4a">(p95/40)</span></td></tr>
+        <tr class="tierhead"><td colspan="2">Tier 2 · comprehension, in its own words</td></tr>
+        <tr><td>reading a new question</td><td class="num">1.8 s <span style="color:#4a4a4a">(max/6)</span></td></tr>
+        <tr><td>open conversation</td><td class="num">1.8 s <span style="color:#4a4a4a">(max/6)</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p class="small">The card is what makes the upper tiers possible here rather than somewhere else:
+  the dictionary is Open English WordNet with 135,969 lexemes and 107,519 defined senses; the
+  comprehension core reads against 133,218 dictionary entries and 52,571 phrases from a 456 MB data
+  set; 308,952 indexed passages sit beside them. A LAN route exists for anything the device
+  cannot hold, and today nothing in this table needs it.</p>
+
+  <div class="folio"><span>Jamesmykil Weber · for OpenHome</span><span class="pg"></span></div>
+</section>
+
+<section class="sheet">
+  <div class="run"><span><strong>Astral / OpenBrain</strong> · local-first voice on the OpenHome DevKit</span><span>4 September 2026</span></div>
+
+  <div class="kicker">Section 3</div>
+  <h2><span class="num">3.</span> Mechanics of the code</h2>
+  <p class="lede">Wake, burst-record, transcribe, route, speak. The loop runs half-duplex, because this HAT has
+  no hardware echo cancellation.</p>
+
+  <p>After every sound the device makes, it flushes the microphone and holds a refractory window, so
+  it cannot answer its own voice. Interruption sits on top of that as an echo-gated check rather
+  than an open microphone.</p>
+
+  <figure>
+    <svg viewBox="0 0 900 300" role="img" aria-label="The turn pipeline with the barge-in check as a side loop">
+      <g font-family="Helvetica,Arial,sans-serif" font-size="11.5">
+        
+        <rect x="430" y="16" width="456" height="96" rx="6" fill="#E7F0F2" stroke="#0F5C6B" stroke-width="1.2" stroke-dasharray="6 4"/>
+        <text x="444" y="36" font-size="11" font-weight="700" fill="#0F5C6B" letter-spacing="1">WHILE IT IS SPEAKING · BARGE-IN CHECK</text>
+        <text x="444" y="56" font-size="10.5" fill="#000">wake phrase matched?</text>
+        <text x="444" y="74" font-size="10.5" fill="#000">last 0.8 s at the microphone above 1200 RMS?</text>
+        <text x="444" y="92" font-size="10.5" fill="#4a4a4a">its own echo measures 982 median, 3151 at the 90th percentile, so it is not a barge</text>
+        
+        <path d="M600 112 v34" stroke="#0F5C6B" stroke-width="1.3" fill="none"/>
+        <polygon points="600,152 596,142 604,142" fill="#0F5C6B"/>
+        <path d="M700 146 v-34" stroke="#0F5C6B" stroke-width="1.3" fill="none"/>
+        <polygon points="700,106 696,116 704,116" fill="#0F5C6B"/>
+        <text x="712" y="136" font-size="9.5" fill="#0F5C6B">cut, then</text>
+        <text x="712" y="148" font-size="9.5" fill="#0F5C6B">resume</text>
+
+        
+        <g>
+          <rect x="14" y="150" width="122" height="66" fill="#fff" stroke="#000" stroke-width="1.1"/>
+          <text x="75" y="178" text-anchor="middle" font-weight="700">wake</text>
+          <text x="75" y="196" text-anchor="middle" font-size="9.5" fill="#4a4a4a">Vosk grammar</text>
+
+          <rect x="164" y="150" width="122" height="66" fill="#fff" stroke="#000" stroke-width="1.1"/>
+          <text x="225" y="172" text-anchor="middle" font-weight="700">burst-record</text>
+          <text x="225" y="190" text-anchor="middle" font-size="9.5" fill="#4a4a4a">50 ms latency,</text>
+          <text x="225" y="203" text-anchor="middle" font-size="9.5" fill="#4a4a4a">1 MB pipe</text>
+
+          <rect x="314" y="150" width="122" height="66" fill="#fff" stroke="#000" stroke-width="1.1"/>
+          <text x="375" y="178" text-anchor="middle" font-weight="700">transcribe</text>
+          <text x="375" y="196" text-anchor="middle" font-size="9.5" fill="#4a4a4a">whisper base.en</text>
+
+          <rect x="464" y="150" width="122" height="66" fill="#E7F0F2" stroke="#0F5C6B" stroke-width="1.6"/>
+          <text x="525" y="172" text-anchor="middle" font-weight="700">route</text>
+          <text x="525" y="190" text-anchor="middle" font-size="9.5" fill="#4a4a4a">run · ask ·</text>
+          <text x="525" y="203" text-anchor="middle" font-size="9.5" fill="#4a4a4a">stay silent</text>
+
+          <rect x="614" y="150" width="122" height="66" fill="#fff" stroke="#000" stroke-width="1.1"/>
+          <text x="675" y="178" text-anchor="middle" font-weight="700">speak</text>
+          <text x="675" y="196" text-anchor="middle" font-size="9.5" fill="#4a4a4a">piper, one level</text>
+
+          <rect x="764" y="150" width="122" height="66" fill="#fff" stroke="#000" stroke-width="1.1"/>
+          <text x="825" y="172" text-anchor="middle" font-weight="700">flush</text>
+          <text x="825" y="190" text-anchor="middle" font-size="9.5" fill="#4a4a4a">+ refractory</text>
+          <text x="825" y="203" text-anchor="middle" font-size="9.5" fill="#4a4a4a">window</text>
+        </g>
+        <g stroke="#000" stroke-width="1.3" fill="none">
+          <path d="M136 183 h20"/><path d="M286 183 h20"/><path d="M436 183 h20"/><path d="M586 183 h20"/><path d="M736 183 h20"/>
+        </g>
+        <g fill="#000">
+          <polygon points="158,183 150,179 150,187"/><polygon points="308,183 300,179 300,187"/>
+          <polygon points="458,183 450,179 450,187"/><polygon points="608,183 600,179 600,187"/>
+          <polygon points="758,183 750,179 750,187"/>
+        </g>
+        
+        <path d="M825 216 v34 H75 v-34" stroke="#000" stroke-width="1.1" fill="none" stroke-dasharray="5 4"/>
+        <polygon points="75,212 71,222 79,222" fill="#000"/>
+        <text x="450" y="266" text-anchor="middle" font-size="10.5" fill="#4a4a4a">half-duplex: the ear is closed while the mouth is open, and the flush really empties the pipe</text>
+        
+        <path d="M525 216 v46" stroke="#0F5C6B" stroke-width="1.2" fill="none"/>
+        <polygon points="525,266 521,256 529,256" fill="#0F5C6B"/>
+        <text x="533" y="290" font-size="10" fill="#0F5C6B">stays silent → the agent takes the turn</text>
+      </g>
+    </svg>
+    <figcaption><b>Figure 3.</b> One turn. The barge-in check is a side loop off "speak", not a
+    second listener: a false barge is harmless, because the sentence resumes from the point before the cut.</figcaption>
+  </figure>
+
+  <h3>The router and the tiers</h3>
+  <p>One place decides run, ask, or stay silent. It names the command class a phrase needs, asks a
+  fits table what this host may do with that class, and returns something the loop can act on
+  without a second opinion. Tier 0 is pattern and table code, microseconds. Tier 1 is a native
+  kernel or an indexed corpus on the card. Tier 2 is comprehension. Every class carries a measured
+  cost profile for the machine it is on.</p>
+
+  <h3>Budgets inform; they do not block</h3>
+  <p>The budgets file holds a ceiling per tier per host. The library index grew from two hundred and
+  thirty-one thousand passages to three hundred and nine thousand, the measured 95th percentile
+  crossed the ceiling by two hundred and fifty-eight microseconds, and the device correctly and
+  completely switched its own library off, and every book question answered with nothing. A ceiling
+  that kills a capability at a margin of three hundredths of a percent is a number chosen wrongly,
+  not a capability that failed. Storage classes carry their own budgets now, because a file write is
+  not a table lookup. A class I measure slow goes to a second lane, "I'll look that up while we
+  talk", with the answer landing in a pause rather than over a sentence.</p>
+
+  <h3>The ear: two seconds, then fifty milliseconds</h3>
+  <p><span class="mono">parec</span> opened with no stated latency inherits pipewire-pulse's default
+  record fragment, and that is two seconds, so every wake phrase, every interruption and every
+  flush was acting on a room that no longer existed. At <span class="mono">--latency-msec=50</span>,
+  with the pipe widened to 1 MB so a flush really empties it, the same sound is heard 0.66 s after
+  its player is launched. With the 64 KB default, 7.9 s of stale audio arrived in the second after
+  a flush.</p>
+
+  <h3>Memory and consent</h3>
+  <p>Nothing is written until somebody says "remember me". It is a property graph on the card, with
+  a clock reading on every row. "Forget me" deletes the file, not the rows. Notes mode is separate
+  and announces itself. Conversation context lives in process memory, times out, and is never
+  written down.</p>
+
+  <div class="folio"><span>Jamesmykil Weber · for OpenHome</span><span class="pg"></span></div>
+</section>
+
+<section class="sheet">
+  <div class="run"><span><strong>Astral / OpenBrain</strong> · local-first voice on the OpenHome DevKit</span><span>4 September 2026</span></div>
+
+  <div class="kicker">Section 3 · continued</div>
+  <h2><span class="num">3.</span> Mechanics of the code <span style="font-weight:400;font-size:11pt;color:#4a4a4a;">(continued)</span></h2>
+
+  <h3>Echo-gated barge-in, with resume</h3>
+  <p>A wake matched while the device speaks counts only if the last 0.8 s at the microphone is above
+  1200 RMS; its own echo measures 982 median and 3151 at the 90th percentile, and produced no wake
+  match in 18 s through a ready recogniser. A barge that comes to nothing, with nothing usable or the
+  wrong language, finishes the sentence from the point before the cut instead of losing it.
+  Three false wakes in a row switch barging off until a real answer. The recogniser is reset after
+  every uninterrupted sentence, and whatever queued on the microphone while the voice was being made
+  is dropped before it plays.</p>
+
+  <h3>One loudness model</h3>
+  <p>Measured as RMS at the device's own microphone, the sounds were never at one level.</p>
+  <table>
+    <caption>Measured on the device as RMS of a 16-bit sample. Five to one between loudest and
+    quietest before any setting touched them, which is why no setting could make them consistent.</caption>
+    <thead><tr><th>Sound</th><th class="num">RMS at the microphone</th><th style="width:38%">After the fix</th></tr></thead>
+    <tbody>
+      <tr><td>wake chime</td><td class="num">16,862</td><td>every chime levelled to 6,750</td></tr>
+      <tr><td>dismiss</td><td class="num">13,585</td><td>every chime levelled to 6,750</td></tr>
+      <tr><td>accept</td><td class="num">10,262</td><td>every chime levelled to 6,750</td></tr>
+      <tr><td>the tick</td><td class="num">5,776</td><td>levelled, then the 1.5× lift</td></tr>
+      <tr><td>speech</td><td class="num">~4,500</td><td>sentences at 3,900 to 4,500</td></tr>
+      <tr><td>the ready tune</td><td class="num">3,146</td><td>every chime levelled to 6,750</td></tr>
+    </tbody>
+  </table>
+  <p>Every file and every sentence is brought to one target level before its relative and the chime
+  lift apply. Chimes and the tick carry a fixed 1.5× lift that speech never gets, because a short
+  transient at the same peak as a sustained voice is heard as quieter. All of it sits under one
+  master that only a person moves. Shipped at master 65, chimes 70, tick 70, speech 100.</p>
+
+  <h3>The mathematics kernel</h3>
+  <p>Julia, with an Ada/SPARK oracle behind a C ABI. It takes about forty-three seconds to come up
+  on this board and milliseconds after that, so one process owns it and both callers talk to it over
+  a Unix socket. Before that, the ability paid the start-up on every turn and then offered to send
+  the question away, so a local-first device gave up exact mathematics it could do, because of a
+  process boundary. Exact arithmetic is computed twice, by Python's fractions and by the SPARK
+  oracle, and the two must agree before a word is spoken. A disagreement is a silence, never a guess.</p>
+
+  <h3>The compiled kernel as a shim</h3>
+  <p>OpenHome's contributing rules are MIT, readable and security-scanned, and a local ability is
+  three files, one of them named <span class="mono">devkit_functions.py</span>. So the
+  ability is a thin MIT shim, three hundred and forty-three lines: it finds the hub, falls back to
+  the compiled kernel, and if neither is there it says why rather than going silent. The engine
+  ships the way any Python dependency ships, as a wheel named in
+  <span class="mono">requirements.txt</span>, which OpenHome's own local-ability documentation
+  describes as the way to bring code onto the DevKit.</p>
+  <div class="note"><strong>The seam is documented, not hidden.</strong> Nothing proprietary hides
+  inside the MIT file, and nothing in the MIT file needs the engine to be readable in review.
+  <span class="mono">BOUNDARY.md</span> states where the line is; the review surface is the shim,
+  which is the whole surface touching the platform.</div>
+
+  <h3>Test discipline</h3>
+  <p>Twenty-six suites, each named for what it proves, run against a scratch copy of the device's
+  state so a check can never touch the card. One suite's only job is to prove that nothing fails
+  silently: it reads the refusal reasons out of the source and fails the build if any path can go
+  quiet.</p>
+
+  <div class="folio"><span>Jamesmykil Weber · for OpenHome</span><span class="pg"></span></div>
+</section>
+
+<section class="sheet">
+  <div class="run"><span><strong>Astral / OpenBrain</strong> · local-first voice on the OpenHome DevKit</span><span>4 September 2026</span></div>
+
+  <div class="kicker">Section 4</div>
+  <h2><span class="num">4.</span> Expansion: the route ladder</h2>
+  <p class="lede">Four rungs, with consent by name. Only the local rungs are live.</p>
+
+  <p>The ladder exists in code today: mechanical here, a model here, a machine in the house, then a
+  named cloud provider. Consent is by name. The device says which machine in the house, or which
+  provider, it would send the question to, because "the cloud" is not something a person can
+  choose between. The cloud hand-off is designed and not connected, and that
+  is deliberate: the optional cloud gets added when the ranking reaches a level that needs it. Today
+  no class is in that position, so the device does not make the offer. A route that cannot answer is
+  worse than no route.</p>
+
+  <figure>
+    <svg viewBox="0 0 900 320" role="img" aria-label="The four-rung route ladder, live rungs and designed rungs">
+      <g font-family="Helvetica,Arial,sans-serif">
+        
+        <rect x="140" y="24" width="640" height="56" fill="#fff" stroke="#8a9497" stroke-width="1.2" stroke-dasharray="7 4"/>
+        <text x="158" y="48" font-size="13" font-weight="700" fill="#4a4a4a">4 · A named cloud provider</text>
+        <text x="158" y="68" font-size="10.5" fill="#4a4a4a">offered by name, never as "the cloud" · ships switched off</text>
+        <text x="766" y="56" font-size="10.5" font-weight="700" fill="#4a4a4a" text-anchor="end">DESIGNED, NOT CONNECTED</text>
+        
+        <rect x="110" y="92" width="640" height="56" fill="#fff" stroke="#8a9497" stroke-width="1.2" stroke-dasharray="7 4"/>
+        <text x="128" y="116" font-size="13" font-weight="700" fill="#4a4a4a">3 · A machine in the house</text>
+        <text x="128" y="136" font-size="10.5" fill="#4a4a4a">token-authenticated LAN route, offered by name</text>
+        <text x="736" y="124" font-size="10.5" font-weight="700" fill="#4a4a4a" text-anchor="end">DESIGNED, OFF TODAY</text>
+        
+        <rect x="80" y="160" width="640" height="56" fill="#E7F0F2" stroke="#0F5C6B" stroke-width="1.6"/>
+        <text x="98" y="184" font-size="13" font-weight="700" fill="#000">2 · A model, here</text>
+        <text x="98" y="204" font-size="10.5" fill="#000">Llama 3.2 1B Instruct Q4_K_M on the board, comprehension at 1.8 s</text>
+        <text x="706" y="192" font-size="10.5" font-weight="700" fill="#0F5C6B" text-anchor="end">LIVE TODAY</text>
+        
+        <rect x="50" y="228" width="640" height="56" fill="#E7F0F2" stroke="#0F5C6B" stroke-width="1.6"/>
+        <text x="68" y="252" font-size="13" font-weight="700" fill="#000">1 · Mechanical, here</text>
+        <text x="68" y="272" font-size="10.5" fill="#000">tables, the compiled kernel, the Julia slate and the card index, µs to ms</text>
+        <text x="676" y="260" font-size="10.5" font-weight="700" fill="#0F5C6B" text-anchor="end">LIVE TODAY</text>
+        
+        <path d="M28 268 V60" stroke="#0F5C6B" stroke-width="1.4" fill="none"/>
+        <polygon points="28,44 23,58 33,58" fill="#0F5C6B"/>
+        <text x="20" y="300" font-size="10.5" fill="#0F5C6B">each rung up needs a spoken yes, to a provider named out loud</text>
+      </g>
+    </svg>
+    <figcaption><b>Figure 4.</b> The route ladder. Solid rungs run today; dashed rungs exist in code
+    and are switched off, because no measured class currently needs them.</figcaption>
+  </figure>
+
+  <h3>The near list</h3>
+  <ul>
+    <li><strong>A trained wake model from real recordings</strong>, so a false-wake number in a room
+    with a television becomes a measurement instead of an estimate.</li>
+    <li><strong>Sound packs already ship.</strong> OpenHome's house set is the default, and any
+    folder dropped into the packs directory is a pack, chosen by voice: "use the astral sounds". The
+    <span class="mono">astral</span> pack is real recordings with attributions carried on the card.</li>
+    <li><strong>Languages.</strong> It hears about a hundred and says which one it heard, and it
+    answers in English, rather than translating its own sentences with a 1B model that invents
+    names.</li>
+    <li><strong>A second household</strong>: a DevKit running a month in a home that is not the
+    developer's. That is the test one person cannot run alone.</li>
+  </ul>
+
+  <div class="note"><strong>What OpenHome gets from the ladder.</strong> Every turn answered on the
+  device is a turn that costs the platform nothing, and works when the network does not. The rungs
+  above exist so a class that needs a bigger machine can still be answered, with the
+  person's consent, given to a provider by name.</div>
+
+  <div class="folio"><span>Jamesmykil Weber · for OpenHome</span><span class="pg"></span></div>
+</section>
+
+<section class="sheet">
+  <div class="run"><span><strong>Astral / OpenBrain</strong> · local-first voice on the OpenHome DevKit</span><span>4 September 2026</span></div>
+
+  <div class="kicker">Section 5</div>
+  <h2><span class="num">5.</span> The bridge to the bigger work</h2>
+  <p class="lede">The DevKit work is the smallest node of a local-first system I run, which is why it is
+  built the way it is.</p>
+
+  <figure style="width:70%;margin-left:auto;margin-right:auto;">
+    <svg viewBox="0 0 900 292" role="img" aria-label="Layered diagram: the device inside the engine, inside the comprehension engine, inside the research">
+      <g font-family="Helvetica,Arial,sans-serif">
+        <rect x="14" y="16" width="530" height="268" rx="8" fill="#fff" stroke="#8a9497" stroke-width="1.2"/>
+        <text x="30" y="38" font-size="11.5" font-weight="700" fill="#4a4a4a">RESEARCH · custom transformer, adapters, a from-scratch pretrain</text>
+        <rect x="46" y="52" width="466" height="216" rx="6" fill="#fff" stroke="#0F5C6B" stroke-width="1.2"/>
+        <text x="62" y="74" font-size="11.5" font-weight="700" fill="#0F5C6B">MECH · deterministic comprehension</text>
+        <rect x="78" y="88" width="402" height="164" rx="6" fill="#E7F0F2" stroke="#0F5C6B" stroke-width="1.2"/>
+        <text x="94" y="110" font-size="11.5" font-weight="700" fill="#0F5C6B">ASTRAL BRAIN ENGINE · local-first orchestration</text>
+        <rect x="110" y="126" width="338" height="106" rx="6" fill="#fff" stroke="#000" stroke-width="1.8"/>
+        <text x="279" y="164" text-anchor="middle" font-size="15" font-weight="700" fill="#000">The DevKit product</text>
+        <text x="279" y="186" text-anchor="middle" font-size="11" fill="#4a4a4a">one small board · measured · running today</text>
+        <text x="279" y="208" text-anchor="middle" font-size="11" fill="#4a4a4a">this is what the grant is about</text>
+
+        
+        <line x1="570" y1="16" x2="570" y2="284" stroke="#BFC7C9" stroke-width="1"/>
+        <text x="592" y="38" font-size="11.5" font-weight="700" fill="#0F5C6B" letter-spacing="1">WHAT IS SHARED ACROSS ALL FOUR</text>
+        <g font-size="11" fill="#000">
+          <rect x="592" y="56" width="292" height="60" fill="#E7F0F2" stroke="#0F5C6B" stroke-width="1"/>
+          <text x="606" y="78" font-weight="700">The Julia / Ada-SPARK lane</text>
+          <text x="606" y="96" font-size="10.5" fill="#4a4a4a">exact mathematics, proved rather than</text>
+          <text x="606" y="110" font-size="10.5" fill="#4a4a4a">asserted; Slate is it, shrunk to a Pi</text>
+
+          <rect x="592" y="128" width="292" height="60" fill="#E7F0F2" stroke="#0F5C6B" stroke-width="1"/>
+          <text x="606" y="150" font-weight="700">The shim pattern</text>
+          <text x="606" y="168" font-size="10.5" fill="#4a4a4a">a readable, licence-clean surface over a</text>
+          <text x="606" y="182" font-size="10.5" fill="#4a4a4a">compiled dependency, documented</text>
+
+          <rect x="592" y="200" width="292" height="60" fill="#E7F0F2" stroke="#0F5C6B" stroke-width="1"/>
+          <text x="606" y="222" font-weight="700">Evidence or silence</text>
+          <text x="606" y="240" font-size="10.5" fill="#4a4a4a">a claim without a receipt is not done;</text>
+          <text x="606" y="254" font-size="10.5" fill="#4a4a4a">abstention beats a fluent guess</text>
+        </g>
+      </g>
+    </svg>
+    <figcaption><b>Figure 5.</b> The device sits inside three larger layers. The right-hand column is
+    what travels between them: the same lanes and the same seam.</figcaption>
+  </figure>
+
+  <div class="fillbox">
+    <div class="fb-h">Owner to complete</div>
+    <p>When you started, and what pulled you into this. Your own history, one line.</p>
+    <div class="fline"></div>
+  </div>
+
+  <h3>The orchestration engine</h3>
+  <p>Prime directives gate what any process may do; product isolation keeps two projects from ever
+  being conflated into one build path; and a coordination bus makes a process claim the work before
+  it touches anything.</p>
+
+  <h3>MECH, the deterministic comprehension engine</h3>
+  <p>Its law is that a reading becomes a <em>belief</em>, not a fact: revisable, carrying its
+  inferential provenance and a condition that would overturn it, and only a gate promotes anything
+  to actual. It stores a sentence one of two ways. The first reads "this document states…", with no
+  subject bound, and by design it can never be promoted. The second is a typed reading with a real
+  subject, predicate and object, and that one can. Measured on the live ledger, 99.9% of a seventy-gigabyte library landed in
+  the first lane. The engine is telling the truth about what it did not
+  understand. The remedy is a re-read with comprehension on, which typed 17.5% of one documentation set.
+  It abstains rather than guesses.</p>
+  <p>It has the same shape the device does: a Julia lane for exact mathematics; an Ada/SPARK lane
+  where I prove float behaviour instead of asserting it, with thirty-five open verification conditions
+  closed by running the prover per subprogram rather than whole-unit; and Rust libraries behind one
+  C ABI. Slate on the DevKit is that same Julia lane, shrunk to fit a Pi.</p>
+
+  <h3>The model side</h3>
+  <p>Adapters have been trained; a from-scratch pretrain is running for the component that may only
+  propose, never answer.</p>
+
+  <div class="fillbox">
+    <div class="fb-h">Owner to complete</div>
+    <p><strong>a.</strong> What the custom transformer and inference work does: architecture, objective, purpose. Two sentences.</p>
+    <div class="fline"></div><div class="fline"></div>
+    <p style="margin-top:2.4mm;"><strong>b.</strong> The machines you own, what each is doing today, and which one is the bottleneck.</p>
+    <div class="fline"></div>
+  </div>
+
+  <p class="small" style="margin-bottom:0;">None of that is finished. The point is that the DevKit product is
+  what happens when I aim the same discipline at one small board, and there, measured, today, it works.</p>
+
+  <div class="folio"><span>Jamesmykil Weber · for OpenHome</span><span class="pg"></span></div>
+</section>
+
+<section class="sheet">
+  <div class="run"><span><strong>Astral / OpenBrain</strong> · local-first voice on the OpenHome DevKit</span><span>4 September 2026</span></div>
+
+  <div class="kicker">Section 5 · continued</div>
+  <h2><span class="num">5.</span> Previous work</h2>
+  <p class="lede">Three public repositories in the OpenHome ecosystem, and the private stack the
+  DevKit work is cut from.</p>
+
+  <p>I already ship into OpenHome, specifically into the ability system. The ability in this handout is public, the abilities repository is
+  public, and the command-line tool I wrote for deploying and validating abilities is public. The
+  engine underneath stays private, and I am happy to open any of it for review on request. The rest
+  of the list is here because it is the same discipline applied to other problems, and because two of
+  those private repositories run on the DevKit today.</p>
+
+  <table>
+    <caption>My repositories under the account Jmesmykil, ordered by what matters to this conversation.</caption>
+    <thead><tr><th style="width:20%">Repository</th><th style="width:11%">Language</th><th style="width:19%">Availability</th><th style="width:50%">What it is</th></tr></thead>
+    <tbody>
+      <tr><td><strong>astral-OpenBrain</strong></td><td>Python</td><td>public</td><td>This project. A deterministic layer for OpenHome: it answers the exact-answer class (time, date, math, money, unit conversions, telemetry) on-device without the LLM, and everything else passes to the agent.<br><span class="mono" style="font-size:7.4pt;color:#0F5C6B">https://github.com/Jmesmykil/astral-OpenBrain</span></td></tr>
+      <tr><td><strong>abilities</strong></td><td>Python</td><td>public</td><td>Open-source abilities for OpenHome agents.<br><span class="mono" style="font-size:7.4pt;color:#0F5C6B">https://github.com/Jmesmykil/abilities</span></td></tr>
+      <tr><td><strong>openhome-cli</strong></td><td>TypeScript</td><td>public</td><td>CLI for managing OpenHome voice abilities: deploy, validate, and scaffold from your terminal.<br><span class="mono" style="font-size:7.4pt;color:#0F5C6B">https://github.com/Jmesmykil/openhome-cli</span></td></tr>
+      <tr><td><strong>astral-hub</strong></td><td>Python</td><td>private, available on request</td><td>The engine half of this project: routing, tables, kernels and the library. The shipped ability is a thin MIT shim over a compiled wheel built from these sources.</td></tr>
+      <tr><td><strong>Slate</strong></td><td>Julia</td><td>private, available on request</td><td>The mathematics lane behind MECH. It runs on the DevKit today as the maths kernel service.</td></tr>
+      <tr><td><strong>Strata</strong></td><td>Julia</td><td>private, available on request</td><td>The reading lane behind MECH.</td></tr>
+      <tr><td><strong>AstralBrainEngine</strong></td><td>Python</td><td>private, available on request</td><td>The orchestration brain for the Astral ecosystem.</td></tr>
+      <tr><td><strong>Tessera</strong></td><td>Python</td><td>private, available on request</td><td>3D models in, game-ready sprite sheets out. No image model in the path.</td></tr>
+      <tr><td><strong>modly</strong></td><td>TypeScript</td><td>private, available on request</td><td>Desktop app that builds 3D models from images on your own GPU, with nothing leaving the machine.</td></tr>
+      <tr><td><strong>DemoGraph</strong></td><td>Rust</td><td>private, available on request</td><td>Rust systems work.</td></tr>
+      <tr><td><strong>QNX</strong></td><td>C++</td><td>public</td><td>Custom firmware launcher work for the Nintendo Switch, in the Atmosph&#232;re ecosystem. Systems-level C++.<br><span class="mono" style="font-size:7.4pt;color:#0F5C6B">https://github.com/Jmesmykil/QNX</span></td></tr>
+      <tr><td><strong>SlimeShot-Unity</strong></td><td>C#</td><td>private, available on request</td><td>A game in production. Physics and rendering.</td></tr>
+      <tr><td><strong>soloDOLO</strong></td><td>Python</td><td>private, available on request</td><td>An animated series in production. Rigging and tooling.</td></tr>
+      <tr><td><strong>VoidIDE, AstralWorkspace, AstralEngineKit, BrainManager</strong></td><td>Swift</td><td>private, available on request</td><td>The macOS applications around the engine.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="note"><strong>The pattern across all of it.</strong> I build local-first, with no cloud
+  in the path unless I choose to put it there, and I ship tools other people use. Slate is the clearest
+  case: the same Julia lane serves my comprehension research on a workstation and answers arithmetic
+  on a Raspberry Pi.</div>
+
+  <div class="folio"><span>Jamesmykil Weber · for OpenHome</span><span class="pg"></span></div>
+</section>
+
+<section class="sheet">
+  <div class="run"><span><strong>Astral / OpenBrain</strong> · local-first voice on the OpenHome DevKit</span><span>4 September 2026</span></div>
+
+  <div class="kicker">Section 6</div>
+  <h2><span class="num">6.</span> The ask: five milestones, and what each level buys</h2>
+  <p class="lede">The advancement is a fully mechanical assistant. A device that answers most of a
+  household's questions on its own hardware in milliseconds, with no model call and nothing sent
+  anywhere, and says so when it cannot.</p>
+
+  <p>That runs today. Each level of funding buys more of it. I am a student with no income, and I
+  will keep building this without money, slower and out of pocket. I am not asking for $50,000. I am
+  showing what each amount does.</p>
+
+  <figure>
+    <svg viewBox="0 0 900 150" role="img" aria-label="Five milestones on one line, with the workstation called out">
+      <g font-family="Helvetica,Arial,sans-serif">
+        <line x1="60" y1="52" x2="840" y2="52" stroke="#BFC7C9" stroke-width="2"/>
+        <g font-size="10.5" text-anchor="middle">
+          <circle cx="90" cy="52" r="17" fill="#0F5C6B"/><text x="90" y="57" fill="#fff" font-size="13" font-weight="700">1</text>
+          <text x="90" y="90" fill="#000">mechanical</text><text x="90" y="104" fill="#4a4a4a" font-size="9.5">assistant, finished</text>
+          <circle cx="277" cy="52" r="17" fill="#0F5C6B"/><text x="277" y="57" fill="#fff" font-size="13" font-weight="700">2</text>
+          <text x="277" y="90" fill="#000">the ladder, live</text><text x="277" y="104" fill="#4a4a4a" font-size="9.5">LAN rung, then cloud</text>
+          <circle cx="464" cy="52" r="17" fill="#0F5C6B"/><text x="464" y="57" fill="#fff" font-size="13" font-weight="700">3</text>
+          <text x="464" y="90" fill="#000">the library at full size</text><text x="464" y="104" fill="#4a4a4a" font-size="9.5">65 more volumes</text>
+          <circle cx="651" cy="52" r="17" fill="#0F5C6B"/><text x="651" y="57" fill="#fff" font-size="13" font-weight="700">4</text>
+          <text x="651" y="90" fill="#000">measured in other homes</text><text x="651" y="104" fill="#4a4a4a" font-size="9.5">two DevKits, a month each</text>
+          <circle cx="838" cy="52" r="17" fill="#0F5C6B"/><text x="838" y="57" fill="#fff" font-size="13" font-weight="700">5</text>
+          <text x="838" y="90" fill="#000">the comprehension tier</text><text x="838" y="104" fill="#4a4a4a" font-size="9.5">my own model work</text>
+        </g>
+        <rect x="60" y="122" width="780" height="24" fill="#E7F0F2" stroke="#0F5C6B" stroke-width="1"/>
+        <text x="72" y="139" font-size="11" fill="#000">One workstation, $3,800 to $4,750, is what milestones 1, 2, 3 and 5 all wait on.</text>
+      </g>
+    </svg>
+    <figcaption><b>Figure 6.</b> The five milestones. Milestone 1 finishes the device that exists
+    today; the rest widen what it can answer without asking anyone for permission.</figcaption>
+  </figure>
+
+  <table>
+    <caption>What each milestone delivers, and what it costs.</caption>
+    <thead><tr><th style="width:20%">Milestone</th><th style="width:53%">What is delivered</th><th style="width:27%">Cost</th></tr></thead>
+    <tbody>
+      <tr><td><strong>1. The mechanical assistant, finished</strong></td><td>Every exact-answer class complete: time, date, math, money, units, definitions, facts, the library, timers, notes and memory. The no-silent-failure suite held at zero failures, the kernel wheel published, the ability installable from the OpenHome catalogue, the runbook and the bug ledger current.</td><td>my time</td></tr>
+      <tr><td><strong>2. The ladder, live</strong></td><td>A machine in the house as the LAN rung and named cloud providers as the last rung, each offered by name and consented to by voice, measured end to end.</td><td>the machine, provider credits, my time</td></tr>
+      <tr><td><strong>3. The library at full size</strong></td><td>The encyclopedias I already own, with 65 more volumes converted and waiting today, on the card. The index gets built on a real machine and ships built, so an offline device answers from an encyclopedia in under a second.</td><td>the machine, my time</td></tr>
+      <tr><td><strong>4. Measured in other homes</strong></td><td>Two more DevKits in homes that are not mine, a month each, with false wakes, loudness and every failure read out of the logs and fixed.</td><td>two DevKits, speakers and microphones for testing, travel, my time</td></tr>
+      <tr><td><strong>5. The comprehension tier</strong></td><td>My own inference and transformer work applied to the one tier that still uses a stock model, trained and evaluated completely on the machine, so the device can hold a conversation the way it holds a fact.</td><td>training compute, frontier model access for evaluation, my time</td></tr>
+    </tbody>
+  </table>
+
+  <h3>The machine</h3>
+  <p>The single purchase that changes what I can do is a Minisforum MS-S1 MAX in the 128 GB
+  unified-memory edition: an AMD Ryzen AI Max+ 395, Radeon 8060S graphics, a 2 TB SSD and dual
+  10 GbE. It is $3,799 on the maker's store today and $4,749 at list, and a Mac Studio at the same
+  level does the same job.</p>
+  <p>Memory the GPU can use is the point. 128 GB holds a 70-billion-parameter model quantised, so I
+  can train and run the comprehension tier at home. The same machine builds the library index in
+  minutes instead of hours on the Pi, and it serves as the LAN rung for milestone 2.</p>
+
+  <div class="fillbox" style="margin-top:2mm;">
+    <div class="fb-h">Owner to complete</div>
+    <p>How long this has taken, in one sentence.</p>
+    <div class="fline"></div>
+  </div>
+
+  <div class="folio"><span>Jamesmykil Weber · for OpenHome</span><span class="pg"></span></div>
+</section>
+
+<section class="sheet">
+  <div class="run"><span><strong>Astral / OpenBrain</strong> · local-first voice on the OpenHome DevKit</span><span>4 September 2026</span></div>
+
+  <div class="kicker">Section 6 · continued</div>
+  <h2><span class="num">6.</span> The ask <span style="font-weight:400;font-size:10.5pt;color:#4a4a4a;">(continued)</span>: what each level buys</h2>
+  <p class="lede">Every level below is real. The bottom one is what happens if nothing comes of this
+  conversation, and I have written it down so nobody has to guess.</p>
+
+  <table>
+    <caption>Levels top to bottom. The workstation is the line that changes the most for the least.</caption>
+    <thead><tr><th style="width:20%">Level</th><th style="width:80%">What it buys</th></tr></thead>
+    <tbody>
+      <tr><td><strong>$50,000</strong></td><td>All five milestones. The machine, the hardware for testing, the training compute and frontier model access for milestone 5, and part-time help with packaging and review so milestone 1 lands in weeks instead of months.</td></tr>
+      <tr><td><strong>$10,000</strong></td><td>Milestones 1, 2 and 3 in full, and the machine: a fully mechanical assistant, installable, with the ladder live and the library at full size.</td></tr>
+      <tr><td><strong>$3,800 to $4,750</strong></td><td>The machine, and with it milestones 1 and 3.</td></tr>
+      <tr><td><strong>$500 to $2,000</strong></td><td>One more DevKit and test hardware. Milestone 1 on my own time.</td></tr>
+      <tr><td><strong>Nothing</strong></td><td>I keep building it on the Pi, out of pocket and slower, with no second device and no machine.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>What OpenHome gets</h3>
+  <ul class="tight">
+    <li>Every turn answered on the device costs the platform nothing, and works when the network does not.</li>
+    <li>A supported local path on the DevKit, rather than one developer's card.</li>
+    <li>A household appliance that answers from an encyclopedia with no network at all.</li>
+    <li>A developer who ships. Three public repositories in your ecosystem are already mine.</li>
+  </ul>
+
+  <h3>The three things I want out of this conversation</h3>
+  <ul class="tight">
+    <li><strong>One.</strong> Which conversation this is: grant, sponsored integration, or both.</li>
+    <li><strong>Two.</strong> A paid, milestone-based integration, so this is a supported path on the DevKit rather than one developer's card.</li>
+    <li><strong>Three.</strong> Trigger words registered on agent 595324, and whether the wake phrase should stay "open home".</li>
+  </ul>
+
+  <div class="fillbox">
+    <div class="fb-h">Owner to complete</div>
+    <p>Who, if anyone, you would bring in on a funded scope.</p>
+    <div class="fline"></div>
+  </div>
+
+  <div class="folio"><span>Jamesmykil Weber · for OpenHome</span><span class="pg"></span></div>
+</section>
+
+<section class="sheet">
+  <div class="run"><span><strong>Astral / OpenBrain</strong> · local-first voice on the OpenHome DevKit</span><span>4 September 2026</span></div>
+
+  <div class="kicker">Section 7</div>
+  <h2><span class="num">7.</span> The demo, line by line</h2>
+  <p class="lede">Twelve questions, asked and answered by voice, with nothing sent anywhere. Every
+  step below is nameable in the code.</p>
+
+  <p>The pipeline is the same for every one of the twelve lines. What changes between them is which
+  handler the router reaches, and how long that handler takes.</p>
+
+  <figure>
+    <svg viewBox="0 0 900 300" role="img" aria-label="The per-turn pipeline, with the parameter of each stage">
+      <g font-family="Helvetica,Arial,sans-serif">
+        <g>
+          <rect x="14" y="40" width="160" height="86" fill="#fff" stroke="#000" stroke-width="1.1"/>
+          <text x="26" y="62" font-size="12" font-weight="700">1 · microphone</text>
+          <text x="26" y="80" font-size="9.5" fill="#4a4a4a">parec</text>
+          <text x="26" y="93" font-size="9.5" fill="#4a4a4a">50 ms latency</text>
+          <text x="26" y="106" font-size="9.5" fill="#4a4a4a">80 ms frames</text>
+
+          <rect x="190" y="40" width="160" height="86" fill="#E7F0F2" stroke="#0F5C6B" stroke-width="1.1"/>
+          <text x="202" y="62" font-size="12" font-weight="700">2 · wake phrase</text>
+          <text x="202" y="80" font-size="9.5" fill="#4a4a4a">&#8220;open brain&#8221;</text>
+          <text x="202" y="93" font-size="9.5" fill="#4a4a4a">Vosk grammar recogniser</text>
+          <text x="202" y="106" font-size="9.5" fill="#4a4a4a">about 0.08&#215; real time</text>
+
+          <rect x="366" y="40" width="160" height="86" fill="#E7F0F2" stroke="#0F5C6B" stroke-width="1.1"/>
+          <text x="378" y="62" font-size="12" font-weight="700">3 · burst capture</text>
+          <text x="378" y="80" font-size="9.5" fill="#4a4a4a">until 0.8 s of silence</text>
+          <text x="378" y="93" font-size="9.5" fill="#4a4a4a">peaks 16,000 to 21,000</text>
+          <text x="378" y="106" font-size="9.5" fill="#4a4a4a">for a normal voice</text>
+
+          <rect x="542" y="40" width="160" height="86" fill="#E7F0F2" stroke="#0F5C6B" stroke-width="1.1"/>
+          <text x="554" y="62" font-size="12" font-weight="700">4 · transcribe</text>
+          <text x="554" y="80" font-size="9.5" fill="#4a4a4a">whisper base.en q5_1</text>
+          <text x="554" y="93" font-size="9.5" fill="#4a4a4a">1 to 2 s for a 4 s burst</text>
+
+          <rect x="718" y="40" width="160" height="86" fill="#E7F0F2" stroke="#0F5C6B" stroke-width="1.1"/>
+          <text x="730" y="62" font-size="12" font-weight="700">5 · classify</text>
+          <text x="730" y="80" font-size="9.5" fill="#4a4a4a">tier-0 pattern classes</text>
+          <text x="730" y="93" font-size="9.5" fill="#4a4a4a">names what is needed</text>
+        </g>
+        <g stroke="#000" stroke-width="1.2" fill="none">
+          <path d="M174 83 h10"/><path d="M350 83 h10"/><path d="M526 83 h10"/><path d="M702 83 h10"/>
+        </g>
+        <g fill="#000">
+          <polygon points="188,83 181,80 181,86"/><polygon points="364,83 357,80 357,86"/>
+          <polygon points="540,83 533,80 533,86"/><polygon points="716,83 709,80 709,86"/>
+        </g>
+        <path d="M878 83 h12 v68 H10 v68 h4" stroke="#000" stroke-width="1.1" fill="none"/>
+        <polygon points="16,219 8,215 8,223" fill="#000"/>
+        <g>
+          <rect x="14" y="176" width="160" height="86" fill="#E7F0F2" stroke="#0F5C6B" stroke-width="1.6"/>
+          <text x="26" y="198" font-size="12" font-weight="700">6 · router</text>
+          <text x="26" y="216" font-size="9.5" fill="#4a4a4a">the measured fits table</text>
+          <text x="26" y="229" font-size="9.5" fill="#4a4a4a">budgets inform,</text>
+          <text x="26" y="242" font-size="9.5" fill="#4a4a4a">never block</text>
+
+          <rect x="190" y="176" width="160" height="86" fill="#fff" stroke="#000" stroke-width="1.1"/>
+          <text x="202" y="198" font-size="12" font-weight="700">7 · handler</text>
+          <text x="202" y="216" font-size="9.5" fill="#4a4a4a">the class&#8217;s own code</text>
+          <text x="202" y="229" font-size="9.5" fill="#4a4a4a">&#8594; answer text</text>
+
+          <rect x="366" y="176" width="160" height="86" fill="#fff" stroke="#000" stroke-width="1.1"/>
+          <text x="378" y="198" font-size="12" font-weight="700">8 · speak</text>
+          <text x="378" y="216" font-size="9.5" fill="#4a4a4a">piper</text>
+          <text x="378" y="229" font-size="9.5" fill="#4a4a4a">about 1 s per sentence</text>
+          <text x="378" y="242" font-size="9.5" fill="#4a4a4a">RMS-levelled, one model</text>
+
+          <rect x="542" y="176" width="160" height="86" fill="#fff" stroke="#000" stroke-width="1.1"/>
+          <text x="554" y="198" font-size="12" font-weight="700">9 · playback</text>
+          <text x="554" y="216" font-size="9.5" fill="#4a4a4a">mpv</text>
+          <text x="554" y="229" font-size="9.5" fill="#4a4a4a">barge-in check polls the</text>
+          <text x="554" y="242" font-size="9.5" fill="#4a4a4a">microphone every 60 ms</text>
+
+          <rect x="718" y="176" width="160" height="86" fill="#E7F0F2" stroke="#0F5C6B" stroke-width="1.1"/>
+          <text x="730" y="198" font-size="12" font-weight="700">10 · the floor</text>
+          <text x="730" y="216" font-size="9.5" fill="#4a4a4a">stays open 25 s for a</text>
+          <text x="730" y="229" font-size="9.5" fill="#4a4a4a">follow-up with no wake</text>
+          <text x="730" y="242" font-size="9.5" fill="#4a4a4a">word, completed from context</text>
+        </g>
+        <g stroke="#000" stroke-width="1.2" fill="none">
+          <path d="M174 219 h10"/><path d="M350 219 h10"/><path d="M526 219 h10"/><path d="M702 219 h10"/>
+        </g>
+        <g fill="#000">
+          <polygon points="188,219 181,216 181,222"/><polygon points="364,219 357,216 357,222"/>
+          <polygon points="540,219 533,216 533,222"/><polygon points="716,219 709,216 709,222"/>
+        </g>
+        <text x="14" y="288" font-size="10" fill="#0F5C6B">a follow-up is completed from context before it is classified: &#8220;and in London&#8221; becomes &#8220;what time is it in London&#8221;</text>
+      </g>
+    </svg>
+    <figcaption><b>Figure 8.</b> One turn, with the parameter that governs each stage. Stages 2, 3, 5,
+    6 and 10 are the ones that changed most during the week before this meeting.</figcaption>
+  </figure>
+
+  <table>
+    <caption>The twelve scripted lines in the order they are asked, with the class the router names,
+    the tier it resolves to, where the answer physically comes from, and the time measured on the device.</caption>
+    <thead><tr><th style="width:4%">#</th><th style="width:27%">The question</th><th style="width:15%">Class · tier</th><th style="width:34%">Where the answer comes from</th><th class="num" style="width:20%">Measured</th></tr></thead>
+    <tbody>
+      <tr><td class="num" style="text-align:left;padding-right:2mm">1</td><td>"how many books do you have"</td><td>library · tier 1</td><td>the SQLite index on the card (570 MB)</td><td class="num">878 ms warm<br><span style="color:#4a4a4a">40,033 ms cold, once</span></td></tr>
+      <tr><td class="num" style="text-align:left;padding-right:2mm">2</td><td>"what page are lambdas on"</td><td>library · tier 1</td><td>the back-of-book index</td><td class="num">81 ms</td></tr>
+      <tr><td class="num" style="text-align:left;padding-right:2mm">3</td><td>"what do the books say about entropy"</td><td>library · tier 1</td><td>full-text search across the books, then the reference shelf (~300k passages)</td><td class="num">sub-second warm</td></tr>
+      <tr><td class="num" style="text-align:left;padding-right:2mm">4</td><td>"tell me something interesting"</td><td>facts · tier 0/1</td><td>the 682 curated facts on the card</td><td class="num">milliseconds</td></tr>
+      <tr><td class="num" style="text-align:left;padding-right:2mm">5</td><td>"what time is it in tokyo"</td><td>mechanical · tier 0</td><td>the device’s own clock and time zones</td><td class="num">~1 ms</td></tr>
+      <tr><td class="num" style="text-align:left;padding-right:2mm">6</td><td>"how many kilometres in twelve miles"</td><td>calc · tier 0</td><td>exact arithmetic</td><td class="num">~1 ms</td></tr>
+      <tr><td class="num" style="text-align:left;padding-right:2mm">7</td><td>"what is one third plus one sixth"</td><td>calc · tier 0</td><td>exact fractions, checked against the Julia slate kernel where it runs</td><td class="num">~1 ms</td></tr>
+      <tr><td class="num" style="text-align:left;padding-right:2mm">8</td><td>"tell me a riddle"</td><td>facts · tier 0</td><td>the curated facts on the card</td><td class="num">milliseconds</td></tr>
+      <tr><td class="num" style="text-align:left;padding-right:2mm">9</td><td>"open the pod bay doors"</td><td>small talk / meta · tier 0</td><td>the tier-0 small-talk table</td><td class="num">milliseconds</td></tr>
+      <tr><td class="num" style="text-align:left;padding-right:2mm">10</td><td>"what is the capital of Mongolia"</td><td>comprehension · tier 2</td><td>the local model, Llama 3.2 1B Q4_K_M via llama-server, and it abstains</td><td class="num">2,267 ms</td></tr>
+      <tr><td class="num" style="text-align:left;padding-right:2mm">11</td><td>"why didn’t that work"</td><td>meta · tier 0</td><td>its own recorded reason for the abstention</td><td class="num">~1 ms</td></tr>
+      <tr><td class="num" style="text-align:left;padding-right:2mm">12</td><td>"what can you do"</td><td>meta · tier 0</td><td>the ability registry</td><td class="num">3 ms</td></tr>
+    </tbody>
+  </table>
+
+  <div class="folio"><span>Jamesmykil Weber · for OpenHome</span><span class="pg"></span></div>
+</section>
+
+<section class="sheet">
+  <div class="run"><span><strong>Astral / OpenBrain</strong> · local-first voice on the OpenHome DevKit</span><span>4 September 2026</span></div>
+
+  <div class="kicker">Section 7 · continued</div>
+  <h2><span class="num">7.</span> The demo, line by line <span style="font-weight:400;font-size:10.5pt;color:#4a4a4a;">(continued)</span></h2>
+
+  <figure>
+    <svg viewBox="0 0 900 590" role="img" aria-label="Vertical timeline of the twelve demo lines with tier and measured time">
+      <g font-family="Helvetica,Arial,sans-serif">
+        <text x="62" y="28" font-size="10" fill="#4a4a4a" letter-spacing="1">THE LINE, AND WHERE ITS ANSWER COMES FROM</text>
+        <text x="671" y="28" font-size="10" fill="#4a4a4a" text-anchor="middle" letter-spacing="1">TIER</text>
+        <text x="880" y="28" font-size="10" fill="#4a4a4a" text-anchor="end" letter-spacing="1">MEASURED</text>
+        <line x1="14" y1="38" x2="886" y2="38" stroke="#BFC7C9" stroke-width="1"/>
+        <line x1="38" y1="52" x2="38" y2="562" stroke="#BFC7C9" stroke-width="2"/>
+        <circle cx="38" cy="62" r="11.5" fill="#0F5C6B"/>
+        <text x="38" y="66" text-anchor="middle" font-size="10.5" font-weight="700" fill="#fff">1</text>
+        <text x="62" y="63" font-size="12.5" font-weight="700" fill="#000">&#8220;how many books do you have&#8221;</text>
+        <text x="62" y="78" font-size="9.8" fill="#4a4a4a">library index on the card, SQLite, 570 MB</text>
+        <rect x="648" y="53" width="46" height="18" fill="#E7F0F2" stroke="#0F5C6B" stroke-width=".8"/>
+        <text x="671" y="66" text-anchor="middle" font-size="9.5" fill="#0F5C6B" font-weight="700">tier 1</text>
+        <text x="880" y="66" text-anchor="end" font-size="12" font-weight="700" fill="#000">878 ms</text>
+        <circle cx="38" cy="106" r="11.5" fill="#0F5C6B"/>
+        <text x="38" y="110" text-anchor="middle" font-size="10.5" font-weight="700" fill="#fff">2</text>
+        <text x="62" y="107" font-size="12.5" font-weight="700" fill="#000">&#8220;what page are lambdas on&#8221;</text>
+        <text x="62" y="122" font-size="9.8" fill="#4a4a4a">the back-of-book index</text>
+        <rect x="648" y="97" width="46" height="18" fill="#E7F0F2" stroke="#0F5C6B" stroke-width=".8"/>
+        <text x="671" y="110" text-anchor="middle" font-size="9.5" fill="#0F5C6B" font-weight="700">tier 1</text>
+        <text x="880" y="110" text-anchor="end" font-size="12" font-weight="700" fill="#000">81 ms</text>
+        <circle cx="38" cy="150" r="11.5" fill="#0F5C6B"/>
+        <text x="38" y="154" text-anchor="middle" font-size="10.5" font-weight="700" fill="#fff">3</text>
+        <text x="62" y="151" font-size="12.5" font-weight="700" fill="#000">&#8220;what do the books say about entropy&#8221;</text>
+        <text x="62" y="166" font-size="9.8" fill="#4a4a4a">books, then the reference shelf, ~300k passages</text>
+        <rect x="648" y="141" width="46" height="18" fill="#E7F0F2" stroke="#0F5C6B" stroke-width=".8"/>
+        <text x="671" y="154" text-anchor="middle" font-size="9.5" fill="#0F5C6B" font-weight="700">tier 1</text>
+        <text x="880" y="154" text-anchor="end" font-size="12" font-weight="700" fill="#000">sub-second</text>
+        <circle cx="38" cy="194" r="11.5" fill="#0F5C6B"/>
+        <text x="38" y="198" text-anchor="middle" font-size="10.5" font-weight="700" fill="#fff">4</text>
+        <text x="62" y="195" font-size="12.5" font-weight="700" fill="#000">&#8220;tell me something interesting&#8221;</text>
+        <text x="62" y="210" font-size="9.8" fill="#4a4a4a">682 curated facts on the card</text>
+        <rect x="648" y="185" width="46" height="18" fill="#E7F0F2" stroke="#0F5C6B" stroke-width=".8"/>
+        <text x="671" y="198" text-anchor="middle" font-size="9.5" fill="#0F5C6B" font-weight="700">tier 0/1</text>
+        <text x="880" y="198" text-anchor="end" font-size="12" font-weight="700" fill="#000">ms</text>
+        <circle cx="38" cy="238" r="11.5" fill="#0F5C6B"/>
+        <text x="38" y="242" text-anchor="middle" font-size="10.5" font-weight="700" fill="#fff">5</text>
+        <text x="62" y="239" font-size="12.5" font-weight="700" fill="#000">&#8220;what time is it in tokyo&#8221;</text>
+        <text x="62" y="254" font-size="9.8" fill="#4a4a4a">the device clock and its time zones</text>
+        <rect x="648" y="229" width="46" height="18" fill="#E7F0F2" stroke="#0F5C6B" stroke-width=".8"/>
+        <text x="671" y="242" text-anchor="middle" font-size="9.5" fill="#0F5C6B" font-weight="700">tier 0</text>
+        <text x="880" y="242" text-anchor="end" font-size="12" font-weight="700" fill="#000">~1 ms</text>
+        <circle cx="38" cy="282" r="11.5" fill="#0F5C6B"/>
+        <text x="38" y="286" text-anchor="middle" font-size="10.5" font-weight="700" fill="#fff">6</text>
+        <text x="62" y="283" font-size="12.5" font-weight="700" fill="#000">&#8220;how many kilometres in twelve miles&#8221;</text>
+        <text x="62" y="298" font-size="9.8" fill="#4a4a4a">exact arithmetic</text>
+        <rect x="648" y="273" width="46" height="18" fill="#E7F0F2" stroke="#0F5C6B" stroke-width=".8"/>
+        <text x="671" y="286" text-anchor="middle" font-size="9.5" fill="#0F5C6B" font-weight="700">tier 0</text>
+        <text x="880" y="286" text-anchor="end" font-size="12" font-weight="700" fill="#000">~1 ms</text>
+        <circle cx="38" cy="326" r="11.5" fill="#0F5C6B"/>
+        <text x="38" y="330" text-anchor="middle" font-size="10.5" font-weight="700" fill="#fff">7</text>
+        <text x="62" y="327" font-size="12.5" font-weight="700" fill="#000">&#8220;what is one third plus one sixth&#8221;</text>
+        <text x="62" y="342" font-size="9.8" fill="#4a4a4a">exact fractions, checked against the Julia slate kernel</text>
+        <rect x="648" y="317" width="46" height="18" fill="#E7F0F2" stroke="#0F5C6B" stroke-width=".8"/>
+        <text x="671" y="330" text-anchor="middle" font-size="9.5" fill="#0F5C6B" font-weight="700">tier 0</text>
+        <text x="880" y="330" text-anchor="end" font-size="12" font-weight="700" fill="#000">~1 ms</text>
+        <circle cx="38" cy="370" r="11.5" fill="#0F5C6B"/>
+        <text x="38" y="374" text-anchor="middle" font-size="10.5" font-weight="700" fill="#fff">8</text>
+        <text x="62" y="371" font-size="12.5" font-weight="700" fill="#000">&#8220;tell me a riddle&#8221;</text>
+        <text x="62" y="386" font-size="9.8" fill="#4a4a4a">the curated facts on the card</text>
+        <rect x="648" y="361" width="46" height="18" fill="#E7F0F2" stroke="#0F5C6B" stroke-width=".8"/>
+        <text x="671" y="374" text-anchor="middle" font-size="9.5" fill="#0F5C6B" font-weight="700">tier 0</text>
+        <text x="880" y="374" text-anchor="end" font-size="12" font-weight="700" fill="#000">ms</text>
+        <circle cx="38" cy="414" r="11.5" fill="#0F5C6B"/>
+        <text x="38" y="418" text-anchor="middle" font-size="10.5" font-weight="700" fill="#fff">9</text>
+        <text x="62" y="415" font-size="12.5" font-weight="700" fill="#000">&#8220;open the pod bay doors&#8221;</text>
+        <text x="62" y="430" font-size="9.8" fill="#4a4a4a">the tier-0 small-talk table</text>
+        <rect x="648" y="405" width="46" height="18" fill="#E7F0F2" stroke="#0F5C6B" stroke-width=".8"/>
+        <text x="671" y="418" text-anchor="middle" font-size="9.5" fill="#0F5C6B" font-weight="700">tier 0</text>
+        <text x="880" y="418" text-anchor="end" font-size="12" font-weight="700" fill="#000">ms</text>
+        <circle cx="38" cy="458" r="11.5" fill="#0F5C6B"/>
+        <text x="38" y="462" text-anchor="middle" font-size="10.5" font-weight="700" fill="#fff">10</text>
+        <text x="62" y="459" font-size="12.5" font-weight="700" fill="#000">&#8220;what is the capital of Mongolia&#8221;</text>
+        <text x="62" y="474" font-size="9.8" fill="#4a4a4a">the local model, and it abstains rather than guess</text>
+        <rect x="648" y="449" width="46" height="18" fill="#E7F0F2" stroke="#0F5C6B" stroke-width=".8"/>
+        <text x="671" y="462" text-anchor="middle" font-size="9.5" fill="#0F5C6B" font-weight="700">tier 2</text>
+        <text x="880" y="462" text-anchor="end" font-size="12" font-weight="700" fill="#000">2,267 ms</text>
+        <circle cx="38" cy="502" r="11.5" fill="#0F5C6B"/>
+        <text x="38" y="506" text-anchor="middle" font-size="10.5" font-weight="700" fill="#fff">11</text>
+        <text x="62" y="503" font-size="12.5" font-weight="700" fill="#000">&#8220;why didn’t that work&#8221;</text>
+        <text x="62" y="518" font-size="9.8" fill="#4a4a4a">its own recorded reason for the abstention</text>
+        <rect x="648" y="493" width="46" height="18" fill="#E7F0F2" stroke="#0F5C6B" stroke-width=".8"/>
+        <text x="671" y="506" text-anchor="middle" font-size="9.5" fill="#0F5C6B" font-weight="700">tier 0</text>
+        <text x="880" y="506" text-anchor="end" font-size="12" font-weight="700" fill="#000">~1 ms</text>
+        <circle cx="38" cy="546" r="11.5" fill="#0F5C6B"/>
+        <text x="38" y="550" text-anchor="middle" font-size="10.5" font-weight="700" fill="#fff">12</text>
+        <text x="62" y="547" font-size="12.5" font-weight="700" fill="#000">&#8220;what can you do&#8221;</text>
+        <text x="62" y="562" font-size="9.8" fill="#4a4a4a">the ability registry, 28 abilities</text>
+        <rect x="648" y="537" width="46" height="18" fill="#E7F0F2" stroke="#0F5C6B" stroke-width=".8"/>
+        <text x="671" y="550" text-anchor="middle" font-size="9.5" fill="#0F5C6B" font-weight="700">tier 0</text>
+        <text x="880" y="550" text-anchor="end" font-size="12" font-weight="700" fill="#000">3 ms</text>
+        <text x="62" y="583" font-size="10" fill="#0F5C6B">line 1 was 40,033 ms once, the first time after a cold reboot, while the index was read off the card</text>
+      </g>
+    </svg>
+    <figcaption><b>Figure 9.</b> The run in order. Ten of the twelve resolve in tier 0 or tier 1, on
+    the card or in the compiled tables; one goes to the local model, and that one abstains.</figcaption>
+  </figure>
+
+  <div class="cols2">
+    <div class="box">
+      <h3>The two lines that matter most</h3>
+      <p class="small"><strong>Line 10, &#8220;what is the capital of Mongolia&#8221;.</strong> It goes to
+      the local model and comes back with nothing it is sure of, so it says
+      &#8220;I couldn&#8217;t work that one out, and I won&#8217;t guess.&#8221; That is deliberate: a
+      reading may form a belief, not a fact, and a confident wrong answer is worse than a refusal.</p>
+      <p class="small" style="margin-bottom:0;"><strong>Line 11, &#8220;why didn&#8217;t that work&#8221;.</strong>
+      A tier-0 meta class reads the recorded reason back:
+      &#8220;It went to the part of me that works things out, and that came back with nothing it was
+      sure of. I would rather say nothing than invent an answer.&#8221;</p>
+    </div>
+    <div class="box">
+      <h3>The run, measured</h3>
+      <table style="margin-bottom:0;">
+        <tbody>
+          <tr><td>Lines asked, and answered as scripted</td><td class="num">12 of 12</td></tr>
+          <tr><td>Not as scripted</td><td class="num">0</td></tr>
+          <tr><td>Median line</td><td class="num">8 to 11 ms</td></tr>
+          <tr><td>Slowest line, warm (line 10)</td><td class="num">2,267 ms</td></tr>
+          <tr><td>Slowest line, cold (line 1)</td><td class="num">40,033 ms</td></tr>
+          <tr><td>Whole run, warm</td><td class="num">216 s</td></tr>
+          <tr><td>Whole run, after a cold reboot</td><td class="num">272 s</td></tr>
+          <tr><td>Settings, hooks and notes after the run</td><td class="num">unchanged</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="note"><strong>What to watch during the live run.</strong> The chimes mark the stages
+  without words. There is a cue on wake, and a working tick while speech-to-text runs. The floor stays open for twenty-five seconds afterwards, so a follow-up needs
+  no wake word.</div>
+
+  <div class="folio"><span>Jamesmykil Weber · for OpenHome</span><span class="pg"></span></div>
+</section>
+
+<section class="sheet">
+  <div class="run"><span><strong>Astral / OpenBrain</strong> · local-first voice on the OpenHome DevKit</span><span>4 September 2026</span></div>
+
+  <div class="kicker">Section 8</div>
+  <h2><span class="num">8.</span> Proof and honesty</h2>
+  <figure style="width:78%;margin-left:auto;margin-right:auto;">
+    <svg viewBox="0 0 900 168" role="img" aria-label="Measured today versus designed but not connected">
+      <g font-family="Helvetica,Arial,sans-serif">
+        <rect x="14" y="14" width="428" height="152" fill="#E7F0F2" stroke="#0F5C6B" stroke-width="1.4"/>
+        <text x="32" y="40" font-size="12" font-weight="700" fill="#0F5C6B" letter-spacing="1">MEASURED, ON HARDWARE, WITH A DATE</text>
+        <g font-size="11" fill="#000">
+          <text x="32" y="66">the tier costs, per class, on the DevKit</text>
+          <text x="32" y="88">3,636 held on the device, 3,630 on the Mac, 0 failed</text>
+          <text x="32" y="110">the twelve-line voice demo, 12 of 12</text>
+          <text x="32" y="132">loudness in RMS at the device's own microphone</text>
+          <text x="32" y="154">microphone latency: 2 s → 50 ms, heard at 0.66 s</text>
+        </g>
+        <rect x="458" y="14" width="428" height="152" fill="#fff" stroke="#8a9497" stroke-width="1.4" stroke-dasharray="7 4"/>
+        <text x="476" y="40" font-size="12" font-weight="700" fill="#4a4a4a" letter-spacing="1">DESIGNED, IN CODE, NOT CONNECTED</text>
+        <g font-size="11" fill="#4a4a4a">
+          <text x="476" y="66">the LAN rung, a machine in the house</text>
+          <text x="476" y="88">the named cloud rung, switched off</text>
+          <text x="476" y="110">a false-wake rate for a room with a television</text>
+          <text x="476" y="132">echo cancellation on this HAT, path known</text>
+          <text x="476" y="154">the trained wake model from real recordings</text>
+        </g>
+      </g>
+    </svg>
+    <figcaption><b>Figure 7.</b> The line between the two columns is the point of this page: nothing
+    on the right is claimed as working, and nothing on the left is claimed without a dated measurement.</figcaption>
+  </figure>
+
+  <h3>The known limits, stated plainly</h3>
+  <ul>
+    <li><strong>Barge-in needs the person to be louder than the device.</strong> With an
+    interrupter played from the device's own speaker at equal loudness, the recogniser caught the
+    wake phrase in the controlled trial, 1.2 s after the phrase began, but not inside the loop,
+    where speech plays at the trim gain.</li>
+    <li><strong>Echo cancellation is available but not usable yet.</strong> PipeWire's
+    <span class="mono">module-echo-cancel</span> with WebRTC is installed on the DevKit; loaded at
+    runtime it creates <span class="mono">ec_source</span> and <span class="mono">ec_sink</span>,
+    but under the pro-audio profile the source delivered zeros. The graph needs
+    <span class="mono">pw-link</span> work before it is usable. I have not shipped it, and the path is properly mapped.</li>
+    <li><strong>The microphone came up at the wrong level after this morning's reboot.</strong> Our
+    unit and the OpenHome node server both set a default at boot, and whoever ran last won. The loop
+    pins the microphone and the speaker from the settings now, and holds both properly while it runs.</li>
+    <li><strong>The ear can come up stuck after a boot.</strong> When the capture stream delivers
+    nothing, the loop kicks its own stream rather than sitting there deaf.</li>
+    <li><strong>The first library question after a cold boot was slow once, at forty seconds</strong>
+    (40,033 ms). That is the index being read off the card for the first time; the fix is a warm-up at boot.</li>
+    <li><strong>False wakes are observed, not yet rated.</strong> With a video playing near the
+    device it woke a handful of times, each dismissed with the tone; the chime goes quiet after three
+    in a row. I will not quote a rate until I train a model on real recordings.
+    Other limits are in the ledger, dated: the phone rung being off, and OCR damage in the scanned
+    reference material, which it reads as it stands.</li>
+  </ul>
+
+  <hr class="hr">
+
+  <div class="kicker">Section 9</div>
+  <h2><span class="num">9.</span> Contact and next steps</h2>
+
+  <div class="cols2" style="margin-top:3mm;">
+    <div class="box">
+      <h3>Contact</h3>
+      <p class="small" style="margin-bottom:1mm;"><strong>Jamesmykil Weber</strong><br>Sole developer: architecture, kernel, router, library, audio, deploy, tests</p>
+      <p class="small" style="margin-bottom:2.5mm;">mykiljames253@gmail.com</p>
+      <div class="small" style="color:#4a4a4a;margin-bottom:.8mm;">Repository / project URL</div>
+      <div class="fline"></div>
+      <div class="small" style="color:#4a4a4a;margin:2mm 0 .8mm 0;">Phone</div>
+      <div class="fline"></div>
+    </div>
+    <div class="box">
+      <h3>Next steps</h3>
+      <ul class="tight small" style="padding-left:4mm;">
+        <li>Name which conversation this is: grant, sponsored integration, or a role.</li>
+        <li>Confirm a paid, milestone-based integration and its first date.</li>
+        <li>Register the trigger words on agent 595324, and decide the wake phrase.</li>
+        <li>Say where the kernel wheel should live, so milestone three can start, and send review
+        feedback on the MIT shim.</li>
+      </ul>
+      <p class="small" style="margin-bottom:0;"><strong>Reproducing it:</strong> one deploy script, and
+      the demo runs by voice, "open brain, run the demo".</p>
+    </div>
+  </div>
+
+  <div class="fillbox" style="margin:2.2mm 0 0 0;">
+    <div class="fb-h">Owner to complete</div>
+    <p style="margin-bottom:2mm;">Agreed next step and the date it is due, written down before the call ends.</p>
+    <div class="fline"></div>
+  </div>
+
+  <div class="folio"><span>Jamesmykil Weber · for OpenHome</span><span class="pg"></span></div>
+</section>
+
+</body>
+</html>
