@@ -48,6 +48,7 @@ Files: background.py (this) is category=background_daemon. It shares devkit_func
 with the Local Ability, so there is one engine on the device, not two.
 """
 import json
+import logging
 import time
 
 try:                                            # the platform, on the device
@@ -238,4 +239,4 @@ class AstralDaemon(MatchingCapability):
         if handler is not None:
             handler.error(message)
         else:
-            print(f"[{time.strftime('%H:%M:%S')}] {message}")
+            logging.getLogger("astral").error("%s %s", time.strftime("%H:%M:%S"), message)
