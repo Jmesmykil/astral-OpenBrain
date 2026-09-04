@@ -1,4 +1,4 @@
-# Astral — deterministic base capability
+# Astral, deterministic base capability
 ![Community](https://img.shields.io/badge/OpenHome-Community-orange?style=flat-square)
 ![Skill](https://img.shields.io/badge/Category-Skill-green?style=flat-square)
 
@@ -70,7 +70,7 @@ Set these in the dashboard. `open brain` is the one to say when you want Astral 
 
 ## Accuracy
 
-Every answer is a formula over a table, so it is either exactly right or it does not
+Every answer is a formula over a table, so it is either right or it does not
 answer. Unit factors are the exact defined values. Molar masses are computed by parsing
 the formula against the element table rather than stored per compound, because a
 hand-entered constant is a typo waiting to be spoken with confidence. Surface gravity
@@ -79,7 +79,7 @@ published figures for eight bodies to better than half a percent.
 
 The engine source and its tests ship in `hub/` next to this file. `main.py` is generated
 from them (`python3 hub/build_ability.py`), and `hub/test_artifact_parity.py` proves the
-shipped file answers every phrase exactly as the source does. `hub/test_golden.py` pins
+shipped file answers every phrase the way the source does. `hub/test_golden.py` pins
 155 phrases byte for byte, the ones it must stay silent on included, and
 `hub/test_hardening.py` fuzzes four thousand utterances and rechecks every result a second
 independent way: statistics against Python's own `statistics` module, factorizations

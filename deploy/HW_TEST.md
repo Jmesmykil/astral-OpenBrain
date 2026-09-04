@@ -32,7 +32,7 @@ measurements. Tick each line only if the sound and the words were both right.
 | the weather is nice today | nothing at all | silent |
 | tell me a joke | accept, a joke, and a different one next time | small talk |
 | what can you do | accept, the classes that fit this device, counted | meta |
-| why didn't that work | accept, the real reason the last turn was silent | meta |
+| why didn't that work | accept, the live reason the last turn was silent | meta |
 | define shell | accept, the first sense and how many there are | dictionary |
 | sing twinkle twinkle | the tune played, the words spoken in time | songs |
 | quiz me on physics | accept, the card count, then the first question; answer it, then say stop | flashcards |
@@ -61,7 +61,7 @@ Copy `data/costs/pi4-8g-arm64.json` back into the workspace.
 
 Their wake word, their transcription, our answers. The ability is refreshed on every
 deploy at `~/openhome_devkit/local_capabilities/astral/devkit_functions.py`, and it is
-answering today's engine — checked through the exact call the node server makes:
+answering today's engine, checked through the exact call the node server makes:
 
 ```
 ssh openhome@openhome.local
