@@ -705,8 +705,8 @@ every failure is in what it says or stays silent about):
 ## 2026-09-04, midday, the sweep fixes merged and the loop shipped
 
 Three review passes ran after the call, each in its own worktree, each defect reproduced
-and gated red before its fix. Merged into the hub, whole suite 3,849 checks held, 0
-failed, 11 skipped, no tracebacks. Deployed as one push.
+and gated red before its fix. Merged into the hub, whole suite 3,861 checks held, 0
+failed, 11 skipped, no tracebacks. Deployed in two pushes.
 
 - **Alarms and reminders.** "Wake me at 6.30" armed 6:00, the decimal dropped. Every
   reminder phrasing asked "When should I remind you?" and one that got through stored
@@ -763,10 +763,23 @@ failed, 11 skipped, no tracebacks. Deployed as one push.
 - **ssh from the Mac hung again** at the public-key step: the launchd agent socket. The
   deploy script hides the agent; anything ad hoc must too (`SSH_AUTH_SOCK= ssh …`).
 
+- **Music it cannot play.** "Turn off the music" reached the reader on the device, which
+  had nothing, so the loop said it could not work that one out. The rule that says what is
+  missing listed "turn up the music" and "stop the music" as whole phrases and then
+  demanded a second music noun after them, so neither had ever matched either. The verbs
+  are plain verbs now (turn on, off, up, down; pause; skip; mute; stop), and all of them
+  get "I can't play music, there's no music service on this device" through the same
+  sentence "play some jazz" always got. Meta suite 66 checks.
+- **Shipped.** Kernel 2.2.1 compiled on the Pi, installed into both interpreters, and
+  published as GitHub release v2.2.1; `community/astral/requirements.txt` installs it by
+  URL and `openhome validate community/astral` passes. Two deploys, the second for the
+  music rule. Verified by text on the device under the loop's own interpreter: stop, the
+  quiz, alarms with decimals, reminders with content, the two-place clock, the whole
+  expression, Antarctica from the library (554 passages in 11 sources), the follow-up
+  resolver, backchannels on the floor.
+
 Open after this pass:
 
-- "Turn off the music" still reaches the reader (there is no music to turn off, and the
-  device should say so the way it does for "play some jazz").
 - "And the date" after "what time is it" comes back unglued and is judged silent, so the
   loop plays the dismiss tone rather than reading the date.
 - The flat-audio ear rule is a false positive in a quiet room (the HAT gates silence to
