@@ -231,3 +231,28 @@ the ask.
 **Do not claim**: a LAN or cloud hand-off happening on the call, since no class needs it
 today; say so. A false-wake rate in a room with a television. Any suite count not in
 KNOWN-BUGS.md with a date.
+
+---
+
+## 8. Before the call, and during it
+
+Before:
+1. Headphones on the laptop. Call audio through speakers reaches the device: Brady's words become wakes, chatter and open-floor turns, and the log would show them.
+2. Do not reboot or restart the device. If it did restart, ask it one book question ("what do the books say about entropy") off camera first: the first library answer after a cold start takes up to forty seconds, the second under a second.
+3. After any greeting, wait twenty seconds before the first "open brain". The microphone opens after the greeting and the loop kicks its own capture stream in that window.
+4. Close the OpenHome app on the phone and the laptop. Its speaker slider moves the device's volume from the cloud; the device puts it back within five seconds and logs it, but don't invite it.
+5. Keep the device away from the laptop speaker, and put the camera on the device.
+6. If you share a terminal, share only the filtered view: `journalctl --user -u astral-hub -f | grep -E '^\[(health|route|rank|mixer|ear)'`. The raw log prints every transcribed sentence.
+7. Hand over the PDF, never the DOCX (its figures don't survive) and never README.txt.
+
+During:
+1. Minute one, housekeeping: "open home" also wakes the OpenHome node server on this device, so their agent may answer if you say it. Mine is "open brain".
+2. If the speaker moves on its own: "That's the app pushing a volume; the hold puts it back in five seconds and logs it."
+3. If the wake chime goes missing: it is withheld after three false wakes in a row and returns on the next real answer; the accept chime before an answer is the confirmation.
+4. Ask "why didn't that work" right after the refusal, in the same breath. It explains the last decision.
+5. Do not demonstrate interruption over a call. If asked: "A person has to be louder than the speaker by a clear margin; over a call I'd be demonstrating my microphone, not the device."
+6. If the ear comes up quiet after a restart, say what the log says: it kicks its own capture stream. Wait; don't restart on camera.
+7. Never say "louder", "quieter", "volume", "speak up" or "more" while the floor is open after an answer. They are commands.
+8. The ask, in this order: what OpenHome gets, the five milestones, what each level buys, the machine once, then the three things you want.
+9. Do not claim a LAN or cloud hand-off on the call, and do not switch a cloud provider on to show it.
+
