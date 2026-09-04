@@ -65,7 +65,7 @@ What the money buys. The advancement here is a mechanical assistant: a device th
 | 4. Measured in other homes | two more DevKits in homes that aren't mine for a month each, with false wakes, loudness and every failure read from the logs and fixed | two DevKits, speakers and microphones for testing, travel, my time |
 | 5. The comprehension tier | my own inference and transformer work applied to the one tier that still uses a stock model, trained and evaluated on the machine, so the device can hold a conversation the way it holds a fact | training compute, frontier model access for evaluation, my time |
 
-The machine: a workstation in the $3,000 to $5,000 range. It builds the library index in minutes instead of hours on the Pi, runs the LAN rung, trains the wake model and the comprehension tier, and stops me renting compute out of pocket. I'm a student with no income, so the machine is the single purchase that changes what I can do.
+The machine: a Minisforum MS-S1 MAX in the 128 GB unified-memory edition (AMD Ryzen AI Max+ 395, Radeon 8060S graphics, 2 TB SSD, dual 10 GbE), $3,799 on the maker's store today and $4,749 at list, or a Mac Studio at the same level. Memory the GPU can use is the point: 128 GB holds a 70-billion-parameter model quantised, so the comprehension tier can be trained and run at home, and the same machine builds the library index in minutes instead of hours on the Pi and serves as the LAN rung. I'm a student with no income, so this is the single purchase that changes what I can do and it stops me renting compute out of pocket.
 
 What each level delivers:
 
@@ -73,7 +73,7 @@ What each level delivers:
 |---|---|
 | $50,000 | all five milestones; the machine; the hardware for testing; the training compute and frontier model access for milestone 5; and part-time help with packaging and review so milestone 1 lands in weeks rather than months |
 | $10,000 | milestones 1, 2 and 3 in full and the machine; a fully mechanical assistant, installable, with the ladder live and the library at full size |
-| $3,000 to $5,000 | the machine, and with it milestones 1 and 3 |
+| $3,800 to $4,750 | the machine, and with it milestones 1 and 3 |
 | $500 to $2,000 | one more DevKit and test hardware; milestone 1 on my own time |
 | nothing | I keep building it on the Pi, out of pocket and slower, with no second device and no machine |
 
