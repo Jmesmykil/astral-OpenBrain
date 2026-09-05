@@ -1,5 +1,34 @@
 # Astral, known bugs and limitations
 
+## Current completion audit — September 5, 2026
+
+Read [HANDOFF.md](HANDOFF.md) for current deployment and verification state. The sections
+below this notice are a chronological record; their early “hey mycroft” and forced-mixer
+statements are superseded. The current detector recognizes “open brain” and “open home”,
+and OpenHome owns audio levels.
+
+The interrupted deployment, stale-wave playback, ambiguous playback results, unsafe
+library updates, incomplete rebuilds, route-refusal parsing, hidden hub failures and
+restart error reporting have been repaired and deployed. The recovered Britannica
+volumes 3 and 29 are indexed; all 29 volume files match the archive checksums. The
+current index has 191 source files, 35 named sources and 412,826 passages, with no empty
+sources or persisted unread warnings. OCR quality and page-number coverage are separate
+limits; recovered plain OCR volumes do not provide reliable page labels.
+
+Still open: controlled human wake and interruption tests, the two empty captures in the
+September 4 quiet pass, platform login/deployment/assignment and app/reboot audio
+persistence. Live speaker volume is 65 percent, while OpenHome's saved value is 14; the
+app must reconcile that setting before reboot persistence can be claimed. Audio files
+and levels were preserved during this audit. Public release publication is pending.
+
+Mac full: 4,031 held / 0 failed / 12 skipped. Device full: 4,053 / 0 / 5, all 419 hostile
+inputs examined; later changed library/ability/package suites: 316 / 0 / 3. Final license
+and installed-package checks: 41 / 0 / 2. The exact root shim separately passed 179 pinned
+answers and eight device calls. Mac lint was checked separately and passed. Skip reasons
+and limits are in the handoff. These software results do not close physical acceptance.
+
+## Historical ledger
+
 Straight list of what's rough, so nobody's surprised. Split by the two paths.
 
 ## Local mode (on-device wake + whisper)
