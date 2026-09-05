@@ -69,7 +69,7 @@ POLL_SECONDS = 0.25
 # Alerts are a device call, so they are checked far less often. Six seconds late on a
 # ten-minute timer is not late.
 ALERT_EVERY = 24                                # ticks, so ~6 s
-DEVICE_TIMEOUT = 6                              # seconds for one respond() on the Pi
+DEVICE_TIMEOUT = 20                             # native node allows 15s; leave delivery margin
 FAILURES_BEFORE_SPEAKING = 3                    # in a row, before it says it cannot reach the device
 
 
