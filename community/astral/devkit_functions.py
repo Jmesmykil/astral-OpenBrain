@@ -1,37 +1,16 @@
 #!/usr/bin/env python3
-"""Astral — the DevKit half of the ability. A shim, deliberately.
+"""Astral's public MIT DevKit shim: transcripts in, one JSON result out.
 
-WHAT THIS FILE IS
+The engine is the separate proprietary astral-kernel package in requirements.txt.
+Its contract is astral_kernel.answer(text, now=None) -> str | None: a spoken exact
+answer, or None to let the OpenHome agent take the turn. Telemetry and MQTT are I/O
+and stay here. Engine rules stay in the compiled package or private hub.
 
-Everything the platform needs and nothing it does not. It takes a transcript from
-`main.py`, asks the Astral engine for an exact answer, and prints one line of JSON. It
-also reads this device's own telemetry and publishes MQTT for device control, because
-those are I/O and I/O belongs on this side of the line.
-
-WHAT THIS FILE IS NOT
-
-It is not the engine. The engine is `astral-kernel`, a separate package named in
-`requirements.txt`, which the platform installs on the DevKit — "Packages listed in
-requirements.txt are installed for devkit_functions.py on the OpenHome DevKit". That
-package is compiled and is not MIT; this file is, like everything else in this
-repository, and there is nothing in it worth hiding.
-
-The seam between the two is one function and one contract:
-
-    astral_kernel.answer(text, now=None) -> str | None
-
-A string in. A spoken answer out, or None. None means the engine has no exact answer for
-this turn and the agent should take it — which is the whole cooperative bargain of this
-ability: it answers what it can answer exactly, instantly, on the device, and it is
-silent about everything else.
-
-WHERE AN ANSWER COMES FROM, IN ORDER
-
-  1. the local hub, if this device has one installed — the same engine plus everything
-     on the card: the dictionary, the books, the maths kernel, the owner's own shelves
-  2. the astral-kernel package
-  3. neither — and then it SAYS SO. A device that cannot answer must never be a device
-     that quietly says nothing: that is indistinguishable from a broken one.
+Answer order:
+  1. Full local hub (dictionary, books, maths and owner shelves), through the private
+     owner socket when running, otherwise through the owner CLI.
+  2. Installed astral-kernel package.
+  3. Explain a missing/broken installation; ordinary unhandled input stays silent.
 
     python3 devkit_functions.py respond what is twenty percent of eighty
     python3 devkit_functions.py health
@@ -79,13 +58,79 @@ def kernel():
     return astral_kernel
 
 
-def hub(*args, timeout=10):
-    """Ask the local hub, if this device has one. Returns its dict, or None.
+def resident_hub(args, timeout):
+    """Use the owner service when present. None means nothing was handed to it."""
+    # An explicitly isolated audit must never reach production state through IPC.
+    if os.environ.get("ASTRAL_STATE"):
+        return None
+    where = os.path.join(DEVICE_HOME, "astral-voice/state/ability.sock")
+    if not os.path.exists(where):
+        return None
+    import errno
+    import math
+    import pwd
+    import socket
+    import stat
+    import time
+    try:
+        info = os.lstat(where)
+        if (not stat.S_ISSOCK(info.st_mode) or info.st_uid != pwd.getpwnam(HUB_USER).pw_uid
+                or info.st_mode & 0o077):
+            return None
+    except (OSError, KeyError):
+        return None
+    if not math.isfinite(timeout) or timeout <= 0:
+        return {"ok": True, "kind": "timeout"}
+    deadline = time.clock_gettime(time.CLOCK_MONOTONIC) + timeout
+    payload = (json.dumps({"args": list(args), "deadline": deadline}) + "\n").encode()
+    if len(payload) > 65536:
+        return {"ok": False, "error": "bridge request too large"}
+    with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as channel:
+        channel.settimeout(timeout)
+        try:
+            channel.connect(where)
+        except OSError as exc:
+            if exc.errno in (errno.ENOENT, errno.ECONNREFUSED):
+                return None
+            return {"ok": False, "error": "cannot connect to owner bridge"}
+        if hasattr(socket, "SO_PEERCRED"):
+            import struct
+            credentials = channel.getsockopt(socket.SOL_SOCKET, socket.SO_PEERCRED, struct.calcsize("3i"))
+            if struct.unpack("3i", credentials)[1] != info.st_uid:
+                return None
+        try:
+            channel.sendall(payload)
+            line = bytearray()
+            while not line.endswith(b"\n") and len(line) <= 1024 * 1024:
+                remaining = deadline - time.clock_gettime(time.CLOCK_MONOTONIC)
+                if remaining <= 0:
+                    return {"ok": True, "kind": "timeout"}
+                channel.settimeout(remaining)
+                chunk = channel.recv(min(65536, 1024 * 1024 + 1 - len(line)))
+                if not chunk:
+                    break
+                line.extend(chunk)
+            if len(line) > 1024 * 1024 or not line.endswith(b"\n"):
+                if time.clock_gettime(time.CLOCK_MONOTONIC) >= deadline:
+                    return {"ok": True, "kind": "timeout"}
+                return {"ok": False, "error": "incomplete owner bridge response"}
+            result = json.loads(line)
+            if not isinstance(result, dict):
+                raise ValueError("bridge response is not an object")
+            return result
+        except socket.timeout:
+            return {"ok": True, "kind": "timeout"}
+        except (OSError, ValueError):
+            # The request may have performed a state change. Never rerun it via
+            # the CLI just because its reply was lost or malformed.
+            return {"ok": False, "error": "owner bridge response failed"}
 
-    Crosses back to the account that owns the hub. This file runs as root, and as root
-    every path the hub resolves from a home directory lands in /root, where none of its
-    data is — measured on the device: the same questions answer as the owner and answer
-    nothing as root.
+
+def hub(*args, timeout=10):
+    """Return the owner's hub result, or None if unavailable.
+
+    Native calls run as root; the owner socket/CLI keeps paths and writes under
+    openhome. Running the hub as root was measured to lose its data and answers.
     """
     if not os.path.exists(BRIDGE):
         return None
@@ -97,8 +142,10 @@ def hub(*args, timeout=10):
         invoke = ["env", "ASTRAL_STATE=" + os.environ["ASTRAL_STATE"]] + invoke
     cmd = ["sudo", "-n", "-u", HUB_USER, "-H"] + invoke if os.geteuid() == 0 else invoke
     try:
-        r = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout)
-        out = json.loads((r.stdout or "").strip().splitlines()[-1])
+        out = resident_hub([str(a) for a in args], timeout)
+        if out is None:
+            r = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout)
+            out = json.loads((r.stdout or "").strip().splitlines()[-1])
         if isinstance(out, dict) and out.get("ok"):
             return out
         # A hub that ANSWERED with a failure is not a hub that is absent, and the two
@@ -115,12 +162,7 @@ def hub(*args, timeout=10):
 
 
 def why_nothing_works():
-    """The sentence to say when neither the hub nor the kernel is here.
-
-    Said out loud on purpose. The alternative — printing an empty answer — is silence,
-    and silence from this ability means "the agent should take it", which would leave a
-    broken install looking exactly like a working one for the rest of its life.
-    """
+    """Explain a missing engine; silence would disguise it as an ordinary decline."""
     return ("The Astral engine is not installed on this device. "
             "Install the astral-kernel package, or the local hub, and ask me again.")
 
@@ -238,12 +280,10 @@ def due_alerts(*_):
 
 
 def route_answer(route="", *words):
-    """Send a question where the user just said to send it, and say what came back.
+    """Use the route the user chose; report failures explicitly.
 
-    A named cloud provider is not a place this device sends anything: on the OpenHome
-    path the agent IS that route, so choosing it means this ability stays quiet and the
-    agent takes the turn. main.py handles that; if it ever reaches here it is answered
-    honestly rather than pretended at.
+    cloud:openhome declines locally so the current agent can take the turn.
+    Other named routes are handled by the owner's hub configuration.
     """
     q = " ".join(str(w) for w in words).strip()
     if not route or not q:

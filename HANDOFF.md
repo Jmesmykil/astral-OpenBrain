@@ -1,5 +1,23 @@
 # Handoff: Astral on the OpenHome DevKit
 
+## Native startup optimization — September 5, 2026, 13:19 HST
+
+The [owner bridge](deploy/OWNER-BRIDGE.md) is deployed and enabled. The same 90 warm
+native requests retained correct answers while median latency fell from 605–616 ms
+to 181–200 ms. Ten simultaneous requests also returned their own correct answers.
+The new owner service passed actual socket, absent-service fallback and restart
+checks; its dated PID is 52461. Voice PID 19661 and Slate PID 19580 were unchanged.
+All 46 protected state/configuration/sound hashes remained unchanged.
+
+Affected device suites held 448 checks, zero failed, one Mac-only skip. The final
+Mac integration run held 152, zero failed, two device-covered skips. The installer
+now carries the boundary document alongside the dependency metadata. Kernel 2.2.3
+bytes are unchanged. These are scoped additions to the historical evidence below.
+The outer native timeout mismatch, account path, real voice/app acceptance, broader
+coverage and sustained-operation checks remain open; the full goal is not complete.
+The creator has signed-in sessions in other browsers. Earlier Mac CLI or GPT-app
+login observations do not establish absent account access or a device-work blocker.
+
 ## Native platform corrections — September 5, 2026
 
 The [native integration corrections](deploy/PLATFORM-HARDENING.md) are applied on the
@@ -10,13 +28,13 @@ passed eight, and four actual local WebSocket checks passed. Owner settings/stat
 preserved and the voice/mathematics services were not restarted.
 
 A 90-request warm native-path baseline returned correct answers in every case, with
-605–616 ms medians; first observed equation latency was 4.73 seconds. Repeated startup
-imports/regex compilation are the measured next performance target. Account deployment,
+605–616 ms medians; first observed equation latency was 4.73 seconds. The startup
+optimization above follows that baseline. Account deployment,
 physical voice/app controls and sustained operation remain open. Historical test totals
 below retain their original scope; they are not the count of this new platform audit.
 
 
-## Current deployment — September 5, 2026, 10:19 HST
+## Earlier deployment — September 5, 2026, 10:19 HST
 
 The reconnected DevKit runs private hub `63fa1668ef345b21a17ac7c8de3f04ce78f7c6bc`
 and kernel **2.2.3**. All 106 deployable Python files match the checkout. Both system

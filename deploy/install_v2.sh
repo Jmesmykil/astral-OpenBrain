@@ -60,6 +60,7 @@ rsync -lt --chmod=u=rwx,go=rx -e "${SSHC[*]}" "$HERE/deploy/on_device.sh" "$T:~/
 rsync -lt --chmod=u=rwX,go=rX -e "${SSHC[*]}" "$HERE/community/astral/devkit_functions.py" \
   "$HERE/community/astral/main.py" "$HERE/community/astral/background.py" \
   "$HERE/community/astral/requirements.txt" \
+  "$HERE/community/astral/BOUNDARY.md" \
   "$T:~/astral-voice/hub-v2/shipped/"
 
 # Everything device-side lives in on_device.sh, which was synced with the hub above.
