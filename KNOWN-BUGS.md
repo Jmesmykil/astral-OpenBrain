@@ -19,7 +19,8 @@ Still open: controlled human wake and interruption tests, the two empty captures
 September 4 quiet pass, platform login/deployment/assignment and app/reboot audio
 persistence. Live speaker volume is 65 percent, while OpenHome's saved value is 14; the
 app must reconcile that setting before reboot persistence can be claimed. Audio files
-and levels were preserved during this audit. Public release publication is pending.
+and levels were preserved during this audit. Kernel 2.2.2 is published, and its exact
+requirements download was verified on the DevKit with SHA-256 checking.
 
 Mac full: 4,031 held / 0 failed / 12 skipped. Device full: 4,053 / 0 / 5, all 419 hostile
 inputs examined; later changed library/ability/package suites: 316 / 0 / 3. Final license

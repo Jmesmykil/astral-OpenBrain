@@ -8,7 +8,8 @@ An absent or failed engine is reported distinctly.
 The package passes the creator's OpenHome CLI validator. Authenticated deployment,
 assignment and a spoken platform request are still pending in the current completion
 audit. The 2.2.2 compiled artifact is installed and verified on the device. Its versioned
-dependency is pinned by SHA-256; public release publication is the remaining packaging step.
+dependency is pinned by SHA-256. The DevKit downloaded that public dependency with pip
+hash checking, and it matches the installed, verified artifact.
 
 ## Answers on the device
 
