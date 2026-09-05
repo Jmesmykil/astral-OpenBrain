@@ -874,4 +874,15 @@ tracked), and the sweep then went after what the ledger still listed as open.
   about "hospital ark" and "numerous posts of pictures", which the loop ignored as chitchat
   with nothing spoken. At sink 65 the same stimulus reaches the microphone in the
   thousands. Lesson kept: check the sink and the self-echo before reading a voice pass.
+- **The second voice pass, at sink 65, worked where it was read:** "what time is it" was
+  answered, and "and the date" on the open floor was completed to "what is the date" and
+  answered with the day and the date, by voice, on the deployed code. The pass finished on
+  the device; its full record (~/astral-checks/voice_pass-1553.txt) had not been read back
+  when the device went off the network at about 16:00, so the remaining eleven turns are
+  recorded there and not yet reviewed.
+- **The device is off the network** as of the end of the sweep (no ping, the router
+  answers). Left to do when it is back: read the pass record, deploy hub commit a83adc4
+  (the greeting reads back subjects, not mishearings), rerun the whole suite on the DevKit
+  for its own count, and measure the loop at rest for the README's resource table. The
+  code for all of it is committed and pushed; the device runs one commit behind.
 
