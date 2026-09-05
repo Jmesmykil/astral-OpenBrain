@@ -39,7 +39,10 @@ Raspberry Pi 4 Model B, 4 cores, 7.7 GB RAM, Python 3.13.5.
 | Text-to-speech (piper lessac-medium) | ~2s per reply |
 | Disk | whisper 57 MB, wake 496 KB, piper 61 MB |
 
-Measured on the device on 2026-08-17, 300 runs each, against the file as deployed.
+Measured on the device on 2026-08-17, 300 runs each, against the file as deployed. Since then
+the wake phrase moved to a vosk phrase recogniser ("open brain" or "open home"), the voice to
+piper ryan-medium, and the answers to the compiled kernel (2.2.1); the loop at rest is due
+to be re-measured on the next device session, and the numbers above stand for the date given.
 The answer itself is microseconds. On the fully-local path the latency is speech-to-text and text-to-speech, not the compute. The cloud-side Skill adds only those microseconds on top of the agent's own speech handling.
 
 ## Version two: what runs where, measured
