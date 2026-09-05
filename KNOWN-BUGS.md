@@ -859,4 +859,19 @@ tracked), and the sweep then went after what the ledger still listed as open.
   failed, the rest never ran). They read either layout now, or skip with a reason, proved
   in a device-shaped copy before the deploy. Lesson kept: a gate that reads a file must be
   run in the layout of every host that runs the suite.
+- **The device rebooted by itself at 14:58** (their node server's journal: "Setting volume
+  to: 14 by default", "Setting sensitivity to: 160 by default"). The hand-off held: the
+  microphone came back at 160 from OpenHome's own configuration, and the speaker at their
+  14. The loop came up, kicked its ear twice during the seconds before their server applied
+  the microphone level, and has answered since. What this means for the owner: after every
+  boot the speaker is at whatever the OpenHome app last persisted, and today that is 14,
+  which is nearly inaudible. LOCAL_MODE is not set on this device, so the app's slider sets
+  the sink and persists it. One move of the slider fixes every boot after. Nothing in this
+  project writes that value, by the owner's rule.
+- **The first voice pass of the afternoon was invalid for that reason.** Thirteen stimuli
+  through the device's own speaker at sink 14 reached the microphone at a peak of about
+  700, two of them woke the loop, and whisper transcribed near-silence into sentences
+  about "hospital ark" and "numerous posts of pictures", which the loop ignored as chitchat
+  with nothing spoken. At sink 65 the same stimulus reaches the microphone in the
+  thousands. Lesson kept: check the sink and the self-echo before reading a voice pass.
 
