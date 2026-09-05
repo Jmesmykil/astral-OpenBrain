@@ -37,7 +37,9 @@ $PY library.py index
 # server, and that copy is a HAND-PLACED file: nothing here syncs it, so it sat at the
 # 17 August build while the engine moved on. It was still answering "solve 2x + 3 = 11
 # for x" with "3 times 11 is 33" three weeks after that was fixed everywhere else.
-# config.json is the platform's and is left alone.
+# Local config.json and README.md are legacy manual metadata: native platform sync
+# only installs the shim and requirements. Account routing is managed by OpenHome.
+# Preserve those extra files; refresh both active execution inputs together.
 # The kernel: built here, installed into the interpreter the PLATFORM uses. That is
 # system python3 running as root, not this venv — the node server runs the ability as
 # `sudo python3 devkit_functions.py`, and a kernel installed anywhere else is a kernel
@@ -64,10 +66,15 @@ if [ -f "$ENVF" ]; then
   esac
 fi
 CAPS=~/openhome_devkit/local_capabilities
-SHIPPED=~/astral-voice/hub-v2/shipped/devkit_functions.py
+SHIPPED=~/astral-voice/hub-v2/shipped
+# Check the complete input before changing either installed file. A partial sync
+# must fail before it can mix a new shim with old dependency metadata.
+for f in devkit_functions.py requirements.txt; do
+  [ -s "$SHIPPED/$f" ] || { echo "ability: missing or empty $SHIPPED/$f" >&2; exit 1; }
+done
 if [ -d "$CAPS/astral" ]; then
-  cp "$SHIPPED" "$CAPS/astral/"
-  echo "ability:    $(md5sum "$CAPS/astral/devkit_functions.py" | cut -c1-8) refreshed in local_capabilities/astral"
+  cp "$SHIPPED/devkit_functions.py" "$SHIPPED/requirements.txt" "$CAPS/astral/"
+  echo "ability:    $(md5sum "$CAPS/astral/devkit_functions.py" | cut -c1-8) and requirements refreshed in local_capabilities/astral"
 fi
 
 # The background daemon is a SECOND ability upload (one category per ability), so the node
@@ -76,9 +83,9 @@ fi
 # asked. Nothing syncs a device file for a non-local ability, so the directory is made here
 # and given the same engine. Without it the daemon's every call returns
 # "devkit_functions.py not found", which it reads as "not mine" and goes quiet for good.
-if [ -e "$SHIPPED" ]; then
+if [ -e "$SHIPPED/devkit_functions.py" ]; then
   mkdir -p "$CAPS/astral-daemon"
-  cp "$SHIPPED" "$CAPS/astral-daemon/"
+  cp "$SHIPPED/devkit_functions.py" "$CAPS/astral-daemon/"
   echo "daemon:     $(md5sum "$CAPS/astral-daemon/devkit_functions.py" | cut -c1-8) in local_capabilities/astral-daemon"
 fi
 

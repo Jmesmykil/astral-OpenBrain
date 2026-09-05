@@ -1,5 +1,21 @@
 # Handoff: Astral on the OpenHome DevKit
 
+## Native platform corrections — September 5, 2026
+
+The [native integration corrections](deploy/PLATFORM-HARDENING.md) are applied on the
+DevKit. They cover complete ability dependency metadata, safe staged platform sync,
+installation into the actual native interpreter, and independent request scripts in
+the node dispatcher. The final sync method passed 19 isolated cases; the dispatcher
+passed eight, and four actual local WebSocket checks passed. Owner settings/state were
+preserved and the voice/mathematics services were not restarted.
+
+A 90-request warm native-path baseline returned correct answers in every case, with
+605–616 ms medians; first observed equation latency was 4.73 seconds. Repeated startup
+imports/regex compilation are the measured next performance target. Account deployment,
+physical voice/app controls and sustained operation remain open. Historical test totals
+below retain their original scope; they are not the count of this new platform audit.
+
+
 ## Current deployment — September 5, 2026, 10:19 HST
 
 The reconnected DevKit runs private hub `63fa1668ef345b21a17ac7c8de3f04ce78f7c6bc`
@@ -33,7 +49,7 @@ The public [2.2.3 release](https://github.com/Jmesmykil/astral-OpenBrain/release
 is published and hash-pinned in `community/astral/requirements.txt`. An unauthenticated
 public download and the DevKit's exact `pip download --require-hashes` dependency both
 match the installed artifact. The package validates with the persistent creator-fork CLI.
-Both repositories are pushed. Existing 2.2.2 release bytes are unchanged.
+The previously recorded baseline was pushed. Existing 2.2.2 release bytes are unchanged.
 
 Schema 25 independently matches all 191 physical/source files and 412,826 passages,
 including each file's hash and FTS count. All 29 encyclopedia archives match their source
