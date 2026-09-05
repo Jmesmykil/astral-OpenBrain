@@ -1,4 +1,5 @@
 import json
+import re
 from src.agent.capability import MatchingCapability
 from src.main import AgentWorker
 from src.agent.capability_worker import CapabilityWorker
@@ -32,7 +33,7 @@ class AstralCapability(MatchingCapability):
             result = await self.capability_worker.send_devkit_capability_action(
                 function_name="respond",
                 args=[transcript],
-                timeout=8,
+                timeout=25,
             )
             spoken = self._spoken_response_from_result(result)
             data = self._data_from_result(result)
@@ -78,15 +79,25 @@ class AstralCapability(MatchingCapability):
         answers with the name, and taking a plain "yes" as the first of them would be
         putting words in their mouth about where their words go.
         """
-        said = " " + str(reply).lower().strip(" .!?") + " "
+        said = " ".join(re.findall(r"[a-z0-9']+", str(reply).lower().replace("’", "'")))
+        if re.search(r"\b(no|not|never|don't|do not|stop|cancel|nah|nope|without)\b", said):
+            return None
         words = {"mac": ("mac", "computer", "laptop", "desktop"),
                  "phone": ("phone", "mobile", "cell"),
-                 "cloud": ("cloud", "internet", "online", "you")}
-        for route in routes:
-            if any(f" {w} " in said for w in words.get(route, (route,))):
-                return route
-        if len(routes) == 1 and any(f" {y} " in said for y in
-                                    ("yes", "yeah", "yep", "sure", "ok", "okay", "please", "go ahead")):
+                 "cloud": ("cloud", "internet", "online")}
+        # A route's name can occur in a refusal, question or comparison. Require a
+        # complete selection instead of treating every mention as permission to send.
+        prefix = (r"(?:please )?(?:(?:yes|yeah|yep|sure|ok|okay) )?"
+                  r"(?:(?:(?:can|could|would) you )?"
+                  r"(?:ask|use|try|go with|send (?:it|that|this) to) )?(?:the |my |your )?")
+        suffix = r"(?: please| thanks)?"
+        selected = [route for route in routes
+                    if any(re.fullmatch(prefix + re.escape(word) + suffix, said)
+                           for word in words.get(route, (route,)))]
+        if len(selected) == 1:
+            return selected[0]
+        if len(routes) == 1 and re.fullmatch(
+                r"(?:yes|yeah|yep|sure|ok|okay|please|go ahead)(?: please| thanks)?", said):
             return routes[0]
         return None
 
@@ -117,9 +128,10 @@ class AstralCapability(MatchingCapability):
         except json.JSONDecodeError:
             self.worker.editor_logging_handler.error(f"Astral: invalid device output: {output}")
             return ""
-        if not payload.get("success"):
+        if not isinstance(payload, dict) or not payload.get("success"):
             return ""
-        return (payload.get("spoken_response") or "").strip()
+        spoken = payload.get("spoken_response")
+        return spoken.strip() if isinstance(spoken, str) else ""
 
     def call(self, worker: AgentWorker):
         self.worker = worker

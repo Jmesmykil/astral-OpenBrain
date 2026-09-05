@@ -36,7 +36,7 @@ PY
 # --delete, because a file removed here must be removed there. Without it the device
 # kept an obsolete test_golden.py alive, which is the only reason a broken import in
 # measure_costs.py went unnoticed for a day.
-rsync -rlt --delete --chmod=ugo=rwX -e "${SSHC[*]}" \
+rsync -rlt --delete --chmod=u=rwX,go=rX -e "${SSHC[*]}" \
   --include='*.py' --include='kernels/' --include='kernels/*.py' \
   --include='tests/' --include='tests/*.py' --include='wake/' --include='wake/*.npz' \
   --include='data/' --include='data/*.json' \
@@ -53,11 +53,11 @@ rsync -rlt --delete --chmod=ugo=rwX -e "${SSHC[*]}" \
   --include='data/library/' --include='data/library/reference/' \
   --include='data/library/reference/*.tsv' --include='data/library/reference/*.md' \
   --include='data/state/' --exclude='*' "$HERE/hub/" "$T:~/astral-voice/hub-v2/"
-rsync -lt --chmod=ugo=rwx -e "${SSHC[*]}" "$HERE/deploy/on_device.sh" "$T:~/astral-voice/hub-v2/"
+rsync -lt --chmod=u=rwx,go=rx -e "${SSHC[*]}" "$HERE/deploy/on_device.sh" "$T:~/astral-voice/hub-v2/"
 # The shipped ability travels too: OpenHome's own routing calls this file, and until
 # now nothing kept it current on the device.
 "${SSHC[@]}" "$T" 'mkdir -p ~/astral-voice/hub-v2/shipped'
-rsync -lt --chmod=ugo=rwX -e "${SSHC[*]}" "$HERE/community/astral/devkit_functions.py" \
+rsync -lt --chmod=u=rwX,go=rX -e "${SSHC[*]}" "$HERE/community/astral/devkit_functions.py" \
   "$HERE/community/astral/main.py" "$HERE/community/astral/background.py" \
   "$T:~/astral-voice/hub-v2/shipped/"
 
@@ -73,7 +73,7 @@ if "${SSHC[@]}" "$T" 'systemctl --user is-active --quiet astral-hub.service'; th
   START=1
 fi
 if (( START )); then
-  "${SSHC[@]}" "$T" 'systemctl --user stop openhome-dashboard.service 2>/dev/null || true; systemctl --user restart astral-hub.service; sleep 3; systemctl --user is-active astral-hub.service; tail -5 ~/astral-voice/astral-hub.log'
+  "${SSHC[@]}" "$T" 'set -e; systemctl --user stop openhome-dashboard.service 2>/dev/null || { if systemctl --user is-active --quiet openhome-dashboard.service; then exit 1; fi; }; systemctl --user restart astral-hub.service; sleep 3; systemctl --user is-active astral-hub.service; tail -5 ~/astral-voice/astral-hub.log'
 else
   echo "installed, not started. Start with: deploy/install_v2.sh $T --start   (stops the OpenHome kiosk first: one mic, one owner)"
 fi

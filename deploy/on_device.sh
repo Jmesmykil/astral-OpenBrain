@@ -8,6 +8,7 @@
 set -e
 cd ~/astral-voice/hub-v2
 PY=~/astral-voice/kws-venv/bin/python3
+if [ -f data/lan.token ]; then chmod 600 data/lan.token; fi
 
 $PY sounds.py make >/dev/null
 
@@ -29,7 +30,7 @@ done
 # docstrings. No network, about a second, and it makes "in Python, how do I read a file"
 # answerable on a device that has never been online. Only when it is not already there.
 [ -d ~/astral-voice/library/docs/python ] || $PY -c 'import library; print(library.generate_python_docs())' >/dev/null 2>&1 || true
-$PY library.py index >/dev/null 2>&1 || true
+$PY library.py index
 
 # Refresh the ability OpenHome itself routes to. Their path — their wake word, their
 # speech-to-text, their hotword match — dispatches devkit_functions.py through the node
@@ -42,45 +43,10 @@ $PY library.py index >/dev/null 2>&1 || true
 # `sudo python3 devkit_functions.py`, and a kernel installed anywhere else is a kernel
 # the ability cannot see. Measured: with it in the venv only, `health` reported "no
 # kernel package" while the wheel sat two directories away.
-if [ -f ~/astral-voice/hub-v2/build_kernel.py ] && [ -n "$($PY -c 'import importlib.util as u; print(u.find_spec("Cython") is not None or "")' 2>/dev/null)" ]; then
-  WHEEL=$(ls -t ~/astral-voice/hub-v2/kernel/dist/astral_kernel-*.whl 2>/dev/null | head -1)
-  # Rebuild when there is no wheel, or when any engine source is newer than the one
-  # there. A wheel older than the code it was built from is the same silent lie as an
-  # installed kernel older than its wheel: everything reports fine and the change is
-  # simply absent.
-  NEWEST=$(ls -t ~/astral-voice/hub-v2/*.py 2>/dev/null | head -1)
-  if [ -z "$WHEEL" ] || [ "$NEWEST" -nt "$WHEEL" ]; then
-    echo "kernel:     compiling (a few minutes)"
-    (cd ~/astral-voice/hub-v2 && $PY build_kernel.py >/dev/null 2>&1) || true
-    WHEEL=$(ls -t ~/astral-voice/hub-v2/kernel/dist/astral_kernel-*.whl 2>/dev/null | head -1)
-  fi
-  if [ -n "$WHEEL" ]; then
-    # Version AND freshness. During development the engine changes far more often than
-    # the version does, and comparing versions alone once left a kernel installed that
-    # was older than its own source — it answered questions and had never heard of the
-    # entry point added that afternoon. The wheel's own timestamp settles it.
-    # BOTH interpreters. The ability runs under system python as root; the loop and the
-    # tests run in the venv. Installing into one left the other holding a kernel that
-    # had never heard of an entry point added that afternoon — and nothing said so,
-    # because each interpreter was perfectly happy with the copy it had.
-    WANT=$(basename "$WHEEL" | cut -d- -f2)
-    for INTERP in "sudo python3" "$PY"; do
-      HAVE=$($INTERP -c 'import astral_kernel; print(astral_kernel.__version__)' 2>/dev/null || echo none)
-      INSTALLED=$($INTERP -c 'import astral_kernel._engine as e; print(e.__file__)' 2>/dev/null || echo /nonexistent)
-      # Replacing the installed copy outright, and it is not belt and braces. During
-      # development the version stays at 2.2.0 while the engine inside it changes every
-      # hour, and pip answers "Requirement already satisfied" and installs NOTHING. The
-      # device then runs a kernel built at some earlier hour, reports the right version,
-      # and passes every check except the one comparing the installed bytes with the
-      # wheel's. That check caught it; this is the fix.
-      REPLACE="--force-reinstall --no-deps"
-      if [ "$HAVE" != "$WANT" ] || [ "$WHEEL" -nt "$INSTALLED" ]; then
-        $INTERP -m pip install --break-system-packages --quiet --root-user-action=ignore $REPLACE "$WHEEL" >/dev/null 2>&1 \
-          || $INTERP -m pip install --quiet $REPLACE "$WHEEL" >/dev/null 2>&1 || true
-      fi
-    done
-  fi
-fi
+# This helper validates a build-input fingerprint and the wheel contents, installs the
+# same artifact into both interpreters, then verifies the installed bytes. Any build,
+# pip or verification failure exits nonzero; set -e stops the deploy before restart.
+$PY install_kernel.py
 
 # The microphone level is OpenHome's: their node server sets it at boot from MIC_SENSITIVITY
 # in ~/.env, and their app has no slider for it. Their default, 30, was measured deaf for the
@@ -100,7 +66,7 @@ fi
 CAPS=~/openhome_devkit/local_capabilities
 SHIPPED=~/astral-voice/hub-v2/shipped/devkit_functions.py
 if [ -d "$CAPS/astral" ]; then
-  cp "$SHIPPED" "$CAPS/astral/" 2>/dev/null || true
+  cp "$SHIPPED" "$CAPS/astral/"
   echo "ability:    $(md5sum "$CAPS/astral/devkit_functions.py" | cut -c1-8) refreshed in local_capabilities/astral"
 fi
 
@@ -112,7 +78,7 @@ fi
 # "devkit_functions.py not found", which it reads as "not mine" and goes quiet for good.
 if [ -e "$SHIPPED" ]; then
   mkdir -p "$CAPS/astral-daemon"
-  cp "$SHIPPED" "$CAPS/astral-daemon/" 2>/dev/null || true
+  cp "$SHIPPED" "$CAPS/astral-daemon/"
   echo "daemon:     $(md5sum "$CAPS/astral-daemon/devkit_functions.py" | cut -c1-8) in local_capabilities/astral-daemon"
 fi
 
@@ -205,7 +171,7 @@ if [ "$HAVE_NOW" != "$HAVE_THEN" ]; then
   echo "what this machine has changed since the last measurement: measuring, about a minute"
   echo "  was: ${HAVE_THEN:-nothing measured}"
   echo "  now: $HAVE_NOW"
-  $PY measure_costs.py --runs 40 >/dev/null 2>&1 || true
+  $PY measure_costs.py --runs 40
 fi
 
 echo "host:       $HOST"
@@ -220,12 +186,12 @@ else
   echo "profile:    MISSING — the table layer answers, everything above it stays silent"
 fi
 if [ -f ~/.config/systemd/user/astral-slate.service ]; then
-  systemctl --user enable astral-slate.service >/dev/null 2>&1 || true
-  systemctl --user restart astral-slate.service || true
+  systemctl --user enable astral-slate.service
+  systemctl --user restart astral-slate.service
 fi
 if [ -f ~/.config/systemd/user/astral-model.service ]; then
-  systemctl --user enable astral-model.service >/dev/null 2>&1 || true
-  systemctl --user restart astral-model.service || true
+  systemctl --user enable astral-model.service
+  systemctl --user restart astral-model.service
 fi
 echo "kiosk:      $(systemctl --user is-active openhome-dashboard.service || true)"
 echo "model:      $(systemctl --user is-active astral-model.service 2>/dev/null || echo absent)$([ -n "$(ls ~/astral-voice/models/*.gguf 2>/dev/null)" ] && echo " ($(basename $(ls -S ~/astral-voice/models/*.gguf | tail -1)))")"

@@ -10,7 +10,7 @@ other dependency: *"Packages listed in `requirements.txt` are installed for
 
 ## The seam
 
-One function. One contract.
+Two public functions. Each returns a value; the shim performs device I/O.
 
 ```python
 astral_kernel.answer(text, now=None) -> str | None
@@ -40,7 +40,7 @@ engine work; putting a byte on an MQTT topic is device work, and device work sta
 ## Why it is arranged this way
 
 Because the two halves have different lives. The ability is an integration with somebody
-else's platform, and it should be readable by the people who maintain that platform , 
+else's platform, and it should be readable by the people who maintain that platform,
 short, obvious, easy to review, easy to fix. The engine is years of somebody's work and
 is licensed separately, which is how every compiled commercial library in an open-source
 ecosystem is arranged.
@@ -70,12 +70,9 @@ the device: the same questions answer as the owner and answer nothing as root. O
 DevKit with no hub the branch is never taken; `os.path.exists(BRIDGE)` is the first thing
 it checks.
 
-**Where does `astral-kernel` come from?** It is built with `hub/build_kernel.py` and
-published by its author. It is architecture- and interpreter-specific by nature, the
-DevKit is CPython 3.13 on aarch64, so the wheel is built for that target. Until it is
-published somewhere the platform's installer can resolve, the honest state is: a device
-with the local hub answers everything, a device with the wheel installed by hand answers
-the exact-answer classes, and a device with neither says so out loud rather than
-pretending. That last sentence is a feature, not an apology: silence from this ability
-means "the agent should take it", and a broken install must never be able to imitate a
-working one.
+**Where does `astral-kernel` come from?** It is built in the author's private hub repository
+with `build_kernel.py` and published as a compiled GitHub release asset. The DevKit target
+is CPython 3.13 on Linux aarch64. `requirements.txt` identifies the public dependency;
+`RELEASE.md` records the current release procedure and verification status. A device with
+no hub and no installed package reports the missing engine. An installed hub that fails
+is also reported when the fallback kernel cannot answer.

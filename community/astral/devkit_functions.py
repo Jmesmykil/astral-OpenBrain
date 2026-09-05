@@ -90,9 +90,12 @@ def hub(*args, timeout=10):
     if not os.path.exists(BRIDGE):
         return None
     python = HUB_PYTHON if os.path.exists(HUB_PYTHON) else "python3"
-    cmd = ["sudo", "-n", "-u", HUB_USER, "-H", python, BRIDGE] + [str(a) for a in args]
-    if os.geteuid() != 0:
-        cmd = cmd[5:]                        # already that user: no sudo needed
+    invoke = [python, BRIDGE] + [str(a) for a in args]
+    # Explicit audit state must survive the root-to-owner boundary. Normal platform
+    # calls do not set it, so the hub continues to use the owner's regular state.
+    if os.environ.get("ASTRAL_STATE"):
+        invoke = ["env", "ASTRAL_STATE=" + os.environ["ASTRAL_STATE"]] + invoke
+    cmd = ["sudo", "-n", "-u", HUB_USER, "-H"] + invoke if os.geteuid() == 0 else invoke
     try:
         r = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout)
         out = json.loads((r.stdout or "").strip().splitlines()[-1])
@@ -154,15 +157,14 @@ def respond(*words):
         if commanded:
             _emit_success(commanded, {"query": q, "from": "kernel"})
             return
-        _emit_none()                         # no exact answer: the agent's turn
-        return
+        # A failed hub is still a failure when the fallback has no answer.
 
-    # 3. neither, and it says so rather than going quiet
+    # 3. report a broken or missing engine; otherwise the agent takes the turn.
     if out and out.get("kind") == "broken":
         _emit_success("The local engine is installed but it failed to answer. "
                       "Ask me again, or check the hub.", {"query": q, "from": "broken"})
         return
-    if out is None:
+    if out is None and engine is None:
         _emit_success(why_nothing_works(), {"query": q, "from": "nothing"})
         return
     _emit_none()
