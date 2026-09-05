@@ -1,20 +1,63 @@
 # Astral, known bugs and limitations
 
-## Current audit candidate — September 5, 2026
+## Current deployment — September 5, 2026, 10:19 HST
 
-Thirteen additional failures found by the personal Ponytail and pre-mortem audit are
-fixed in private source commit `13969e80be21ca1badfd0eeff7a12494f4f417f6`. They cover
-source-scoped search, removed library sources, bounded hashing, final OCR caching,
-mixed-PDF page coverage, timer races/partial writes/corrupt state, incomplete WAV samples,
-and isolated release-staging integrity. These changes are **not deployed**.
+The reconnected DevKit runs private hub `63fa1668ef345b21a17ac7c8de3f04ce78f7c6bc`
+and kernel **2.2.3**. All 106 deployable Python files match the checkout. Both system
+Python and the voice environment match the verified wheel. The latest guarded deployment
+finished successfully; the voice service started at 10:13:19 HST (PID 19661), the shared
+mathematics service is active, and the kiosk is inactive so it does not compete for the
+microphone. These process identifiers are a dated observation, not permanent configuration.
 
-The final Mac candidate passed 4,086 checks with zero failures and twelve named skips;
-all 419 hostile inputs were examined. Its 54 integrity checks and a real mixed-PDF OCR
-fixture do not replace device or human acceptance. Kernel 2.2.3 is generated source
-only; 2.2.2 remains the published and pinned artifact. Schema 25 still needs the device
-rebuild and coverage/performance checks. The DevKit is currently unreachable at its
-last address. OpenHome authentication, platform routing, human speech and app/reboot
-audio acceptance remain open. See [HANDOFF.md](HANDOFF.md) and [RELEASE.md](RELEASE.md).
+The personal Ponytail/pre-mortem pass reproduced and repaired 22 findings across library
+integrity, OCR, timer/settings/notes persistence, speech publication, isolated staging,
+shared-kernel routing, test isolation and the root-to-owner audio-session boundary.
+The wheel carries the compiled timer repair; the other runtime features require the
+companion hub deployment. The wheel alone is not the complete voice assistant.
+
+| Verification | Held | Failed | Skipped | Revision and scope |
+|---|---:|---:|---:|---|
+| Final Mac full | 4,119 | 0 | 12 | `63fa166`; all 29 suites and 419 hostile inputs |
+| Device full | 4,142 | 0 | 6 | `cca08bb`; all 29 suites and 419 hostile inputs |
+| Device state changes | 4,102 | 0 | 5 | `2938674`; 28 suites, excluding the prior hostile sweep |
+| Device final audio change | 604 | 0 | 4 | `63fa166`; seven relevant suites |
+
+These runs overlap and must not be added as unique tests. The full device run preceded
+the final state/audio changes, which have separate device regressions. A later eight-call
+check through the actual installed root shim proved saved zero values, the real 14% master
+report, preserved separate notebooks and owner-written isolated state. An earlier root
+check covered 139 pinned answers, 40 intended silences and ten runtime calls. Compiled
+parity covers 181 corpus entries. None of these typed calls proves human audibility.
+
+The public [2.2.3 release](https://github.com/Jmesmykil/astral-OpenBrain/releases/tag/v2.2.3)
+is published and hash-pinned in `community/astral/requirements.txt`. An unauthenticated
+public download and the DevKit's exact `pip download --require-hashes` dependency both
+match the installed artifact. The package validates with the persistent creator-fork CLI.
+Both repositories are pushed. Existing 2.2.2 release bytes are unchanged.
+
+Schema 25 independently matches all 191 physical/source files and 412,826 passages,
+including each file's hash and FTS count. All 29 encyclopedia archives match their source
+checksums. No empty, unread or orphan source rows were found. Actual-device passage-count
+median fell from 986 ms to 0.63 ms; this is a count operation, not overall answer latency.
+Four search queries retained identical results: first queries after verified zero index-file
+cache residency took 68–296 ms; warm medians were 6.8–28.6 ms, broadly unchanged.
+Repeated shared mathematics requests avoid new child processes: observed warm repeats
+were 2.8–3.6 ms, while the first equation request still took 4.1 seconds.
+
+All nine approved sound-pack files and all seven selected cues match. Production settings,
+notes-state and timer-state hashes remained unchanged through deployment and isolated
+verification. Your power cycle restored OpenHome's saved speaker 14% and microphone 160%,
+matching live PipeWire levels. This audit changed neither level.
+
+Still open: authenticated platform deployment/assignment and spoken routing; human wake
+positives and room negatives; short follow-ups, including the two empty quiet-room captures;
+interruption while thinking/speaking; app-slider behavior and audibility. The Mac was locked
+at the latest UI check, and CLI authentication was false. The retired trained wake head is
+not part of the active Vosk phrase recognizer. Hash integrity does not establish library-wide
+OCR accuracy, recognition of every diagram, or page labels in plain OCR archives.
+
+Detailed, dated receipts and every skip reason:
+`~/AstralBrainEngine/projects/openhome/audits/2026-09-05-ponytail-premortem/`.
 
 ## Earlier verified baseline — September 5, approximately 01:15 HST
 

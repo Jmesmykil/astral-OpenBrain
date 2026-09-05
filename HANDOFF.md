@@ -1,183 +1,116 @@
 # Handoff: Astral on the OpenHome DevKit
 
-Updated September 5, 2026, HST. Software and release checks are recorded below;
-physical and platform acceptance remain open. This is the current
-operating record; the dated grant and demo documents preserve earlier claims.
+## Current deployment — September 5, 2026, 10:19 HST
 
-## Unreleased audit candidate — September 5, 08:11 HST
+The reconnected DevKit runs private hub `63fa1668ef345b21a17ac7c8de3f04ce78f7c6bc`
+and kernel **2.2.3**. All 106 deployable Python files match the checkout. Both system
+Python and the voice environment match the verified wheel. The latest guarded deployment
+finished successfully; the voice service started at 10:13:19 HST (PID 19661), the shared
+mathematics service is active, and the kiosk is inactive so it does not compete for the
+microphone. These process identifiers are a dated observation, not permanent configuration.
 
-The personal Ponytail and pre-mortem audit found thirteen additional reproducible
-failure cases. Their fixes are in the private source candidate and are **not deployed**.
-The final Mac run passed 4,086 checks, failed none and explicitly skipped twelve;
-all 419 hostile inputs were examined. The new integrity suite contributes 54 checks.
-A real four-page PDF, using local Poppler and Tesseract, also preserved a blank page,
-recognized the scanned third page and retained both existing text pages. These results
-do not establish DevKit latency, library-wide OCR accuracy or acoustic acceptance.
+The personal Ponytail/pre-mortem pass reproduced and repaired 22 findings across library
+integrity, OCR, timer/settings/notes persistence, speech publication, isolated staging,
+shared-kernel routing, test isolation and the root-to-owner audio-session boundary.
+The wheel carries the compiled timer repair; the other runtime features require the
+companion hub deployment. The wheel alone is not the complete voice assistant.
 
-The candidate shares library search scope, streams source hashes, reconciles missing
-local sources while retaining offline linked works, and consolidates PDF extraction into
-one content-keyed final cache. OCR keeps page positions, has no silent page-count ceiling,
-and renders only sparse pages in mixed PDFs. Passage counts use transactional source
-counters instead of traversing all FTS passages. Timers use process locking and atomic
-writes; corrupt saved state is preserved and reported. Speech publication rejects missing
-WAV samples. The isolated lifecycle staging module verifies copied bytes and rechecks
-activation and rollback; it is not the platform deployment mechanism.
-
-Kernel **2.2.3 is generated source only**. Its target wheel still needs a Linux aarch64
-CPython 3.13 build and both-interpreter verification. The published 2.2.2 artifact and
-ability requirements remain unchanged. Library schema 25 requires an atomic rebuild;
-measure the full-device rebuild and resulting source/page coverage before deployment is
-called complete. Sparse-page detection and successful OCR execution do not prove every
-word or illustration has been recognized correctly.
-
-At this audit the DevKit no longer answers SSH at its last address, 192.168.1.23.
-The Mac is unlocked, and the OpenHome browser is at the sign-in page. Platform login,
-deployment, assignment, real human speech and app/reboot audio acceptance remain open.
-Internal Mac storage briefly ran out during verification; it subsequently recovered
-without deleting project, media, library or system files. No live audio level was changed.
-
-Detailed findings, before/after probes, measurements and the final complete log are in
-`~/AstralBrainEngine/projects/openhome/audits/2026-09-05-ponytail-premortem/AUDIT.md`.
-
-## Last verified device state — September 5, approximately 01:15 HST
-
-- At that check, the DevKit ran the local voice loop. The deployed source and compiled package were
-  verified after the interrupted September 4 deployment was repaired.
-- The approved sound pack is unchanged. Speaker volume was measured at 65 percent and
-  microphone configuration at 160. Neither was adjusted during this audit.
-- The OpenHome CLI is restored at a persistent location. The current ability package
-  passes validation. Login, platform deployment, assignment and a spoken platform request
-  remain unverified.
-- The full device run finished: 4,053 held, 0 failed, 5 skipped, all 419 hostile inputs
-  examined. Later library and ability changes passed their targeted device checks.
-- Kernel 2.2.2 is installed and verified in both interpreters. Its exact artifact is
-  hash-pinned in the ability requirements. The published release was downloaded on the
-  DevKit with pip hash checking; its bytes match the installed artifact.
-
-## Deployed repairs
-
-The running voice code now rejects failed, empty or invalid synthesis output instead of
-playing a previous answer. Playback failures have their own error result. `[said]` records
-speech prepared for playback; `[spoken]` records successful, uninterrupted player
-completion. Neither log marker alone proves acoustic audibility to a person.
-
-Deployment identifies its wheel from build inputs and verifies the installed extension,
-wrapper and manifest in both Python interpreters. Compiler and pip failures cannot be
-hidden by a stale wheel. Restart guards also ensure that failed restart, inactive
-loop and a kiosk that still owns the microphone cannot be reported as deployment success.
-Library indexing and required service setup errors are no longer suppressed. All 18
-changed device source/test/shim files match the checkout. At that check the loop was active with PID
-21518, started September 5 at 00:24:12 HST.
-
-Library repairs give each file its own provenance. Reindexing replaces that file's
-passages and preserves sibling outlines. A schema rebuild is constructed separately and
-published atomically; failure preserves the old index. Linked-directory cycles are
-visited once, and partial-read warnings persist across unchanged index runs.
-
-The verified library snapshot had 191 physical inputs, 191 indexed source rows, 35 named sources
-and 412,826 passages. All source hashes and per-file passage counts match the actual
-files and FTS rows. SQLite integrity passes, with no empty sources or unread warnings.
-
-Britannica Volume 29 was unreadable and Volume 3 truncated in the local archives. Only
-the device copies were replaced; the original Media archive and a verified pre-rebuild
-SQLite backup are preserved. All 29 on-device volume files now match Internet Archive
-SHA-1 records. Retrieval reaches both recovered volumes. Those measurements were warm
-queries; a cold-cache benchmark was not performed. Plain OCR text in these volumes has
-no reliable page markers, and checksum integrity does not correct OCR recognition errors.
-
-Ability fixes reject named refusals and ambiguous route choices. A failed hub is
-reported even when a fallback kernel is installed but cannot answer. The foreground
-request deadline covers the bounded hub answer and offer subprocesses. Root-invoked
-checks preserve temporary audit state across the user boundary, keeping production
-memory, notes and timers out of the test run.
-
-## Verification receipts
-
-| Run | Held | Failed | Skipped | Scope |
+| Verification | Held | Failed | Skipped | Revision and scope |
 |---|---:|---:|---:|---|
-| Mac full | 4,031 | 0 | 12 | All 419 hostile inputs; updated library and ability |
-| Device full | 4,053 | 0 | 5 | All 419 hostile inputs; installed native kernels and models |
-| Device later changes | 316 | 0 | 3 | Library, pages, ability, deployment, shipped artifact and honesty |
-| Device final license/package | 41 | 0 | 2 | Latest licensed wheel, deployment and installed artifact |
-| Actual root shim | 179 answers + 8 calls | 0 | 0 | Pinned answers, telemetry and runtime contract; isolated state |
+| Final Mac full | 4,119 | 0 | 12 | `63fa166`; all 29 suites and 419 hostile inputs |
+| Device full | 4,142 | 0 | 6 | `cca08bb`; all 29 suites and 419 hostile inputs |
+| Device state changes | 4,102 | 0 | 5 | `2938674`; 28 suites, excluding the prior hostile sweep |
+| Device final audio change | 604 | 0 | 4 | `63fa166`; seven relevant suites |
 
-The device full run preceded the library and ability revisions, which the later targeted
-run covers. The final license metadata change has its own package and root-shim receipts.
+These runs overlap and must not be added as unique tests. The full device run preceded
+the final state/audio changes, which have separate device regressions. A later eight-call
+check through the actual installed root shim proved saved zero values, the real 14% master
+report, preserved separate notebooks and owner-written isolated state. An earlier root
+check covered 139 pinned answers, 40 intended silences and ten runtime calls. Compiled
+parity covers 181 corpus entries. None of these typed calls proves human audibility.
 
-Mac skips for native mathematics, MECH reading, dictionary, Linux pipe behavior, Vosk,
-Spanish voice, page-numbered books and compiled-package behavior are covered on the
-DevKit. The separate flake8 7.3.0 run passed on all three ability files. The trained wake
-head is intentionally retired. Device skips for Mac installation scripts and package
-metadata are covered in the workspace. Removed README measurement tables are not an
-active capability. The optional platform daemon and real human speech remain separate,
-unverified surfaces despite software fixture passes.
+The public [2.2.3 release](https://github.com/Jmesmykil/astral-OpenBrain/releases/tag/v2.2.3)
+is published and hash-pinned in `community/astral/requirements.txt`. An unauthenticated
+public download and the DevKit's exact `pip download --require-hashes` dependency both
+match the installed artifact. The package validates with the persistent creator-fork CLI.
+Both repositories are pushed. Existing 2.2.2 release bytes are unchanged.
 
-The detailed per-suite counts, verbatim skip reasons, negative controls and source hashes
-are in `~/AstralBrainEngine/projects/openhome/audits/2026-09-04-completion/` on the Mac,
-starting with `AUDIT.md` and `TEST-COVERAGE.md`. Local receipts are not included in the
-public repository because they describe the owner's device and library.
+Schema 25 independently matches all 191 physical/source files and 412,826 passages,
+including each file's hash and FTS count. All 29 encyclopedia archives match their source
+checksums. No empty, unread or orphan source rows were found. Actual-device passage-count
+median fell from 986 ms to 0.63 ms; this is a count operation, not overall answer latency.
+Four search queries retained identical results: first queries after verified zero index-file
+cache residency took 68–296 ms; warm medians were 6.8–28.6 ms, broadly unchanged.
+Repeated shared mathematics requests avoid new child processes: observed warm repeats
+were 2.8–3.6 ms, while the first equation request still took 4.1 seconds.
 
-## Machines and paths
+All nine approved sound-pack files and all seven selected cues match. Production settings,
+notes-state and timer-state hashes remained unchanged through deployment and isolated
+verification. Your power cycle restored OpenHome's saved speaker 14% and microphone 160%,
+matching live PipeWire levels. This audit changed neither level.
+
+Still open: authenticated platform deployment/assignment and spoken routing; human wake
+positives and room negatives; short follow-ups, including the two empty quiet-room captures;
+interruption while thinking/speaking; app-slider behavior and audibility. The Mac was locked
+at the latest UI check, and CLI authentication was false. The retired trained wake head is
+not part of the active Vosk phrase recognizer. Hash integrity does not establish library-wide
+OCR accuracy, recognition of every diagram, or page labels in plain OCR archives.
+
+Detailed, dated receipts and every skip reason:
+`~/AstralBrainEngine/projects/openhome/audits/2026-09-05-ponytail-premortem/`.
+
+## Machines and ownership
 
 | Item | Location |
 |---|---|
-| DevKit | `openhome@192.168.1.23`, Raspberry Pi 4, 8 GB, Python 3.13.5 |
-| Private development checkout | `~/Documents/OpenHome-Astral/hub/` on the Mac |
+| DevKit | `openhome@192.168.1.23`, Raspberry Pi 4, 8 GB, CPython 3.13.5 / Linux aarch64 |
+| Private development | `~/Documents/OpenHome-Astral/hub/` on the Mac |
 | Device loop | `~/astral-voice/hub-v2/` |
 | Voice interpreter | `~/astral-voice/kws-venv/bin/python3` |
-| User state | `~/astral-voice/state/` |
+| Owner state | `~/astral-voice/state/` |
 | Library and index | `~/astral-voice/library/` |
+| Selected sound pack | `~/astral-voice/sounds/packs/astral/` |
 | Voice log | `~/astral-voice/astral-hub.log` |
-| Full audit receipts | `~/astral-checks/codex-completion-20260904/` on the device |
+| Device audit/rollback files | `~/astral-checks/codex-ponytail-20260905/` |
 
-The public repository contains the MIT ability and deployment scripts. The private hub
-repository is required to rebuild the local loop. The compiled engine is installed in
-both the voice environment and system Python, which OpenHome invokes as root.
+The public integration and readable ability shim are MIT. The private hub and proprietary
+compiled engine are separate; the public repository alone cannot rebuild them. The wheel
+contains no private Python, Cython or C source. No optional cloud route was enabled.
+The preserved Pi ranking profile covers 30 classes measured on September 3; Mac data did
+not replace it. Optional external routes require the owner's explicit choice.
 
-## Develop and verify
+## Develop and deploy
 
 ```sh
 python3 hub/tests/run.py --full
-python3 hub/tests/run.py library ability voice deployment
 openhome validate community/astral
-```
-
-On the device:
-
-```sh
-SSH_AUTH_SOCK= ssh openhome@192.168.1.23   'cd ~/astral-voice/hub-v2 && ~/astral-voice/kws-venv/bin/python3 tests/run.py --full'
-```
-
-Retain the exit code and complete log. The normal discovery run has a time cap for the
-hostile corpus; `--full` removes it. Software fixtures and actual human speech are
-separate evidence. The runner isolates mutable user state; real device data is still
-needed for checks of installed models, native kernels and the library.
-
-## Deploy the local loop
-
-```sh
 deploy/install_v2.sh openhome@192.168.1.23 --start
 ```
 
-A running loop is restarted after a successful deployment even without `--start`. The
-startup command stops OpenHome's kiosk first: one microphone, one owner. To return the
+Use the established Python environment with the required test dependencies. Preserve full
+logs and exit codes. `--full` removes the hostile-corpus discovery cap. Tests redirect
+mutable state with `ASTRAL_STATE`; they do not prove the physical room. The final Mac's
+native-kernel, reader, dictionary, Linux pipe, Vosk, Spanish voice, page-book, lint and
+compiled-package skips have device coverage. The trained wake head is intentionally
+retired, and the removed README measurement table is absent. Device skips for the Mac
+installer and package/doc files are covered in the workspace. Optional daemon software
+checks do not prove platform assignment.
+
+The installer fails on build, index, package-verification or service-start errors. It
+verifies the exact extension, wrapper and manifest in both interpreters and restarts the
+running loop. Keep the explicit rsync include list current for new directories. Preserve
+the device's measured profile and verify installed files after deployment.
+
+Astral and OpenHome's kiosk must not own the microphone simultaneously. To return the
 microphone to OpenHome, stop Astral before starting `openhome-dashboard.service`.
+OpenHome owns saved master speaker and microphone levels. The installer migration only
+changes an untouched default microphone value of 30; subsequent owner choices are
+preserved. Approved mastered sounds play as authored.
 
-The rsync include list is explicit. A new data directory must be added there, then its
-actual device files checked. The deploy preserves the device's measured cost profile;
-it must not copy Mac measurements over it.
+## Platform and human acceptance
 
-OpenHome owns both audio settings. The existing installation migration changes only an
-untouched default `MIC_SENSITIVITY` of 30 to 160. The runtime never forces mixer levels.
-Last measured speaker volume was 65 percent, while OpenHome had saved `SPEAKER_VOLUME=14`. The
-app must reconcile that discrepancy; direct mixer or configuration overwrites are not
-a substitute. Reboot persistence and the app slider still need direct verification.
-
-## Ship the platform ability
-
-The Mac CLI is the creator's fork of `Jmesmykil/openhome-cli`, installed from
-`~/.local/share/openhome-cli`. Its validator contains the DevKit contract fix. Do not
-replace that fork with an upstream update without checking that fix.
+The persistent CLI is the creator's fork, installed under `~/.local/share/openhome-cli`,
+with its validator fix. An advertised upstream update has not been substituted for it.
 
 ```sh
 openhome login
@@ -187,21 +120,29 @@ openhome assign
 openhome trigger "what time is it"
 ```
 
-Login must be completed locally. Keep credentials out of transcripts and retain a
-sanitized deployment/assignment receipt. Device-file parity does not prove that the
-platform registered hotwords or routed a spoken turn. The optional background daemon
-is a separate ability category and is not proved by foreground validation.
+Authentication requires the owner. Keep credentials out of transcripts and retain sanitized
+platform receipts. A local validator, copied DevKit files and typed shim calls do not prove
+platform registration, assignment or a spoken platform turn.
 
-## Release and outstanding acceptance
+With the owner present, record real wake positives and matched overheard negatives, short
+and long requests, time→London/date follow-ups, timer cancellation, and interruption while
+thinking and speaking. Check the actual microphone capture, transcript, routing, completed
+playback and what the owner heard. Measure interruption latency. Use OpenHome's app for
+its speaker slider and verify its live/saved effect without silently choosing a new level.
+The power-cycle restoration of saved 14/160 is already proved. Player exit zero and the
+`[spoken]` marker prove uninterrupted player completion, not acoustic audibility.
 
-Follow [RELEASE.md](RELEASE.md). Use a new version for a new artifact, retain its hash and
-pin the exact download. Do not overwrite the published v2.2.1 asset with a different wheel.
+## History and completed-work boundaries
 
-Remaining acceptance work includes authenticated platform routing, human wake positives and room negatives, short follow-ups, interruption
-while speaking and thinking, and app/reboot audio persistence. The two empty transcriptions in
-the September 4 quiet-room pass remain open until measured again.
+The exact September 4 OPEN HOME session is
+`f1455099-d3d1-4c6a-aa44-ebd66ce5c6e0`. The local reference index retains all 128 creator
+messages and distinguishes development, delivered artifacts and future work. The dated
+[known-bug ledger](KNOWN-BUGS.md) preserves previous observations; its historical readiness
+claims do not replace current acceptance. Earlier completion-audit receipts remain under
+`~/AstralBrainEngine/projects/openhome/audits/2026-09-04-completion/`.
 
-The creator reported submitting the grant. Its proposed harness bridge and the longer
-term deterministic-engine ambition remain future work. Do not present those as delivered
-features of this release, and do not infer completed portfolio releases from development
-status or commit counts.
+The grant submission was reported by the creator. Its proposed harness bridge and longer
+term deterministic-engine ambition remain future work. Separate portfolio products are
+not shipped OpenHome functionality. No new grant submission was made during this audit.
+
+See [RELEASE.md](RELEASE.md) for artifact provenance and immutable release procedure.
