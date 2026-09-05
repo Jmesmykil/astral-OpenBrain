@@ -1,6 +1,7 @@
 # Handoff: Astral on the OpenHome DevKit
 
-Updated September 5, 2026, HST. The completion audit is still running. This is the current
+Updated September 5, 2026, HST. Software and release checks are recorded below;
+physical and platform acceptance remain open. This is the current
 operating record; the dated grant and demo documents preserve earlier claims.
 
 ## Current state
@@ -15,7 +16,8 @@ operating record; the dated grant and demo documents preserve earlier claims.
 - The full device run finished: 4,053 held, 0 failed, 5 skipped, all 419 hostile inputs
   examined. Later library and ability changes passed their targeted device checks.
 - Kernel 2.2.2 is installed and verified in both interpreters. Its exact artifact is
-  hash-pinned in the ability requirements. Public publication remains pending.
+  hash-pinned in the ability requirements. The published release was downloaded on the
+  DevKit with pip hash checking; its bytes match the installed artifact.
 
 ## Deployed repairs
 
@@ -160,8 +162,7 @@ is a separate ability category and is not proved by foreground validation.
 Follow [RELEASE.md](RELEASE.md). Use a new version for a new artifact, retain its hash and
 pin the exact download. Do not overwrite the published v2.2.1 asset with a different wheel.
 
-Remaining acceptance work includes exact public release-download parity, authenticated
-platform routing, human wake positives and room negatives, short follow-ups, interruption
+Remaining acceptance work includes authenticated platform routing, human wake positives and room negatives, short follow-ups, interruption
 while speaking and thinking, and app/reboot audio persistence. The two empty transcriptions in
 the September 4 quiet-room pass remain open until measured again.
 
