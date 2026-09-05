@@ -830,3 +830,33 @@ Open after this pass:
   barge-in, backchannels on the floor, and the level change itself. The voice pass plays
   test phrases through the device's own speaker and needs the owner's say-so.
 
+## 2026-09-04, afternoon, the ship sweep
+
+The owner's goal: the project perfect, no gaps or conflicts, ready to ship. Everything the
+grant application names was opened and checked (every link answers 200, every file is
+tracked), and the sweep then went after what the ledger still listed as open.
+
+- **The grant application was audited** against the form's own prompts, the grant
+  announcement and the five milestone stages OpenHome lists (GRANT-AUDIT.md). The public
+  repository now carries the MIT licence it had been claiming, RELEASE.md names the 2.2.1
+  release, and the application's numbers, links and open-source statement match what a
+  reviewer finds.
+- **Bare follow-ups.** "And in London" after "what time is it" and "and the date" after it
+  came back unchanged and were judged silent, so the loop played the dismiss tone at a
+  person mid-conversation. A place onto a question that has no place yet, or one of the
+  few nouns the device answers about by itself (date, time, day, year, month, weather,
+  temperature), is completed now; "and tomorrow", "and thirty percent" and "and the other
+  one" are still left alone for the router to judge.
+- **The flat-audio ear rule is retired.** It fired in every quiet room because the HAT
+  gates silence to exact zeros, kicked three times and gave up. The no-bytes rule and the
+  start-up kick remain, and they are the two that ever caught a real deaf start.
+- **What the device says is in the log now** (`[said] …` beside `[heard] …`). Until today
+  the log held the question and never the answer, so a pass could not read its answers
+  back, and neither could the owner.
+- **Two gates from the morning raised on the DevKit.** They read the deploy scripts from
+  the Mac's directory layout; on the device one script lives inside the hub and the other
+  is not there at all. The voice suite stopped at check 23 on the device (3,689 held, 1
+  failed, the rest never ran). They read either layout now, or skip with a reason, proved
+  in a device-shaped copy before the deploy. Lesson kept: a gate that reads a file must be
+  run in the layout of every host that runs the suite.
+
