@@ -4,6 +4,11 @@
 
 ## What this is
 
+> Version 2.2.1, 2026-09-04: the engine wheel is installed from a GitHub release named in
+> `requirements.txt`; the ability asks the local hub first when it is installed and the
+> engine otherwise; `openhome validate community/astral` passes. Source and history:
+> https://github.com/Jmesmykil/astral-OpenBrain.
+
 Astral answers the exact-answer class on the device, without the LLM: time, date, math, money, unit conversions, grades, physics, chemistry, statistics, DevKit telemetry, and simple device control over MQTT. You ask in plain language, the device computes the answer with pattern-and-table code, and the agent speaks it. When a request is not an exact-answer question, Astral speaks nothing and the agent takes the turn.
 
 There is no LLM routing and no model on the device. The answers are deterministic and take microseconds.
@@ -97,7 +102,14 @@ Both paths use the same engine. Local speech-to-text is the default when it is a
 ## Requirements
 
 - An OpenHome DevKit running the device-side bridge.
-- Python standard library only. No API keys, no external services.
+- The engine, `astral-kernel`, which `requirements.txt` names by URL (a wheel published as a
+  GitHub release of this repository, version 2.2.1 as of 2026-09-04). OpenHome's installer
+  installs it on the DevKit like any other dependency. No API keys, no external services.
+- Optional: the Astral local hub beside it (`deploy/install_v2.sh` puts it there). With the
+  hub present the ability answers everything the local loop answers: the dictionary, the
+  books on the card, the songs, the quiz, timers, notes and the exact-mathematics kernel.
+  Without it the ability answers the exact-answer class from the engine alone and says why
+  when it cannot.
 
 ## Setup
 
