@@ -1,16 +1,10 @@
 #!/usr/bin/env python3
-"""Astral's public MIT DevKit shim: transcripts in, one JSON result out.
+"""Public MIT DevKit shim: transcripts in, one JSON result out.
 
-The engine is the separate proprietary astral-kernel package in requirements.txt.
-Its contract is astral_kernel.answer(text, now=None) -> str | None: a spoken exact
-answer, or None to let the OpenHome agent take the turn. Telemetry and MQTT are I/O
-and stay here. Engine rules stay in the compiled package or private hub.
-
-Answer order:
-  1. Full local hub (dictionary, books, maths and owner shelves), through the private
-     owner socket when running, otherwise through the owner CLI.
-  2. Installed astral-kernel package.
-  3. Explain a missing/broken installation; ordinary unhandled input stays silent.
+Ask the owner hub through its socket/CLI, then the proprietary astral-kernel package
+in requirements.txt. Its contract is astral_kernel.answer(text, now=None) -> str | None.
+An unhandled question lets the OpenHome agent take the turn; installation failures
+are explained. Telemetry/MQTT stay here, engine rules stay in the package/private hub.
 
     python3 devkit_functions.py respond what is twenty percent of eighty
     python3 devkit_functions.py health
@@ -20,10 +14,9 @@ import os
 import shutil
 import subprocess
 import sys
+import time
 
-# The account that owns the hub. The node server runs this file as `sudo python3 …`, so
-# HOME is /root here — measured on the device, not assumed — and every path below is
-# written out in full rather than expanded from a "~" that means the wrong thing.
+# Native sudo calls have HOME=/root. Explicit paths keep hub reads/writes with its owner.
 DEVICE_HOME = os.environ.get("ASTRAL_HOME") or "/home/openhome"
 HUB = os.path.join(DEVICE_HOME, "astral-voice/hub-v2")
 HUB_USER = "openhome"
@@ -71,7 +64,6 @@ def resident_hub(args, timeout):
     import pwd
     import socket
     import stat
-    import time
     try:
         info = os.lstat(where)
         if (not stat.S_ISSOCK(info.st_mode) or info.st_uid != pwd.getpwnam(HUB_USER).pw_uid
@@ -126,12 +118,12 @@ def resident_hub(args, timeout):
             return {"ok": False, "error": "owner bridge response failed"}
 
 
-def hub(*args, timeout=10):
-    """Return the owner's hub result, or None if unavailable.
-
-    Native calls run as root; the owner socket/CLI keeps paths and writes under
-    openhome. Running the hub as root was measured to lose its data and answers.
-    """
+def hub(*args, timeout=10, deadline=None):
+    """Return the owner's result within the caller's remaining budget, or None if absent."""
+    if deadline is not None:
+        timeout = min(timeout, max(0, deadline - time.monotonic()))
+    if timeout <= 0:
+        return {"ok": True, "kind": "timeout"}
     if not os.path.exists(BRIDGE):
         return None
     python = HUB_PYTHON if os.path.exists(HUB_PYTHON) else "python3"
@@ -176,9 +168,13 @@ def respond(*words):
         return
 
     # 1. the hub: the same engine plus everything on the card
-    out = hub("answer", "--agent", q)
+    deadline = time.monotonic() + 12  # Native node stops at 15s; reserve reply time.
+    out = hub("answer", "--agent", q, deadline=deadline)
     if out and out.get("kind") == "timeout":
-        out = hub("offer", "--agent", q, timeout=8)
+        out = hub("offer", "--agent", q, timeout=8, deadline=deadline)
+    if out and out.get("kind") == "timeout":
+        _emit_success("The local engine did not reply in time.", {"query": q, "from": "timeout"})
+        return
     if out and out.get("kind") == "answer" and out.get("say"):
         _emit_success(out["say"], {"query": q, "from": "hub", "class": out.get("class")})
         return
@@ -294,7 +290,7 @@ def route_answer(route="", *words):
         # and lets it answer. Nothing is sent anywhere by this file.
         _emit_none()
         return
-    out = hub("route", route, q, timeout=25)
+    out = hub("route", route, q, timeout=12)
     if out is None:
         _emit_error("no_hub", "This device has no local hub to route through.")
         return

@@ -1,5 +1,16 @@
 # Handoff: Astral on the OpenHome DevKit
 
+## Native deadlines — September 5, 2026, 13:36 HST
+
+The native shim now gives answer-plus-offer one 12-second budget and reserves reply
+time under the wrapper's 15-second timeout. Named routes use the same upper allowance.
+Exhausted work returns an explicit timeout instead of silence. The background source
+wait is corrected from six to 20 seconds; its account-side deployment is still pending.
+The device's affected checks held156 with zero failures/skips. A final90-call warm
+native run returned every answer correctly at181.72–201.62ms medians; ten concurrent
+calls also passed. All46 protected hashes and service PIDs were unchanged. No service
+restart or compiled-package rebuild was needed for this correction.
+
 ## Native startup optimization — September 5, 2026, 13:19 HST
 
 The [owner bridge](deploy/OWNER-BRIDGE.md) is deployed and enabled. The same 90 warm
@@ -13,8 +24,9 @@ Affected device suites held 448 checks, zero failed, one Mac-only skip. The fina
 Mac integration run held 152, zero failed, two device-covered skips. The installer
 now carries the boundary document alongside the dependency metadata. Kernel 2.2.3
 bytes are unchanged. These are scoped additions to the historical evidence below.
-The outer native timeout mismatch, account path, real voice/app acceptance, broader
-coverage and sustained-operation checks remain open; the full goal is not complete.
+The timeout mismatch was addressed in the follow-up above. The account path, real
+voice/app acceptance, broader coverage and sustained-operation checks remain open;
+the full goal is not complete.
 The creator has signed-in sessions in other browsers. Earlier Mac CLI or GPT-app
 login observations do not establish absent account access or a device-work blocker.
 

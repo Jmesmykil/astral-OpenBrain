@@ -71,11 +71,20 @@ trials and failure cases remain in the private acceptance directory on the Mac.
 
 ## Remaining boundaries
 
-The native dispatcher still has a 15-second outer timeout; the pre-existing shim
-allows 25 seconds for a named route and up to 10+8 seconds for answer then offer.
-That timeout mismatch needs its own regression and correction. Python signal
-handlers also cannot guarantee timely interruption of a C extension that never
-returns to Python. The new deadline tests prove queued expiry and termination of
+The timeout mismatch found in the review was corrected in a subsequent scoped
+change. Answer and offer now share a 12-second budget; named routes allow 12 seconds,
+leaving room below the native dispatcher's 15-second limit. Exhaustion returns an
+explicit timeout sentence and starts no further fallback computation. The background
+source now waits 20 seconds for the native result instead of giving up at six; that
+account-side source still requires the later platform upload/assignment verification.
+
+The final deadline regression held 156 device checks, zero failures/skips. Repeating
+the identical 90 warm native requests retained every correct answer, with p50
+181.72–201.62 ms and p95 189.66–212.52 ms. All ten simultaneous calls were correct and
+the same 46 protected hashes and all three service PIDs remained unchanged.
+
+Python signal handlers cannot guarantee timely interruption of a C extension that
+never returns to Python. The deadline tests prove queued expiry and termination of
 the tested Python worker/descendant case, not universal cancellation of arbitrary
 native code. Account assignment, actual human voice/app acceptance, broader semantic
 coverage and the representative soak remain open in the full execution plan.
