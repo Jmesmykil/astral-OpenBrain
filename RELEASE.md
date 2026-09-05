@@ -5,8 +5,10 @@ The target is CPython 3.13 on Linux aarch64, matching the development DevKit. Th
 MIT shim is separate from the proprietary compiled engine.
 
 The verified 2.2.2 artifact is installed on the development DevKit and pinned in the
-ability requirements. Public publication is pending. Do not clobber an existing release
-asset: a version must keep identifying the same bytes.
+ability requirements. [Release 2.2.2](https://github.com/Jmesmykil/astral-OpenBrain/releases/tag/v2.2.2)
+is published. The DevKit downloaded the exact requirements dependency using
+`pip download --require-hashes`; it matches the installed artifact. Do not clobber
+an existing release asset: a version must keep identifying the same bytes.
 
 - File: `astral_kernel-2.2.2-cp313-cp313-linux_aarch64.whl`
 - Size: 460607 bytes
