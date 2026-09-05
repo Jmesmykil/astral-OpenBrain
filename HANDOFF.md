@@ -4,9 +4,44 @@ Updated September 5, 2026, HST. Software and release checks are recorded below;
 physical and platform acceptance remain open. This is the current
 operating record; the dated grant and demo documents preserve earlier claims.
 
-## Current state
+## Unreleased audit candidate — September 5, 08:11 HST
 
-- The DevKit runs the local voice loop. The deployed source and compiled package were
+The personal Ponytail and pre-mortem audit found thirteen additional reproducible
+failure cases. Their fixes are in the private source candidate and are **not deployed**.
+The final Mac run passed 4,086 checks, failed none and explicitly skipped twelve;
+all 419 hostile inputs were examined. The new integrity suite contributes 54 checks.
+A real four-page PDF, using local Poppler and Tesseract, also preserved a blank page,
+recognized the scanned third page and retained both existing text pages. These results
+do not establish DevKit latency, library-wide OCR accuracy or acoustic acceptance.
+
+The candidate shares library search scope, streams source hashes, reconciles missing
+local sources while retaining offline linked works, and consolidates PDF extraction into
+one content-keyed final cache. OCR keeps page positions, has no silent page-count ceiling,
+and renders only sparse pages in mixed PDFs. Passage counts use transactional source
+counters instead of traversing all FTS passages. Timers use process locking and atomic
+writes; corrupt saved state is preserved and reported. Speech publication rejects missing
+WAV samples. The isolated lifecycle staging module verifies copied bytes and rechecks
+activation and rollback; it is not the platform deployment mechanism.
+
+Kernel **2.2.3 is generated source only**. Its target wheel still needs a Linux aarch64
+CPython 3.13 build and both-interpreter verification. The published 2.2.2 artifact and
+ability requirements remain unchanged. Library schema 25 requires an atomic rebuild;
+measure the full-device rebuild and resulting source/page coverage before deployment is
+called complete. Sparse-page detection and successful OCR execution do not prove every
+word or illustration has been recognized correctly.
+
+At this audit the DevKit no longer answers SSH at its last address, 192.168.1.23.
+The Mac is unlocked, and the OpenHome browser is at the sign-in page. Platform login,
+deployment, assignment, real human speech and app/reboot audio acceptance remain open.
+Internal Mac storage briefly ran out during verification; it subsequently recovered
+without deleting project, media, library or system files. No live audio level was changed.
+
+Detailed findings, before/after probes, measurements and the final complete log are in
+`~/AstralBrainEngine/projects/openhome/audits/2026-09-05-ponytail-premortem/AUDIT.md`.
+
+## Last verified device state — September 5, approximately 01:15 HST
+
+- At that check, the DevKit ran the local voice loop. The deployed source and compiled package were
   verified after the interrupted September 4 deployment was repaired.
 - The approved sound pack is unchanged. Speaker volume was measured at 65 percent and
   microphone configuration at 160. Neither was adjusted during this audit.
@@ -31,7 +66,7 @@ wrapper and manifest in both Python interpreters. Compiler and pip failures cann
 hidden by a stale wheel. Restart guards also ensure that failed restart, inactive
 loop and a kiosk that still owns the microphone cannot be reported as deployment success.
 Library indexing and required service setup errors are no longer suppressed. All 18
-changed device source/test/shim files match the checkout. The loop is active with PID
+changed device source/test/shim files match the checkout. At that check the loop was active with PID
 21518, started September 5 at 00:24:12 HST.
 
 Library repairs give each file its own provenance. Reindexing replaces that file's
@@ -39,7 +74,7 @@ passages and preserves sibling outlines. A schema rebuild is constructed separat
 published atomically; failure preserves the old index. Linked-directory cycles are
 visited once, and partial-read warnings persist across unchanged index runs.
 
-The final library has 191 physical inputs, 191 indexed source rows, 35 named sources
+The verified library snapshot had 191 physical inputs, 191 indexed source rows, 35 named sources
 and 412,826 passages. All source hashes and per-file passage counts match the actual
 files and FTS rows. SQLite integrity passes, with no empty sources or unread warnings.
 
@@ -134,7 +169,7 @@ it must not copy Mac measurements over it.
 
 OpenHome owns both audio settings. The existing installation migration changes only an
 untouched default `MIC_SENSITIVITY` of 30 to 160. The runtime never forces mixer levels.
-Live speaker volume is 65 percent, while OpenHome has saved `SPEAKER_VOLUME=14`. The
+Last measured speaker volume was 65 percent, while OpenHome had saved `SPEAKER_VOLUME=14`. The
 app must reconcile that discrepancy; direct mixer or configuration overwrites are not
 a substitute. Reboot persistence and the app slider still need direct verification.
 

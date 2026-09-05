@@ -16,6 +16,16 @@ an existing release asset: a version must keep identifying the same bytes.
 - Build input fingerprint: `75f6b21f0f50560d8112043d981aab778e5d3a12b9681fa3d1c2c968c9ea3d2e`
 - Metadata license: `Proprietary`; no private Python, Cython or C source is packaged.
 
+## Pending 2.2.3 candidate
+
+The September 5 Ponytail/pre-mortem source changes require a new kernel version.
+Generated 2.2.3 inputs have fingerprint
+`9fca5603fc4f9a10e240b404cab54a2166b1fba272909242ef052d3916f47cc4`.
+No 2.2.3 target wheel has been built, installed or published. The DevKit was unreachable
+at its last address during this pass. Keep the ability pinned to the verified 2.2.2
+artifact until the target build and consumer checks below finish. See [HANDOFF.md](HANDOFF.md)
+for the source-test results and remaining device/platform acceptance.
+
 ## Build and verify
 
 In the private hub checkout, change `VERSION` in `build_kernel.py`, then run its source
