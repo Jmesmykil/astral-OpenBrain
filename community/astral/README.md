@@ -7,7 +7,7 @@ An absent or failed engine is reported distinctly.
 
 The package passes the creator's OpenHome CLI validator. Authenticated deployment,
 assignment and a spoken platform request are still pending in the current completion
-audit. The 2.2.2 compiled artifact is installed and verified on the device. Its versioned
+audit. The 2.2.3 compiled artifact is installed and verified on the device. Its versioned
 dependency is pinned by SHA-256. The DevKit downloaded that public dependency with pip
 hash checking, and it matches the installed, verified artifact.
 
@@ -48,6 +48,13 @@ openhome trigger "what time is it"
 Local abilities require a connected DevKit. Keep a sanitized receipt for installation
 and assignment, then test the actual spoken route. Local package validation is not a
 platform deployment receipt.
+
+The native DevKit sync installs `devkit_functions.py` and `requirements.txt`. The
+companion hub installer refreshes both files for an existing Astral installation.
+Older local `config.json` and README files are historical metadata; the current
+platform dispatcher does not use them to register account hotwords or assignments.
+See the [native integration corrections](../../deploy/PLATFORM-HARDENING.md) for the
+checked device sync/dispatch patches and their verification boundaries.
 
 `requirements.txt` identifies the separately licensed wheel for CPython 3.13 on Linux
 aarch64. The private hub is optional for the compiled exact-answer classes and required
