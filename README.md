@@ -26,7 +26,7 @@ Raspberry Pi 4 Model B, 4 cores, 7.7 GB RAM, Python 3.13.5.
 
 | Part | Number |
 |---|---|
-| Wake word, always-on (openWakeWord, hey_mycroft) | 5.5% of 4 cores at rest, 210 MB RAM |
+| Wake word, always-on (vosk phrase recogniser, "open brain" or "open home") | 13% of one core at rest, 360 MB RSS |
 | Speech-to-text burst (whisper base.en-q5_1, audio-ctx 512, 4 threads) | ~2.5 to 3.3s per command, all 4 cores briefly |
 | Answer: time and date | 28 microseconds |
 | Answer: grades | 74 microseconds |
@@ -36,13 +36,14 @@ Raspberry Pi 4 Model B, 4 cores, 7.7 GB RAM, Python 3.13.5.
 | Answer: chemistry | 357 microseconds |
 | Answer: math and unit conversions | 444 microseconds |
 | Deciding it has no answer, so the agent takes the turn | 262 microseconds |
-| Text-to-speech (piper lessac-medium) | ~2s per reply |
+| Text-to-speech (piper ryan-medium) | ~2s per reply |
 | Disk | whisper 57 MB, wake 496 KB, piper 61 MB |
 
-Measured on the device on 2026-08-17, 300 runs each, against the file as deployed. Since then
-the wake phrase moved to a vosk phrase recogniser ("open brain" or "open home"), the voice to
-piper ryan-medium, and the answers to the compiled kernel (2.2.1); the loop at rest is due
-to be re-measured on the next device session, and the numbers above stand for the date given.
+The answer timings were measured on the device on 2026-08-17, 300 runs each, against the file as
+deployed, and the answers now come from the compiled kernel (2.2.1). The wake and voice rows
+were re-measured on 2026-09-04 with the current stack: the whole loop, listening and idle,
+holds one core at 13 percent and 360 MB, and the machine sits at 959 MB of 7.9 GB with the
+loop, the resident model and the mathematics kernel all up.
 The answer itself is microseconds. On the fully-local path the latency is speech-to-text and text-to-speech, not the compute. The cloud-side Skill adds only those microseconds on top of the agent's own speech handling.
 
 ## Version two: what runs where, measured
