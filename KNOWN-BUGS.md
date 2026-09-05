@@ -911,4 +911,12 @@ tracked), and the sweep then went after what the ledger still listed as open.
   deploy: the loop up, the ear kicked at start, the microphone at 160 from OpenHome's
   configuration, the speaker at their 14. The grant form holds the corrected answers in
   every section as of 21:08.
+- **"Okay stop" took a summary offer as a yes.** Found by the DevKit's own suite run at
+  21:10 (3,955 held, 1 failed): on the device, where the model is present, the check that
+  expects "okay stop" to get "Okay." got a model summary about tides, because the summary
+  offer looked for a yes word anywhere in the reply. The route offer already treated "stop"
+  as a no. Acceptance is one predicate now, a yes word with no word against it, so "okay
+  stop", "okay never mind", "not now" and "okay wait" never take an offer. Lesson kept: the
+  Mac suite cannot see this class, because the model that would answer is absent there. A
+  check that passes on the Mac and fails on the device is worth more than either alone.
 
