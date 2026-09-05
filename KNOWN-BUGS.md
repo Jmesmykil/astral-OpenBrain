@@ -885,4 +885,20 @@ tracked), and the sweep then went after what the ledger still listed as open.
   (the greeting reads back subjects, not mishearings), rerun the whole suite on the DevKit
   for its own count, and measure the loop at rest for the README's resource table. The
   code for all of it is committed and pushed; the device runs one commit behind.
+- **The second voice pass, read in full (13 turns through the device's own speaker at sink 65).**
+  Answered by voice on the deployed code: "what time is it"; "and the date" on the open floor,
+  completed to "what is the date"; "what is three plus four times two" (11); "set a timer for
+  two minutes"; "what do I have set" ("A timer with 1 minute left"); "what can you do". Not
+  transcribed ("heard nothing usable"): "and in London", "got it", "cancel the timer", "tell me
+  a riddle", so the timer rang two minutes later. Two turns were contaminated by the owner
+  talking in the room, and one mishearing ("stop the music" heard as "is stuff pops out of the
+  wall") drew a question back from the comprehension tier instead of a refusal. Open: short
+  spoken follow-ups of two or three words through the speaker are lost more often than long
+  ones, and a mishearing can reach the reader. Both need a quiet-room pass with a person
+  speaking, not the device.
+- **The grant form.** The corrected answers (the CLI is OpenHome's with one validator fix in
+  a fork, the abilities repository is not the applicant's, MECH is a separate product, Slate
+  is the engine's lane) are in GRANT-APPLICATION.md and GRANT-FORM-PASTE.txt. The browser
+  extension disconnected before sections 12, 13, 15, 16, 17 and 18 could be re-entered, so
+  the form draft still carries the old wording of those six until they are pasted.
 
