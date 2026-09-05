@@ -90,6 +90,27 @@ if [ -e "$SHIPPED/devkit_functions.py" ]; then
 fi
 
 mkdir -p ~/astral-voice/state ~/.config/systemd/user
+# Native ability calls already arrive as independent processes. Preload the router
+# as its owner, then fork a bounded child per request. No microphone or TCP port is
+# owned here; an absent socket leaves the existing owner CLI path available.
+cat > ~/.config/systemd/user/astral-ability.service <<UNIT
+[Unit]
+Description=Astral owner bridge for native ability requests
+
+[Service]
+WorkingDirectory=%h/astral-voice/hub-v2
+Environment=PATH=%h/opt/julia/bin:%h/.cargo/bin:/usr/local/bin:/usr/bin:/bin
+ExecStart=%h/astral-voice/kws-venv/bin/python3 ability_server.py
+UMask=0077
+Restart=on-failure
+RestartSec=3
+TimeoutStopSec=5
+StandardOutput=append:%h/astral-voice/astral-ability.log
+StandardError=append:%h/astral-voice/astral-ability.log
+
+[Install]
+WantedBy=default.target
+UNIT
 cat > ~/.config/systemd/user/astral-hub.service <<UNIT
 [Unit]
 Description=Astral local loop (version two): wake, local STT, ranked local answers, local TTS
@@ -200,6 +221,11 @@ if [ -f ~/.config/systemd/user/astral-model.service ]; then
   systemctl --user enable astral-model.service
   systemctl --user restart astral-model.service
 fi
+# Restart even when voice capture is stopped: this service preloads the deployed
+# routing code and must never keep the preceding deployment in memory.
+systemctl --user enable astral-ability.service
+systemctl --user restart astral-ability.service
+$PY ability_server.py --check
 echo "kiosk:      $(systemctl --user is-active openhome-dashboard.service || true)"
 echo "model:      $(systemctl --user is-active astral-model.service 2>/dev/null || echo absent)$([ -n "$(ls ~/astral-voice/models/*.gguf 2>/dev/null)" ] && echo " ($(basename $(ls -S ~/astral-voice/models/*.gguf | tail -1)))")"
 echo "slate:      $(systemctl --user is-active astral-slate.service 2>/dev/null || echo absent)"
