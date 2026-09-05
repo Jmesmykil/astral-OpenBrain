@@ -901,4 +901,14 @@ tracked), and the sweep then went after what the ledger still listed as open.
   is the engine's lane) are in GRANT-APPLICATION.md and GRANT-FORM-PASTE.txt. The browser
   extension disconnected before sections 12, 13, 15, 16, 17 and 18 could be re-entered, so
   the form draft still carries the old wording of those six until they are pasted.
+- **The boot greeting reads back subjects, not mishearings.** It said "We were on volcanoes,
+  or land is on, entropy" after the 14:58 reboot: a mishearing recorded as a subject was read
+  out as a topic. Subjects the greeting says back are now things, not clauses (a name that
+  opens with a joining word, holds a verb, or is mostly one-letter tokens is skipped, and the
+  next real subject taken). Deployed at 21:07; the first greeting after it read "volcanoes,
+  entropy, variables". Nothing stored was changed.
+- **The device came back at 16:28 after being plugged in**, and again at 21:07 after the
+  deploy: the loop up, the ear kicked at start, the microphone at 160 from OpenHome's
+  configuration, the speaker at their 14. The grant form holds the corrected answers in
+  every section as of 21:08.
 
