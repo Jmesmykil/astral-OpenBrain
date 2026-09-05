@@ -920,3 +920,34 @@ tracked), and the sweep then went after what the ledger still listed as open.
   Mac suite cannot see this class, because the model that would answer is absent there. A
   check that passes on the Mac and fails on the device is worth more than either alone.
 
+## 2026-09-04, night, ready to ship
+
+The state at the close of the day, all of it verified rather than assumed.
+
+- **The DevKit suite is green: 3,969 checks held, 0 failed, 6 skipped**, run on the device
+  under its own interpreter against the deployed code. The Mac holds 3,910; the device holds
+  more because the model and kernel paths are live there and silent on the Mac.
+- **The grant form is a copy of the source file.** All ten answers were compared section by
+  section against GRANT-APPLICATION.md and every length matches to the character. It carries the harness
+  bridge as the critical selected feature, the local assistant as phase 1 delivered, and the
+  deterministic engine as the road beyond, with the risk stated. Submit is the owner's.
+- **Corrected before it went out, on the owner's word:** the OpenHome CLI is OpenHome's, and
+  what is his is one commit in his fork, the validator fix; the abilities repository is not
+  his; Astral MECH is a separate product from the Astral Brain Engine, and Slate is the
+  engine's mathematics lane. The application no longer points a reviewer at a file that lives
+  in the private repository either.
+- **The ability is ready and not yet deployed.** `openhome validate community/astral` passes.
+  The CLI itself had to be rebuilt: the only copy was a global install from a session
+  scratchpad, which was wiped. It is back from the owner's fork with the validator fix.
+  `openhome login`, `deploy` and `assign` are his commands.
+- **The kernel release matches the device.** Release v2.2.1 carries the wheel built on the
+  DevKit today, and the download matches it byte for byte.
+- **Measured tonight, replacing numbers from August:** the whole loop, listening and idle,
+  holds one core at 13 percent and 360 MB, and the Pi sits at 959 MB of 7.9 GB with the loop,
+  the resident model and the mathematics kernel all up.
+
+Still open, and honest about it: short spoken follow-ups of two or three words are lost more
+often than long ones through the device's own speaker, a mishearing can still reach the
+reader, and the speaker comes up at OpenHome's stored volume after every boot until the app
+slider is moved once.
+
