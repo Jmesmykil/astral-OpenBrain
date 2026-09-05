@@ -20,7 +20,7 @@ nothing leaving the house.
   so in their words.
 - It is a platform feature, not one application. One open protocol that every harness author
   can support gives OpenHome leverage that a single app never does.
-- It is backed by evidence. A month of shipped work, a merged pull request and 3,884 checks
+- It is backed by evidence. A month of shipped work, a merged pull request and 3,897 checks
   make "I can build this" a record rather than a promise.
 
 ## What OpenHome gets, whatever happens to the engine

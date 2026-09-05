@@ -693,7 +693,7 @@ every failure is in what it says or stays silent about):
   first library question after the index grew took 50 s cold.
 - **Shipping v2:** the kernel wheel is a GitHub release (v2.2.0) and requirements.txt
   installs it by URL; `community/astral/config.json` carries the CLI's schema
-  (unique_name, matching_hotwords, category local); my CLI's validator applied the
+  (unique_name, matching_hotwords, category local); the validator in my fork of OpenHome's CLI applied the
   capability-worker rules to devkit_functions.py, which rejects every valid DevKit
   ability including OpenHome's own devkit-stats template, and is fixed on its main
   branch (not yet published to npm). `openhome login`, deploy, assign and the trigger
