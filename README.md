@@ -109,6 +109,12 @@ speech-to-text runs, an acceptance chime when a command matches, a distinct cue 
 is about to ask about a route, and a low tone when it declines. The device's own sound
 set is used where a file fits the meaning.
 
+## Handing it over
+
+`HANDOFF.md` is the one document to read first if you are picking this up: the machines,
+the deploy, the suites, how to ship the ability, who owns the volume, what is open, and the
+traps that have cost the most time.
+
 ## Layout
 
 ```
