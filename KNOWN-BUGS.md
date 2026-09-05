@@ -1,6 +1,22 @@
 # Astral, known bugs and limitations
 
-## Current completion audit — September 5, 2026
+## Current audit candidate — September 5, 2026
+
+Thirteen additional failures found by the personal Ponytail and pre-mortem audit are
+fixed in private source commit `13969e80be21ca1badfd0eeff7a12494f4f417f6`. They cover
+source-scoped search, removed library sources, bounded hashing, final OCR caching,
+mixed-PDF page coverage, timer races/partial writes/corrupt state, incomplete WAV samples,
+and isolated release-staging integrity. These changes are **not deployed**.
+
+The final Mac candidate passed 4,086 checks with zero failures and twelve named skips;
+all 419 hostile inputs were examined. Its 54 integrity checks and a real mixed-PDF OCR
+fixture do not replace device or human acceptance. Kernel 2.2.3 is generated source
+only; 2.2.2 remains the published and pinned artifact. Schema 25 still needs the device
+rebuild and coverage/performance checks. The DevKit is currently unreachable at its
+last address. OpenHome authentication, platform routing, human speech and app/reboot
+audio acceptance remain open. See [HANDOFF.md](HANDOFF.md) and [RELEASE.md](RELEASE.md).
+
+## Earlier verified baseline — September 5, approximately 01:15 HST
 
 Read [HANDOFF.md](HANDOFF.md) for current deployment and verification state. The sections
 below this notice are a chronological record; their early “hey mycroft” and forced-mixer
@@ -11,13 +27,13 @@ The interrupted deployment, stale-wave playback, ambiguous playback results, uns
 library updates, incomplete rebuilds, route-refusal parsing, hidden hub failures and
 restart error reporting have been repaired and deployed. The recovered Britannica
 volumes 3 and 29 are indexed; all 29 volume files match the archive checksums. The
-current index has 191 source files, 35 named sources and 412,826 passages, with no empty
+verified index snapshot had 191 source files, 35 named sources and 412,826 passages, with no empty
 sources or persisted unread warnings. OCR quality and page-number coverage are separate
 limits; recovered plain OCR volumes do not provide reliable page labels.
 
 Still open: controlled human wake and interruption tests, the two empty captures in the
 September 4 quiet pass, platform login/deployment/assignment and app/reboot audio
-persistence. Live speaker volume is 65 percent, while OpenHome's saved value is 14; the
+persistence. The measured speaker volume was 65 percent, while OpenHome's saved value was 14; the
 app must reconcile that setting before reboot persistence can be claimed. Audio files
 and levels were preserved during this audit. Kernel 2.2.2 is published, and its exact
 requirements download was verified on the DevKit with SHA-256 checking.
