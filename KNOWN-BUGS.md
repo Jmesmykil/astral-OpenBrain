@@ -951,3 +951,30 @@ often than long ones through the device's own speaker, a mishearing can still re
 reader, and the speaker comes up at OpenHome's stored volume after every boot until the app
 slider is moved once.
 
+## 2026-09-04, 22:00, the quiet-room voice pass and what it found
+
+Six phrases through the device's own speaker at sink 65, in a quiet room, each with the
+wake word. This is the pass the earlier note asked for.
+
+- **Short follow-ups are not the problem; the room was.** "And in London" was heard, and
+  completed to "what time is it in london" and answered by voice, which is the follow-up
+  fix working through the air. The losses in the noisy pass were the room, not the length.
+- **"Cancel the timer" was heard correctly and then dropped**, with the log line
+  "floor: not for me", while "stop the timer" is answered. The open floor's verb list had
+  no cancel. Sweeping what the device answers against what the floor hears found ten such
+  sentences, including "convert ten pounds to kilograms", "calculate twelve times nine",
+  "mute the music" and "wake me at seven". The gate now asks the handlers the way the
+  wake-word gate already did, behind the same twelve-word limit, and the verb list carries
+  the verbs the device actually answers. Social verbs are deliberately out: on the open
+  floor "call mum" belongs to the person it was said to.
+- **A greeting was any sentence with the word in it.** "How do you say hello in french"
+  was answered "Good evening.", and so were "translate hello into spanish" and "say hello
+  in spanish". A greeting is a sentence that is one now, so "hello what time is it" gets
+  the time.
+- **hooks answered more than it declared.** "Wake me at seven" set an alarm while
+  hooks.matches() said the module took no such sentence, which is why the floor dropped it.
+  A gate holds the two together for everything hooks answers.
+- Still open from this pass: one stimulus in six was captured at a peak of 1,098 and
+  transcribed as nothing, and a second at 8,357 also came back empty. Two empty bursts in
+  six turns through the speaker, in a quiet room, is worth another look.
+
