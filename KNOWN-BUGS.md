@@ -1,5 +1,17 @@
 # Astral, known bugs and limitations
 
+## Current runtime verification — September 5, 2026, 19:03 HST
+
+Private hub `fbd3e7d620c151a3e617b2c81394fb30b49817c2` is deployed. The full device run completed all 30 suites and all 419 hostile inputs: **4,342 held, zero failed, five explicitly skipped**, in 149 seconds. All 115 selected Python/support source hashes and 47 protected file hashes stayed unchanged during the run. Audio levels, actual user-service processes and the live Slate child stayed unchanged. Three registered native requests passed before and after; the final equation response was `x = 4` in 181 ms. This is a software/native-path observation, not an acoustic latency measurement.
+
+The latest corrections fix decimal memory units, replace unconditional privacy claims with the actual local/platform/diagnostic boundaries, expire abandoned math requests, and make readiness/recovery follow a working kernel. Tests and stress runs now own an isolated Slate process instead of falling back to the live socket. The full run recorded its test kernel and verified cleanup with no running descendants remaining. Focused device checks passed 586/0/2 before the full run; these counts overlap and must not be added together.
+
+The five device skips are the deploy-machine installer, the retired trained wake head, background-ability health in a layout without that package, the Mac restart command, and workspace-document checks. Mac-side deployment and document checks have separate evidence; the retired head is not the active Vosk wake detector. The compiled 2.2.3 input fingerprint is unchanged, so no new wheel was built.
+
+Some earlier helper receipts queried inactive system units instead of the actual Astral user services. Those comparisons alone did not prove preservation. The correction records real user-service start times preceding the affected operations; the current full run explicitly checks user units, their kernel child and actual answers. Original receipts and the first rolled-back deployment attempt remain preserved in the local acceptance ledger.
+
+The existing account works; Astral remains registered, installed and assigned. Still open: platform spoken routing, human wake/room/interruption/audibility acceptance, the remaining capability/library semantic matrix, final source publication and final handoff. Read the latest local acceptance ledger for progress after this timestamp. Earlier dated sections below are historical snapshots.
+
 ## Current account and repeat deployment — September 5, 2026, 17:50 HST
 
 The existing account key works. Astral is registered as `jamesmykilastral`, installed on the DevKit and assigned to the existing Astral agent. The original17 installed abilities and the other7 agents were preserved. Three actual Node/Python/shim/hub requests through the registered name pass. This is not a platform spoken-turn receipt.
