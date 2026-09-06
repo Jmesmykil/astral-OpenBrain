@@ -38,12 +38,35 @@ Use the creator's persistent fork of `Jmesmykil/openhome-cli`, which carries the
 validator fix. From the development checkout:
 
 ```sh
-openhome validate community/astral
-openhome login
-openhome deploy community/astral --name Astral --category local --json
-openhome assign
-openhome trigger "what time is it"
+OPENHOME_NO_UPDATE=1 openhome validate community/astral --json
+bundle_dir="$(mktemp -d)"
+(cd community && zip "$bundle_dir/astral.zip" \
+  astral/__init__.py astral/main.py astral/devkit_functions.py astral/requirements.txt \
+  astral/config.json astral/README.md astral/BOUNDARY.md)
 ```
+
+The CLI uploads a ZIP; it does not zip directories or read deployment metadata from
+`config.json`. The archive above contains the foreground ability under `astral/` and
+excludes the optional background daemon, caches and private hub. Keep the ZIP path for
+the existing account draft's **Upload ZIP** control, or use the CLI with configured
+credentials:
+
+```sh
+OPENHOME_NO_UPDATE=1 openhome deploy "$bundle_dir/astral.zip" \
+  --name astral --category local
+```
+
+That command asks for the description and comma-separated trigger phrases; use the
+values in `community/astral/config.json`. For unattended use, supply `--description`,
+`--triggers` and `--json` as well. An existing browser login does not automatically
+configure the CLI. Use an existing authenticated account workflow when available;
+`openhome login` is only needed to configure missing CLI credentials.
+
+Inspect existing records before uploading. Resume or update the intended Astral draft;
+do not follow a duplicate-name suggestion to delete an existing ability. Read the target
+agent's assigned set before `openhome assign`, retain every existing selection and add
+only Astral. A `trigger` check can invoke the configured platform agent, so first confirm
+the intended local route and inference policy.
 
 Local abilities require a connected DevKit. Keep a sanitized receipt for installation
 and assignment, then test the actual spoken route. Local package validation is not a

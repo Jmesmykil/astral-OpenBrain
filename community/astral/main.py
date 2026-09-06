@@ -10,8 +10,9 @@ class AstralCapability(MatchingCapability):
 
     On a trigger word the transcript goes straight to the device, which answers with
     plain pattern-and-table code (time, date, math, money, unit conversions, telemetry).
-    No LLM routing on the cloud side, no model on the device side. If Astral has no
-    answer, it speaks nothing and hands the turn back so the agent takes it.
+    This wrapper does not call a model. The local hub may use its configured local
+    model for supported requests. OpenHome supplies the transcript and speech; if
+    Astral has no answer, it hands the turn back to the configured platform agent.
     """
 
     worker: AgentWorker = None
@@ -27,7 +28,7 @@ class AstralCapability(MatchingCapability):
                 return
 
             # Deterministic route on the device. The transcript goes straight to the
-            # engine; the LLM is never touched. `respond` returns a spoken answer, an
+            # engine. `respond` returns a spoken answer, an
             # offer of somewhere else to send it, or nothing (nothing = not an
             # exact-answer question).
             result = await self.capability_worker.send_devkit_capability_action(
@@ -57,7 +58,7 @@ class AstralCapability(MatchingCapability):
         names the places that could actually answer. The reply decides:
 
           the cloud  -> say nothing, and the agent takes the turn, because on this path
-                        the agent IS the cloud. Nothing is uploaded by this ability.
+                        the platform owns the subsequent response.
           a machine  -> the device asks it over the local network and speaks the answer.
           anything else, or no answer at all -> nothing is sent anywhere.
         """

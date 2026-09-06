@@ -1,7 +1,7 @@
 {
   "unique_name": "astral",
   "name": "Astral",
-  "description": "Answers the exact-answer class on the DevKit itself: time, date, arithmetic, money, unit conversions, definitions, facts and the books on the card. Nothing is sent anywhere.",
+  "description": "Answers time, arithmetic, conversions and other supported requests on the DevKit. With the local hub installed, also uses its definitions, library and notes. OpenHome handles the transcript, speech and agent session.",
   "category": "local",
   "matching_hotwords": [
     "what time",
