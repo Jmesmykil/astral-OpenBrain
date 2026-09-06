@@ -1,5 +1,25 @@
 # Handoff: Astral on the OpenHome DevKit
 
+## Installation reconciliation — September 5, 2026, 16:41 HST
+
+All168 selected source/support files and all three Astral service definitions match. Both actual Python interpreters match the pinned2.2.3 wheel; the installed platform sync and Node boundary sources also agree. Private hub7d45259ca46535f2bd69feef47d47d1e0f629f0b adds the final deployment regression checks; runtime code remains the deployed library26 version below.
+
+The installer now copies dependency metadata with the daemon shim. Fresh/upgrade cases previously failed; final Mac deployment checks pass51/0/0 and installed device44/0/1. The device skip is the seven Mac-side installer restart checks, which pass on the Mac. Stale staged main.py and BOUNDARY.md were reconciled. Five support/test files changed, with exact backups at /home/openhome/astral-voice/platform-hardening/install-manifest-v2. Services,46 protected hashes and14%/160% audio levels were preserved.
+
+Existing device-key SDK access returns200 for Astral595324. Its explicit matching_capabilities list is empty; this is separate from17 globally installed/enabled abilities. Management-list access with the device key returns401 and needs its session mode. Safari is authenticated and usable outside the saved draft, whose resume remains blank. No account upload/assignment or hosted inference occurred. No new account or GPT-app sign-in is needed.
+
+Installation agreement is verified for this snapshot. Remaining account integration, human voice/app acceptance, broader semantic coverage and final publication are still open.
+
+## Current deployment — September 5, 2026, 16:11 HST
+
+Private hub879a0444d9c984072d4b10aafc923b373c0835e8 is deployed. All109 installer-selected Python files match the local source. E13 prevents the diagnostic soak from touching persistent state or hardware; E14 preserves complete subtitle text; E15 preserves PDF printed-page labels and technical code. The schema26 index retains191 physical sources and now contains412,863 passages. Four visually checked PDF pages pass17 selected live-index predicates; this is bounded semantic evidence.
+
+Affected final Mac checks passed202/0/1, staged device library/pages221/0/0, installed isolation3/3 and postactivation native answers3/3. These runs overlap. VoicePID72284 has a capture child; bridgePID72285 is active. All46 protected hashes and speaker14%/mic160% levels were preserved. Rollback lives at /home/openhome/astral-voice/platform-hardening/library26-v1/rollback.
+
+The earlier one-hour observer completed183/183 native answers with zero detector issues, before this library migration. It does not prove human audibility or a final-library26 acoustic soak. Existing Safari account authentication is confirmed; no new account or GPT-app login is needed. Astral ability registration/assignment remains unfinished, with its draft opening blank. Human voice/app acceptance, remaining coverage and final publication remain open. Later local commits are not yet pushed; published kernel2.2.3 bytes are unchanged.
+
+The earlier dated snapshots below retain their historical counts and pending statements.
+
 ## Room speech and fallback commands — September 5, 2026, 15:02 HST
 
 The running service exposed an additional failure: ordinary room speech containing
