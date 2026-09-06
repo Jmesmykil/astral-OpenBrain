@@ -208,6 +208,38 @@ def respond(*words):
     _emit_none()
 
 
+# The daemon's budget, and why it is a fraction of respond()'s. Measured here: a native
+# callback's median round trip is 181-203 ms and a tier-0 answer computes in under 1.4 ms,
+# so a genuinely instant answer is IPC-bound at about a fifth of a second.
+NOW_BUDGET_SECONDS = 1.0
+
+
+def respond_now(*words):
+    """The background daemon's path: an answer only while it is still faster than the cloud.
+
+    Same engine as respond() on a one-second budget, and silence for everything else. The
+    daemon speaks by interrupting the agent mid-sentence, which is only justified while the
+    local answer is cheaper AND faster; once it is not faster, deferring to the cloud is the
+    correct ranked outcome. So a timeout says nothing here. respond() answers a slow engine
+    with "the local engine did not reply in time", which is right for somebody waiting on it
+    and exactly wrong to sever a sentence to announce.
+    """
+    q = " ".join(str(w) for w in words).strip()
+    deadline = time.monotonic() + NOW_BUDGET_SECONDS
+    out = hub("answer", "--agent", q, timeout=NOW_BUDGET_SECONDS, deadline=deadline) if q else None
+    if out and out.get("kind") == "answer" and out.get("say"):
+        _emit_success(out["say"], {"query": q, "from": "hub", "class": out.get("class")})
+        return
+    # The compiled package is in-process and costs no IPC, so it can still come in under
+    # the budget. Past the deadline nothing is instant any more, whatever it would say.
+    engine = kernel() if q and time.monotonic() < deadline else None
+    said = engine.answer(q) if engine is not None else None
+    if said:
+        _emit_success(said, {"query": q, "from": "kernel"})
+        return
+    _emit_none()                             # not ours, not instant, or not working
+
+
 def _device_command(q):
     """Device control: the engine understands it, this file publishes it.
 
@@ -362,6 +394,7 @@ def health(*_):
 FUNCTION_REGISTRY = {
     "respond": respond,
     "device_control": device_control,
+    "respond_now": respond_now,
     "due_alerts": due_alerts,
     "route_answer": route_answer,
     "get_temperature": get_temperature,

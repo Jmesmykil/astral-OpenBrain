@@ -38,7 +38,7 @@ PY
 # measure_costs.py went unnoticed for a day.
 rsync -rlt --delete --chmod=u=rwX,go=rX -e "${SSHC[*]}" \
   --include='*.py' --include='kernels/' --include='kernels/*.py' \
-  --include='tests/' --include='tests/*.py' --include='wake/' --include='wake/*.npz' \
+  --include='tests/' --include='tests/*.py' --include='tests/fixtures/' --include='tests/fixtures/*.txt' --include='wake/' --include='wake/*.npz' \
   --include='data/' --include='data/*.json' \
   --include='data/lan.token' --include='data/sounds/' \
   `# data/costs is deliberately absent: a host's cost profile is measured ON that host,` \

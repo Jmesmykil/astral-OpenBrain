@@ -30,19 +30,36 @@ replacement for it, and the failure mode of the filter is silence.
   subprocess that has long since exited. This is the only thing here that speaks
   without being asked.
 
-THE ONE RACE, STATED PLAINLY
+THE ONE RACE, AND WHAT LOSING IT NOW COSTS
 
 The agent and this daemon see the same turn at the same time. The daemon has to be
 first: it polls the transcript, asks the device, and calls send_interrupt_signal()
 before it speaks — the documented primitive for exactly this, "stops current Personality
 output, call before speak() from a daemon". A device answer costs a subprocess and a
-table lookup; an LLM answer costs a round trip and speech synthesis. The daemon should
-win comfortably. It is not guaranteed to: if the agent has already started talking the
-interrupt cuts it mid-word and the user hears a stub before the real answer. The thing
-that keeps that rare is that the device only ever answers what it can answer instantly —
-respond() returns an empty string for everything else, and an empty string is never
-worth interrupting for. This is the part that needs a room and a person to call proven;
-see KNOWN-BUGS.md.
+table lookup; an LLM answer costs a round trip and speech synthesis, so the daemon
+usually wins.
+
+It does not always win, and this is what that used to sound like in the room: the agent
+had already started, the interrupt cut it mid-word, and the user heard a stub followed by
+the real answer. The original design leaned on "the device only answers what it can
+answer instantly" to keep that rare, but respond() is allowed twelve seconds and answers
+a slow engine with a sentence of its own, so the daemon could sit through the agent's
+entire reply and then sever it to say the local engine had been slow.
+
+So losing the race is now an outcome rather than an accident, and it is the ranked one.
+This path asks respond_now, whose budget is a second, and it will not interrupt at all
+once INTERRUPT_DEADLINE has passed since the turn appeared. The argument for preempting
+the cloud is that the local answer is cheaper AND faster; the moment it is no longer
+faster, the cloud's turn is the correct answer and the daemon stays out of it. A severed
+sentence is a real cost paid by the person in the room, and it is never worth a fraction
+of a second.
+
+Two things still interrupt unconditionally. A timer coming due, because that is an alert
+the owner asked for at that moment and one that waits for a gap can be minutes late. And
+the once-a-session health sentence, which is rarer than it looks — three failed calls in a
+row — and which cannot simply be spoken politely instead: on this platform speak() without
+an interrupt does not wait its turn, it lands on top of whatever the agent is saying, and
+two voices at once is a worse thing to do to a room than one clean cut.
 
 Files: background.py (this) is category=background_daemon. It shares devkit_functions.py
 with the Local Ability, so there is one engine on the device, not two.
@@ -70,6 +87,15 @@ POLL_SECONDS = 0.25
 # ten-minute timer is not late.
 ALERT_EVERY = 24                                # ticks, so ~6 s
 DEVICE_TIMEOUT = 20                             # native node allows 15s; leave delivery margin
+# Answering a live turn is a different job from being asked one, and it gets a different
+# clock. The device's own budget for this path is a second (NOW_BUDGET_SECONDS in the
+# shim); this is the transport allowance around it, not a second chance at a slow answer.
+ANSWER_TIMEOUT = 3
+# From first sight of the turn to the moment we would start speaking. Past this the agent
+# is already talking and interrupting costs a severed sentence to save a fraction of a
+# second, which is a bad trade at any ranking. Measured parts: up to POLL_SECONDS of
+# detection latency, then a native callback whose median is 181-203 ms.
+INTERRUPT_DEADLINE = 2.0
 FAILURES_BEFORE_SPEAKING = 3                    # in a row, before it says it cannot reach the device
 
 
@@ -191,12 +217,27 @@ class AstralDaemon(MatchingCapability):
             return                              # nothing new since the last look
         self.answered_turn, self.last_text = index, text
 
+        seen = time.monotonic()
+        # respond_now, not respond: the same engine on a budget, and silence instead of a
+        # late answer. respond() may spend twelve seconds and then say "the local engine
+        # did not reply in time" — true, useful to somebody waiting on it, and never worth
+        # cutting a sentence in half to announce.
         result = await self.capability_worker.send_devkit_capability_action(
-            function_name="respond", args=[text], timeout=DEVICE_TIMEOUT)
+            function_name="respond_now", args=[text], timeout=ANSWER_TIMEOUT)
         await self._note_health(result)
         spoken = spoken_from(result)
         if not spoken:
             return                              # not ours: the agent's turn, untouched
+
+        # We were not first. The whole justification for interrupting is that the local
+        # answer arrives before the cloud one; once that is no longer true, the ranked
+        # outcome is the cloud's turn, and taking it now would only produce the stub the
+        # room actually complains about.
+        late = time.monotonic() - seen
+        if late > INTERRUPT_DEADLINE:
+            self._log(f"Astral daemon: local answer was {late:.2f}s late; left the turn "
+                      f"with the agent rather than cutting it off")
+            return
 
         await self.capability_worker.send_interrupt_signal()
         await self.capability_worker.speak(spoken)
