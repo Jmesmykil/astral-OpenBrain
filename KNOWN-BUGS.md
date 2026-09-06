@@ -1,5 +1,11 @@
 # Astral, known bugs and limitations
 
+## Actual app control — September 5, 2026, 16:50 HST
+
+The authenticated DevKit speaker control changed the actual mixer and saved setting from 14% to 17%; both were restored to 14%. Mic sensitivity stayed 160%, other environment content hashes and the three Astral service identities were unchanged. An intermediate pointer attempt displayed 21%; the exact original value was then selected with keys and committed by clicking the slider. No audio playback was used, so human audibility remains open.
+
+Arrow keys alone changed the displayed value without committing to the device until a click. This observed app limitation remains open. [The hardware acceptance guide](deploy/HW_TEST.md) now matches the current wake phrases, equation support and live interruption path. Its human trials are explicitly not run.
+
 ## Installation reconciliation — September 5, 2026, 16:41 HST
 
 All168 selected source/support files and all three Astral service definitions match. Both actual Python interpreters match the pinned2.2.3 wheel; the installed platform sync and Node boundary sources also agree. Private hub7d45259ca46535f2bd69feef47d47d1e0f629f0b adds the final deployment regression checks; runtime code remains the deployed library26 version below.

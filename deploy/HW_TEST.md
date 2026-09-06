@@ -1,96 +1,85 @@
-# Hardware test, version two
+# Hardware acceptance: current Astral installation
 
-The DevKit at `openhome.local`, one microphone, one owner: either OpenHome's kiosk or
-Astral's loop, never both. Everything below is local; the only network in play is the
-LAN between the Pi and the Mac.
+Updated September 5, 2026. This is a pending acceptance procedure, not a record of completed human tests.
 
-## Before
+The current user service runs live_hub.py, which already includes wake interruption and follow-ups. Its latest startup reports **open brain** and **open home**, local whisper-base.en-q5_1 with audio context 512, and the Google Voice HAT input. Use **open brain** for this run. The product remains OpenHome/Astral; a wake phrase is not a product rename.
 
-1. `deploy/install_v2.sh` from the workspace. It syncs the hub, makes the chimes, points
-   the LAN route at this Mac, installs the `astral-hub` user service, and prints state.
-2. On the Mac, the LAN server: `python3 hub/lan.py serve` (leave it running).
-3. `deploy/install_v2.sh openhome@<devkit> --start`. The kiosk stops, the loop
-   starts, the ready tune plays.
+Do not redeploy, start a second microphone consumer, or switch to duplex.py as test setup. Installation agreement has already been verified. The kiosk is inactive; keep one microphone owner. Switching to OpenHome platform voice is a separate coordinated step after account ability registration.
 
-## The turns
+## Verified starting point
 
-Say **"hey mycroft"**, then the phrase. That is the wake word: the product word has a
-model that does not ship because it wakes at an empty room, and `KNOWN-BUGS.md` has the
-measurements. Tick each line only if the sound and the words were both right.
+The source/support comparison matches 168 files and three Astral service definitions. Both Python interpreters match kernel 2.2.3. Schema 26 retains 191 physical sources and 412,863 passages. These facts do not establish human audibility.
 
-| Say | Expect to hear | Path |
+The actual app speaker slider was exercised and restored to 14%; microphone sensitivity remains 160%. Pointer changes reached both the physical mixer and saved SPEAKER_VOLUME. In the observed Safari control, arrow keys changed the display without committing to the device; clicking the focused slider committed the selected value. Re-read the mixer and saved setting rather than trusting the displayed number.
+
+The completed one-hour native WebSocket observer returned 183/183 correct answers before library 26 activation. It bypassed acoustic capture, recognition and audible speech. Do not count it as the human voice pass.
+
+## Read-only preflight
+
+On the Mac:
+
+~~~sh
+ssh -i ~/.ssh/id_ed25519 -o IdentitiesOnly=yes -o BatchMode=yes -o ConnectTimeout=8 openhome@<devkit>
+~~~
+
+Then on the DevKit:
+
+~~~sh
+systemctl --user is-active astral-hub.service astral-ability.service astral-slate.service
+systemctl --user is-active openhome-dashboard.service
+wpctl get-volume @DEFAULT_AUDIO_SINK@
+wpctl get-volume @DEFAULT_AUDIO_SOURCE@
+~~~
+
+The three Astral services should be active and the kiosk inactive. The second command therefore normally exits nonzero. Speaker and microphone should read 0.14 and 1.60. If state differs, investigate the actual owner/process before starting another loop.
+
+Use bounded recording/log tools only for identified test turns. Retain prompt, trial time, captured signal, ASR, route, response and actual audible outcome. Mark empty, missed and incorrect trials explicitly. A log event without human ground truth is neither a proved success nor a proved false wake.
+
+## Controlled short and long requests
+
+Have the creator speak these through the HAT at the agreed position. Repeat matched short/long pairs in a quiet room and the chosen representative room condition. Keep all attempts in the denominator.
+
+| Trial | Say | Independent acceptance target |
 |---|---|---|
-| what time is it | wake cue, working tick, accept chime, the time in Honolulu | tier 0 |
-| twenty percent of eighty | accept, "20 percent of 80 is 16." | tier 0 |
-| one third plus one sixth | accept, "One third plus one sixth is one half." | tier 0, oracle-verified |
-| mass of earth | accept, "The mass of Earth is about 5.97 times ten to the 24 kilograms." | tier 0 |
-| how much space is left | accept, the card's size and free space | device |
-| how hot are you | accept, processor temperature | device |
-| list abilities | accept, "1 local ability installed: astral." | device |
-| set a timer for one minute | accept, "Timer set for 1 minute."; one minute later: accept, "Your 1 minute timer is up." | hooks |
-| integral of two x d x | working tick, then the integral | algebra, on the device |
-| the weather is nice today | nothing at all | silent |
-| tell me a joke | accept, a joke, and a different one next time | small talk |
-| what can you do | accept, the classes that fit this device, counted | meta |
-| why didn't that work | accept, the live reason the last turn was silent | meta |
-| define shell | accept, the first sense and how many there are | dictionary |
-| sing twinkle twinkle | the tune played, the words spoken in time | songs |
-| quiz me on physics | accept, the card count, then the first question; answer it, then say stop | flashcards |
-| what is a lighthouse | working tick for about two seconds, then what it read | comprehension |
-| derivative of x squared | working tick, then 2 x | algebra, on the device |
-| solve 2x + 3 = 11 for x | nothing: it does not have a solver and will not guess | refused |
-| square root of minus four | nothing | refused |
+| A01 | Open brain, what time is it? | Wake detected; current local time spoken. |
+| A02 | And in London? | During the follow-up window, complete the prior time request for London. |
+| A03 | Open brain, twenty percent of eighty. | Numerical result 16. |
+| A04 | Open brain, please calculate twenty percent of eighty for me. | Same result as A03, with longer wording captured. |
+| A05 | Open brain, convert ten pounds to kilograms. | Approximately 4.5359 kilograms; no unit reversal. |
+| A06 | Open brain, how do you say hello in French? | A French translation, not a generic time-of-day greeting. |
+| A07 | Open brain, hello, what time is it? | The time request wins over the greeting prefix. |
+| A08 | Open brain, solve two x plus three equals eleven for x. | x=4. This equation is supported. |
 
-## The suite, on the device
+Replay the two previously empty quiet-room captures using their original recorded stimulus identities too. These examples do not erase those failures. Distinguish missing captured signal from empty ASR and routing rejection.
 
-```
-ssh openhome@openhome.local
-cd ~/astral-voice/hub-v2 && ~/astral-voice/kws-venv/bin/python3 tests/run.py --quiet
-```
+For matched negatives, have the creator deliberately read the designated non-addressed room statements, including the embedded-command regression phrase retained in the audit. Observe the agreed ambient interval with human labels. Do not deliberately issue a real command and label its execution a false positive.
 
-Everything the device can prove about itself, including the kernels the Mac does not
-have. Then:
+Record wake detection, false activation, missed/empty capture, exact-answer success and end-of-speech to first-audible-response latency separately. Report counts and distributions; do not combine native typed and acoustic latencies.
 
-## Measure while it runs
+## Timers and mutable capabilities
 
-`ssh` in and run `python3 measure_costs.py` inside `~/astral-voice/hub-v2` while the loop
-is listening. That profile, not the idle one, is the fits table the device ships with.
-Copy `data/costs/pi4-8g-arm64.json` back into the workspace.
+Inspect existing owner timers, notes and settings first. Use an identifiable test timer only when it can be distinguished from owner timers. Exercise create, query, expiry and cancellation of that test item. Do not use global cancel/delete against unknown owner state.
 
-## Through OpenHome's own routing
+Test historical cancel-versus-stop routing in isolation when no safe owner-free timer is available. Installed regressions prove software routing, not human acoustic cancellation. Temporary notes/settings scenarios also need named test items and restoration checks.
 
-Their wake word, their transcription, our answers. The ability is refreshed on every
-deploy at `~/openhome_devkit/local_capabilities/astral/devkit_functions.py`, and it is
-answering today's engine, checked through the exact call the node server makes:
+## Human interruption
 
-```
-ssh openhome@openhome.local
-cd ~/openhome_devkit/local_capabilities/astral
-python3 devkit_functions.py respond what time is it
-python3 devkit_functions.py respond solve 2x + 3 = 11 for x     # says nothing, correctly
-```
+Use the running live_hub service. While it speaks an agreed sufficiently long answer, say the wake phrase and a different short request. Verify actual playback stops, the new request is captured and its answer is correct. Measure interruption-to-stop latency and retain prior/new context evidence.
 
-To hear it by voice this way, the trigger words have to be registered on agent 595324 at
-app.openhome.com, which is the one step an agent cannot do. Until then this mode answers
-only when invoked directly, as above. Note also that a cloud sync of abilities overwrites
-that directory, so re-run the deploy after one.
+Repeat during listening/thinking and with a false interruption. The latter must not corrupt context or abandon a valid answer. Do not substitute duplex.py fixtures or log lines for measured human interruption.
 
-## The duplex loop, if you want to try it
+## Actual app controls and account path
 
-The service runs the half-duplex loop, which finishes a sentence before it listens again.
-The duplex loop hears you while it talks:
+Use the existing signed-in OpenHome account. Under OpenHome DevKit → Microphone & devices, inspect the selected HAT, pro-audio profile and speaker control. Preserve microphone sensitivity, interruption toggles, account abilities and other settings. Check a small reversible speaker change against both wpctl and persisted SPEAKER_VOLUME, then restore its starting value. Human audibility is separate.
 
-```
-systemctl --user stop astral-hub
-cd ~/astral-voice/hub-v2 && ~/astral-voice/kws-venv/bin/python3 duplex.py
-```
+Astral agent 595324 exists and device-key SDK access works. Its explicit SDK matching_capabilities list is empty, separately from 17 globally installed/enabled abilities. Do not replace one list with the other. The saved Astral draft is unfinished and its resume currently renders blank.
 
-Say the wake word while it is answering and it stops mid-sentence and listens. For a few
-seconds after it finishes, ask the next thing without the wake word at all. Ctrl-C, then
-`systemctl --user start astral-hub` to put the service back.
+The native shim answers through root Python and the owner bridge. Direct/local-WebSocket requests prove that native path only. To prove account routing, retain registration/upload and assignment receipts, coordinate one microphone owner, and correlate spoken platform input with the intended capability ID and device execution. No new account or GPT-app sign-in is needed.
 
-## After
+Do not start a hosted model merely to produce a green check when local-only operation is required. Stored hosted-agent settings do not prove local inference.
 
-`systemctl --user stop astral-hub && systemctl --user start openhome-dashboard` puts the
-kiosk back. The log is `~/astral-voice/astral-hub.log`; every turn writes a `[route]` and
-a `[rank]` line.
+## Completion record
+
+Every trial needs an observed outcome: passed, failed, skipped with a reason, or not run. Preserve prior failures and repairs. Record final source/index/package identities, services and restored state.
+
+[HANDOFF](../HANDOFF.md) and [known limitations](../KNOWN-BUGS.md) retain current status. Human wake, short-capture, interruption and audible app/platform acceptance remain open until actual evidence is collected.
