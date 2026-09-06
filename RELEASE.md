@@ -5,7 +5,8 @@ The ability's exact requirements dependency was downloaded successfully on the D
 `pip download --no-deps --require-hashes`. Its bytes and an independent unauthenticated
 public download match the target-built artifact installed in both device interpreters.
 The exact updated ability package passes `openhome validate community/astral`.
-Platform authentication, deployment, assignment and spoken routing remain separate and open.
+Existing Safari account access is verified. Ability deployment, assignment and spoken
+platform routing remain separate and open; local CLI credential setup is not implied.
 
 | Artifact property | Verified value |
 |---|---|

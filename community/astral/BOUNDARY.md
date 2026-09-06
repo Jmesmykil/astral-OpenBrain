@@ -62,13 +62,14 @@ Three ways an answer can arrive, in this order:
 
 ## Two things a reviewer will reasonably ask about
 
-**Why does the shim shell out to `sudo`?** Only to cross back to the account that owns
-the local hub, and only when that hub is installed. The platform runs this file as
-`sudo python3 devkit_functions.py`, so it runs as root, and as root every path the hub
-resolves from a home directory lands in `/root`, where none of its data is. Measured on
-the device: the same questions answer as the owner and answer nothing as root. On a
-DevKit with no hub the branch is never taken; `os.path.exists(BRIDGE)` is the first thing
-it checks.
+**Why does the shim cross into the owner account?** The platform invokes the shim as
+root, but the hub's library and state belong to `openhome`. The normal path sends the
+request to the private owner socket, verifies its ownership and peer identity, and uses
+a bounded request worker. If the socket is unavailable before dispatch, the shim falls
+back to `sudo -u openhome` for the existing bridge CLI. It never retries through the CLI
+after an uncertain handed-off result. Explicit audit-state requests bypass the resident
+service. On a DevKit without the hub, the compiled dependency provides its supported
+answer classes. See [the owner bridge](../../deploy/OWNER-BRIDGE.md).
 
 **Where does `astral-kernel` come from?** It is built in the author's private hub repository
 with `build_kernel.py` and published as a compiled GitHub release asset. The DevKit target

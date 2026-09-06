@@ -1,5 +1,20 @@
 # Handoff: Astral on the OpenHome DevKit
 
+## Account package and control boundary — September 5, 2026
+
+The [control-socket restriction](deploy/PLATFORM-BOUNDARY.md) is deployed. The previous
+root wildcard websocket exposed its API-key field to unauthenticated LAN connections.
+LAN access is now refused; foreign browser origins and Host headers are rejected.
+Oversized frames no longer crash the connection handler. Five live boundary checks
+and three native answer checks passed; all46 protected hashes, three user services
+and14/160 audio levels were unchanged. Prior key exposure needs owner rotation.
+
+The foreground README now constructs a validated seven-file ZIP and explains separate
+CLI metadata. Mock upload proves only file/argument handling. Safari's existing Astral
+draft opened a blank workspace on resume; no draft was replaced or uploaded. Actual
+platform, voice/app and soak acceptance remains open.
+
+
 ## Native deadlines — September 5, 2026, 13:36 HST
 
 The native shim now gives answer-plus-offer one 12-second budget and reserves reply
