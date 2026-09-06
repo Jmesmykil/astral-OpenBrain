@@ -1,36 +1,35 @@
 # Kernel release procedure
 
-[Release 2.2.3](https://github.com/Jmesmykil/astral-OpenBrain/releases/tag/v2.2.3) is published.
-The ability's exact requirements dependency was downloaded successfully on the DevKit with
-`pip download --no-deps --require-hashes`. Its bytes and an independent unauthenticated
-public download match the target-built artifact installed in both device interpreters.
-The exact updated ability package passes `openhome validate community/astral`.
-Existing Safari account access is verified. Ability deployment, assignment and spoken
-platform routing remain separate and open; local CLI credential setup is not implied.
+[Release 2.2.4](https://github.com/Jmesmykil/astral-OpenBrain/releases/tag/v2.2.4) is published.
+The ability's exact requirements dependency was downloaded on the DevKit with
+`pip download --no-deps --require-hashes` and its bytes match the artifact installed in both
+device interpreters; an independent unauthenticated public download matches as well. The
+updated ability package passes `openhome validate community/astral`. Ability deployment,
+assignment and spoken platform routing remain separate and open.
 
 | Artifact property | Verified value |
 |---|---|
-| File | `astral_kernel-2.2.3-cp313-cp313-linux_aarch64.whl` |
-| Size | 474035 bytes |
-| SHA256 | `68378bef23dc3d53387689130bba192cd9f4293107d7f86a10a605ce6e32ff8f` |
-| Generated input | `9fca5603fc4f9a10e240b404cab54a2166b1fba272909242ef052d3916f47cc4` |
-| Build source | private hub `13969e80be21ca1badfd0eeff7a12494f4f417f6` |
-| Verified companion hub | `63fa1668ef345b21a17ac7c8de3f04ce78f7c6bc`; compiled inputs unchanged |
-| Release target | public `a3a50785dc8d904c07acca8b6295382c52c5b7f4` |
+| File | `astral_kernel-2.2.4-cp313-cp313-linux_aarch64.whl` |
+| Size | 492916 bytes |
+| SHA256 | `04b35dbc1da8c419d631876d27c839140453ff9d5182f40e3dbcae5a46a7558a` |
+| Generated input | `2ba075e655022dfbecf86d96d2224bb9613d58df938e38b620c26266d22c4208` |
+| Compiled extension | `29c630a6da1ab01c8c2760d3635c5cf901651f95645c9e4b9abedd5a5ecd22d5`, byte-identical in both device interpreters |
+| Verified companion hub | `75b9da2`; device full suite 5,023 held, zero failed, five skipped |
 | Target | CPython 3.13 / Linux aarch64 |
 | Engine metadata license | Proprietary |
 
 The MIT ability shim remains readable and separate. The wheel packages the compiled
 extension, public wrapper, build manifest and distribution metadata; no private Python,
-Cython or C source is included. Timer persistence changes are compiled into the wheel.
-Library, voice, notes/settings and shared mathematics-server repairs require the companion
-hub deployment. See [HANDOFF.md](HANDOFF.md) for the exact layered tests and open acceptance.
-
-The release receipt is under
-`~/private-workspace/projects/openhome/audits/2026-09-05-ponytail-premortem/release/`.
-It retains build/installed identity, publication, public-download and exact consumer receipts.
+Cython or C source is included. Library, voice, notes/settings and shared mathematics
+repairs require the companion hub deployment, not the wheel alone. See
+[HANDOFF.md](HANDOFF.md) for the layered tests and the open acceptance.
 
 ## Preserve immutable versions
+
+Existing [2.2.3](https://github.com/Jmesmykil/astral-OpenBrain/releases/tag/v2.2.3)
+remains unchanged: 474035 bytes, SHA256
+`68378bef23dc3d53387689130bba192cd9f4293107d7f86a10a605ce6e32ff8f`. Its asset size was
+rechecked after publishing 2.2.4.
 
 Existing [2.2.2](https://github.com/Jmesmykil/astral-OpenBrain/releases/tag/v2.2.2) remains
 unchanged: 460607 bytes, SHA256
