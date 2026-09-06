@@ -1,5 +1,71 @@
 # Astral, known bugs and limitations
 
+## Current runtime verification — September 6, 2026
+
+The DevKit runs private hub `75b9da2` and kernel **2.2.4** in both interpreters. The full
+device run passed **5,023 checks, zero failures, five documented skips**, including all
+hostile inputs. The Mac full run passed 4,924 with twelve skips. These runs overlap and
+must not be added together.
+
+Three defects found in the room were reproduced, repaired and gated this day.
+
+**Long questions lost their ending.** The whisper window was pinned at 512 encoder frames,
+which is 10.24 seconds at 20 ms a frame, while the recorder was allowed to hand it MAX_SEC
+plus a seed, about fifteen. Nothing compared the two numbers. A 13.4 second question came
+back missing its final clause, identically from a clean recording and a noisy one, which is
+what identified the window rather than the room. The window is now sized to each capture.
+Measured on the device against the recording that failed: at 512 the transcript stops at
+"becomes active", at 697 it runs to the end. Short commands are unchanged at 2.66 s and
+3.99 s. The separate 12.2 second timeout recorded earlier is NOT explained by this and
+remains open; that file is short speech padded with silence and transcribes correctly at
+either setting.
+
+**Pages laid out in columns were read straight across.** DK sets a body column beside
+numbered captions and the extractor reads the page the way a printer does, so the library
+held "Hawaii's Big Island lies Kilauea volcano on The huge volcanoes above the hotspot,
+which the southern flank of..." — captions interleaved word by word, every word present in
+an order nobody wrote. Columns are now unwound before a page is paragraphed. The guards
+matter more than the unwinding: a table keeps its rows, a block with no column structure is
+untouched, a column must be sustained across adjacent lines and may miss at most one, and a
+caption is kept whole rather than dropped for being short. Over all 211 pages of one volume:
+105 pages reordered, 595 passages to 1,163, 315 words recovered that the old floor was
+dropping, and of the words that leave the passage text only 44 have lower-case in them —
+every one a diagram label of one or two words, which previously survived only inside a
+garbled run-on. No piece of three words or more is lost.
+
+**Two requests in one breath were answered with silence.** "turn off the lights and close
+the blinds" parsed as a device named "lights and close blinds", and "turn on the lamp and
+turn off the fan" as "on lamp and turn" carrying OFF. The name guards already refused to
+publish those, so no malformed MQTT target was ever sent and no half of a request was
+carried out; what was missing is that the device said nothing at all. It now names both
+halves and does neither.
+
+**The local layer stopped cutting the cloud agent off mid-word.** The background daemon
+preempts the cloud agent by interrupting it, which is the cost ranking made audible: the
+device wins the turn when it is cheaper AND faster. Only the first half was checked. The
+foreground `respond()` is allowed twelve seconds and answers a slow engine with a sentence
+of its own, so the daemon could sit through the agent's whole reply and then sever it to
+report that the local side had been slow. The daemon now asks `respond_now`, whose budget
+is one second, and it does not interrupt at all once two seconds have passed since the turn
+appeared: after that the cloud's answer is the ranked outcome. The budget is measured, not
+picked — a native callback's median round trip here is 181-203 ms and a tier-0 answer
+computes in under 1.4 ms. A timer coming due still interrupts, and so does the
+once-a-session health sentence, because `speak()` without an interrupt does not wait its
+turn on this platform and two voices at once is worse than one clean cut.
+
+The library index is schema 31 with **574,308 passages across 191 files**. On the device,
+"how do islands form", "ring of fire", "what causes earthquakes" and "volcano" now each
+return a readable passage first; the first three returned woven text before this work.
+
+**Still open.** DK's most heavily designed spreads, where display lettering is set through
+the body text, can still come back interleaved in a lower-ranked hit. Kernel 2.2.4 is built,
+installed and verified on the device but is NOT published: `community/astral/requirements.txt`
+therefore still pins the published 2.2.3, which remains a valid package. Publication needs
+the owner. Human wake, room, interruption and audibility acceptance remain open, as does
+platform spoken-session routing, the wake-word false-activation corpus (R07), and the
+remaining capability and library semantic breadth. Earlier dated sections below are
+historical snapshots.
+
 ## Current runtime verification — September 5, 2026, 20:02 HST
 
 Private hub 7a88d13d71629d507cf76e7edca74f612bf62e00 is deployed. All 30 device suites passed: **4,367 checks, zero failures, five documented skips**, including all 419 hostile inputs. The run preserved 115 source hashes, 47 protected file hashes, audio levels, actual user services and the live Slate child. Registered native requests passed 3/3 before and after. The test-owned kernel was cleaned up with no running descendants. The compiled 2.2.3 artifact is unchanged.
