@@ -85,7 +85,7 @@ fi
 # "devkit_functions.py not found", which it reads as "not mine" and goes quiet for good.
 if [ -e "$SHIPPED/devkit_functions.py" ]; then
   mkdir -p "$CAPS/astral-daemon"
-  cp "$SHIPPED/devkit_functions.py" "$CAPS/astral-daemon/"
+  cp "$SHIPPED/devkit_functions.py" "$SHIPPED/requirements.txt" "$CAPS/astral-daemon/"
   echo "daemon:     $(md5sum "$CAPS/astral-daemon/devkit_functions.py" | cut -c1-8) in local_capabilities/astral-daemon"
 fi
 
