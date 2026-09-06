@@ -1,5 +1,16 @@
 # Handoff: Astral on the OpenHome DevKit
 
+## Current account and repeat deployment — September 5, 2026, 17:50 HST
+
+The existing account key works. Astral is registered as `jamesmykilastral`, installed on the DevKit and assigned to the existing Astral agent. The original17 installed abilities and the other7 agents were preserved. Three actual Node/Python/shim/hub requests through the registered name pass. This is not a platform spoken-turn receipt.
+
+The companion installer now refreshes names explicitly recorded in `~/astral-voice/state/openhome-capability-names.txt`, one alphanumeric registration name per line. It preserves existing names, platform metadata and the canonical `astral`/`astral-daemon` copies. Keep this owner-state file with device configuration when migrating; do not infer managed folders by scanning arbitrary capability code. Malformed names and symlink targets fail before copying. Current Mac deployment checks:70 held,0 failed,0 skipped. Installed device:63 held,0 failed,1 skipped (the Mac-only restart group). The real refresh preserved46 owner hashes, capability contents, audio levels and service processes.
+
+The account's committed initial release and editable release contain identical archive bytes. OpenHome renamed the uploaded Python class to match the registration name; a source hash difference alone is not evidence of a changed algorithm. Actual platform runtime selection and physical voice acceptance remain unverified. The corrected persistent CLI uses the existing API key without requiring a JWT;14 auth/name checks, typecheck and build pass. No new account, credential or inference provider was introduced.
+
+Still open: platform spoken routing, human wake/room/interruption/audibility acceptance, the full capability/library semantic matrix, final regression and source publication. Earlier dated sections below retain historical states; use this section and the local acceptance ledger for current account status.
+
+
 ## Actual app control — September 5, 2026, 16:50 HST
 
 The authenticated DevKit speaker control changed the actual mixer and saved setting from 14% to 17%; both were restored to 14%. Mic sensitivity stayed 160%, other environment content hashes and the three Astral service identities were unchanged. An intermediate pointer attempt displayed 21%; the exact original value was then selected with keys and committed by clicking the slider. No audio playback was used, so human audibility remains open.
@@ -16,7 +27,7 @@ Existing device-key SDK access returns200 for Astral595324. Its explicit matchin
 
 Installation agreement is verified for this snapshot. Remaining account integration, human voice/app acceptance, broader semantic coverage and final publication are still open.
 
-## Current deployment — September 5, 2026, 16:11 HST
+## Historical deployment — September 5, 2026, 16:11 HST
 
 Private hub879a0444d9c984072d4b10aafc923b373c0835e8 is deployed. All109 installer-selected Python files match the local source. E13 prevents the diagnostic soak from touching persistent state or hardware; E14 preserves complete subtitle text; E15 preserves PDF printed-page labels and technical code. The schema26 index retains191 physical sources and now contains412,863 passages. Four visually checked PDF pages pass17 selected live-index predicates; this is bounded semantic evidence.
 
@@ -214,17 +225,15 @@ preserved. Approved mastered sounds play as authored.
 The persistent CLI is the creator's fork, installed under `~/.local/share/openhome-cli`,
 with its validator fix. An advertised upstream update has not been substituted for it.
 
+Use the existing authorized account key through an ephemeral CLI environment for account reads. The account-specific registration already exists; do not create a duplicate or delete it to update it.
+
 ```sh
-openhome login
 openhome validate community/astral
-openhome deploy community/astral --name Astral --category local --json
-openhome assign
-openhome trigger "what time is it"
+openhome list --json
+openhome status jamesmykilastral --json
 ```
 
-Authentication requires the owner. Keep credentials out of transcripts and retain sanitized
-platform receipts. A local validator, copied DevKit files and typed shim calls do not prove
-platform registration, assignment or a spoken platform turn.
+A new registration requires an actual ZIP and an alphanumeric account name; directory-only deploy is invalid. Preserve existing account records and use the supported in-place release update API/editor for updates. Local package validation, typed native calls, assignment read-back and physical voice are distinct acceptance surfaces. Platform voice testing must also respect the local-only inference boundary; do not start a hosted conversation merely to obtain a green result.
 
 With the owner present, record real wake positives and matched overheard negatives, short
 and long requests, time→London/date follow-ups, timer cancellation, and interruption while

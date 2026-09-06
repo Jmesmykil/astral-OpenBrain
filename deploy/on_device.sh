@@ -72,22 +72,43 @@ SHIPPED=~/astral-voice/hub-v2/shipped
 for f in devkit_functions.py requirements.txt; do
   [ -s "$SHIPPED/$f" ] || { echo "ability: missing or empty $SHIPPED/$f" >&2; exit 1; }
 done
-if [ -d "$CAPS/astral" ]; then
-  cp "$SHIPPED/devkit_functions.py" "$SHIPPED/requirements.txt" "$CAPS/astral/"
-  echo "ability:    $(md5sum "$CAPS/astral/devkit_functions.py" | cut -c1-8) and requirements refreshed in local_capabilities/astral"
+# Account registration names can differ from the public package name. This owner
+# list survives hub syncs and contains one verified alphanumeric name per line.
+# Account sync installs the named folder; an upgrade must refresh that folder too.
+REGISTRATIONS=~/astral-voice/state/openhome-capability-names.txt
+TARGETS=(astral-daemon)
+if [ -d "$CAPS/astral" ]; then TARGETS+=(astral); fi
+[ ! -L "$CAPS" ] || { echo "ability: capability root is a symlink" >&2; exit 1; }
+[ ! -L "$REGISTRATIONS" ] || { echo "ability: registration list is a symlink" >&2; exit 1; }
+if [ -e "$REGISTRATIONS" ]; then
+  [ -f "$REGISTRATIONS" ] || { echo "ability: registration list is not a file" >&2; exit 1; }
+  while IFS= read -r name || [ -n "$name" ]; do
+    [ -n "$name" ] || continue
+    [[ "$name" =~ ^[A-Za-z][A-Za-z0-9]*$ ]] || {
+      echo "ability: invalid registration name" >&2; exit 1;
+    }
+    # A repeated name does not need another copy.
+    seen=0
+    for target in "${TARGETS[@]}"; do [ "$target" != "$name" ] || seen=1; done
+    [ "$seen" = 1 ] || TARGETS+=("$name")
+  done < "$REGISTRATIONS"
 fi
-
-# The background daemon is a SECOND ability upload (one category per ability), so the node
-# server resolves its device calls under its own name — it reads
-# local_capabilities/<capability_name>/devkit_functions.py and does not care which category
-# asked. Nothing syncs a device file for a non-local ability, so the directory is made here
-# and given the same engine. Without it the daemon's every call returns
-# "devkit_functions.py not found", which it reads as "not mine" and goes quiet for good.
-if [ -e "$SHIPPED/devkit_functions.py" ]; then
-  mkdir -p "$CAPS/astral-daemon"
-  cp "$SHIPPED/devkit_functions.py" "$SHIPPED/requirements.txt" "$CAPS/astral-daemon/"
-  echo "daemon:     $(md5sum "$CAPS/astral-daemon/devkit_functions.py" | cut -c1-8) in local_capabilities/astral-daemon"
-fi
+# Check every target before changing the first. Never follow an alias or entrypoint
+# symlink into owner files. Existing config/README/platform metadata stay untouched.
+for name in "${TARGETS[@]}"; do
+  target="$CAPS/$name"
+  if [ -L "$target" ] || { [ -e "$target" ] && [ ! -d "$target" ]; }; then
+    echo "ability: invalid target $name" >&2; exit 1
+  fi
+  for f in devkit_functions.py requirements.txt; do
+    [ ! -L "$target/$f" ] || { echo "ability: symlink entrypoint in $name" >&2; exit 1; }
+  done
+done
+for name in "${TARGETS[@]}"; do
+  mkdir -p "$CAPS/$name"
+  cp "$SHIPPED/devkit_functions.py" "$SHIPPED/requirements.txt" "$CAPS/$name/"
+  echo "ability:    shim and requirements refreshed in local_capabilities/$name"
+done
 
 mkdir -p ~/astral-voice/state ~/.config/systemd/user
 # Native ability calls already arrive as independent processes. Preload the router

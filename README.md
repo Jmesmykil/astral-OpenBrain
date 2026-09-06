@@ -14,7 +14,7 @@ reliability, audible playback, human interruption or successful platform assignm
 | Mode | Who handles speech | Where answers run | Status |
 |---|---|---|---|
 | Local loop | Vosk wake recognition, whisper.cpp transcription and Piper speech on the DevKit | Local hub, compiled/table engines, native mathematics and optional local model | Running on the development DevKit; acoustic acceptance remains open |
-| OpenHome local ability | OpenHome's own speech and agent runtime | The DevKit shim asks the local hub, then the compiled kernel | Package validates; account login, platform deployment and assignment remain open |
+| OpenHome local ability | OpenHome's own speech and agent runtime | The DevKit shim asks the local hub, then the compiled kernel | Registered, installed and assigned on the development account; three native checks pass; platform spoken acceptance remains open |
 
 The local loop and OpenHome's kiosk share one microphone. Run one at a time. In OpenHome
 mode, speech handling belongs to the platform; device-side computation does not make
