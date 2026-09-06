@@ -73,7 +73,7 @@ deploy/install_v2.sh openhome@<devkit> --start
 `--full` examines every hostile-input case without the normal discovery time cap. The
 runner separates held, failed and skipped checks. Regression and stress runs own a
 temporary Slate service and clean up its processes; they never fall back to the live
-math socket. The latest device full run passed 4,342 checks with zero failures and five
+math socket. The latest device full run passed 4,367 checks with zero failures and five
 explicit skips, while preserving live math availability. Tests that use fake speech
 channels are software checks, not proof that a person can interrupt or be heard in the room.
 

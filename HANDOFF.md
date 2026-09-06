@@ -1,6 +1,18 @@
 # Handoff: Astral on the OpenHome DevKit
 
-## Current runtime verification — September 5, 2026, 19:03 HST
+## Current runtime verification — September 5, 2026, 20:02 HST
+
+Private hub 7a88d13d71629d507cf76e7edca74f612bf62e00 is deployed. All 30 device suites passed: **4,367 checks, zero failures, five documented skips**, including all 419 hostile inputs. The run preserved 115 source hashes, 47 protected file hashes, audio levels, actual user services and the live Slate child. Registered native requests passed 3/3 before and after. The test-owned kernel was cleaned up with no running descendants. The compiled 2.2.3 artifact is unchanged.
+
+Schema27 retains all **191 source files** and contains **417,340 passages**. A final independent census found no missing files, changed source hashes, unread inputs or chunk-count mismatches. The repairs preserve words separated by wide OCR column spacing, remove lookup request scaffolding from the topic, and distinguish exact qualified API names such as json.load and json.loads. All 71 non-gzip source chunk counts and the 17 predicates from four visually reviewed PDF pages were preserved. Seven targeted raw-word predicates and 46 installed retrieval scenarios passed.
+
+Thirty alternating-order warm repetitions per question compared both lookup implementations against the same index. Fraction documentation remained correct and median handler time fell from 323 ms to 9.5 ms; json.load remained correct and fell from 321 ms to 7.3 ms. All 180 revised answers passed their oracles. Some previous answers were incorrect, so their latency is not presented as equivalent successful work. These are text-handler measurements; they exclude microphone, ASR, TTS and platform spoken-session latency.
+
+The existing account is verified, and Astral is registered, installed and assigned. An in-app browser sign-in is not required. Remaining work includes human wake/follow-up speech, interruptions, audibility, platform spoken-session acceptance, broader capability scenarios and source publication. Some OCR sources still interleave columns; preserving their words does not establish the intended reading order of every page. Code and data shelves are currently empty. Original requirements remain seven verified within scope and ten open or partial.
+
+The schema26/source rollback is retained at /home/openhome/astral-voice/platform-hardening/library27-v1/rollback. Local acceptance records include LIBRARY27-DEPLOYMENT-RECEIPT.json, FULL-DEVICE-V4-RECEIPT.json and the personal Ponytail/pre-mortem review. Source commits have not been pushed. Earlier dated snapshots below are historical and may describe issues subsequently resolved.
+
+## Previous runtime verification — September 5, 2026, 19:03 HST
 
 Private hub `fbd3e7d620c151a3e617b2c81394fb30b49817c2` is deployed. The full device run completed all 30 suites and all 419 hostile inputs: **4,342 held, zero failed, five explicitly skipped**, in 149 seconds. All 115 selected Python/support source hashes and 47 protected file hashes stayed unchanged during the run. Audio levels, actual user-service processes and the live Slate child stayed unchanged. Three registered native requests passed before and after; the final equation response was `x = 4` in 181 ms. This is a software/native-path observation, not an acoustic latency measurement.
 
