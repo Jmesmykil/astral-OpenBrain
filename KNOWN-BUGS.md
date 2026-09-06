@@ -66,9 +66,22 @@ resolves the exact pinned dependency under `pip download --require-hashes`; and 
 package passes `openhome validate`. `community/astral/requirements.txt` now pins it, and all
 three capability folders on the device carry it. Existing 2.2.3 and 2.2.2 are unchanged.
 
+**The transcription timeout is explained, and it is not what it looked like.** It was
+recorded as a single unexplained 12.2 second failure. The log holds **46 of them**, spread
+across 2026-09-02 to 2026-09-06 in 22 clusters, every one `timed out after 20 seconds` at
+`-ac 512`. The captures that preceded them run from **2.6 seconds to 14.0**, and a 2.6
+second clip normally transcribes in about 2.5 — so this is not about audio length and never
+was. It is CPU contention: whisper runs `-t 4` on a four-core board that is also hosting a
+resident language model, the Slate kernel and the loop itself, and when they collide a short
+capture can exceed a twenty-second wall. The turn is then lost silently, because a
+transcription failure returns an empty string and an empty string means "nobody said
+anything" — correct for a false wake, wrong for a question. Choosing between a longer wall,
+fewer whisper threads, and saying something out loud when a turn is dropped changes what
+the device does while somebody is waiting, so it is the owner's call rather than a tuning
+detail.
+
 **Still open.** DK's most heavily designed spreads, where display lettering is set through
-the body text, can still come back interleaved in a lower-ranked hit. The 12.2 second
-transcription timeout is not explained by the window repair. Human wake, room, interruption
+the body text, can still come back interleaved in a lower-ranked hit. Human wake, room, interruption
 and audibility acceptance remain open, as does platform spoken-session routing and the
 remaining capability and library semantic breadth. The wake-word false-activation evidence
 is now measured — see the engine-side `acceptance/room-noise-v1/FINDINGS.md` — but it is log
