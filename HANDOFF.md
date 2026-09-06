@@ -57,13 +57,22 @@ The library index is schema 31 with **574,308 passages across 191 files**. On th
 "how do islands form", "ring of fire", "what causes earthquakes" and "volcano" now each
 return a readable passage first; the first three returned woven text before this work.
 
+**Kernel 2.2.4 is published** at
+[v2.2.4](https://github.com/Jmesmykil/astral-OpenBrain/releases/tag/v2.2.4), 492,916 bytes,
+SHA256 `04b35dbc…`. Its compiled extension is byte-identical to the one installed in both
+device interpreters; the current sources reproduce the recorded input fingerprint
+`2ba075e6…` exactly; an independent unauthenticated public download matches; the DevKit
+resolves the exact pinned dependency under `pip download --require-hashes`; and the updated
+package passes `openhome validate`. `community/astral/requirements.txt` now pins it, and all
+three capability folders on the device carry it. Existing 2.2.3 and 2.2.2 are unchanged.
+
 **Still open.** DK's most heavily designed spreads, where display lettering is set through
-the body text, can still come back interleaved in a lower-ranked hit. Kernel 2.2.4 is built,
-installed and verified on the device but is NOT published: `community/astral/requirements.txt`
-therefore still pins the published 2.2.3, which remains a valid package. Publication needs
-the owner. Human wake, room, interruption and audibility acceptance remain open, as does
-platform spoken-session routing, the wake-word false-activation corpus (R07), and the
-remaining capability and library semantic breadth. Earlier dated sections below are
+the body text, can still come back interleaved in a lower-ranked hit. The 12.2 second
+transcription timeout is not explained by the window repair. Human wake, room, interruption
+and audibility acceptance remain open, as does platform spoken-session routing and the
+remaining capability and library semantic breadth. The wake-word false-activation evidence
+is now measured — see the engine-side `acceptance/room-noise-v1/FINDINGS.md` — but it is log
+analysis, not a labelled corpus with a person in the room. Earlier dated sections below are
 historical snapshots.
 
 ## Current runtime verification — September 5, 2026, 20:02 HST
