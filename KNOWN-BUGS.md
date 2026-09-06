@@ -1,6 +1,32 @@
 # Astral, known bugs and limitations
 
-## Current deployment — September 5, 2026, 10:19 HST
+## Current acceptance — September 5, 2026, 15:02 HST
+
+[HANDOFF.md](HANDOFF.md) carries the current layered deployment record. Later local
+commits are not yet pushed; the published2.2.3 wheel remains unchanged.
+
+E01–E08 native package/sync/dispatch/startup/deadline corrections are recorded in the
+local acceptance ledger. E10 fixes the directory-versus-ZIP deployment instructions
+and inaccurate transport description; its seven-file foreground ZIP validates after
+extraction. E11 closes unauthenticated LAN access to the root3030 socket with a
+loopback/Origin/Host boundary and safe socket-error handling. The previously exposed
+OpenHome key still needs owner rotation; no misuse or credential rotation is claimed.
+
+E12 fixes a current-run room transcript accepted as a device command, including
+poisoned-context escalation. Its installed24 checks pass and the broader Mac/device
+scoped suites pass. Voice PID68707 is capturing; all46 protected hashes and14/160
+levels survived this correction. The one-hour runtime observation is in progress.
+
+Safari authentication is established. Resuming the existing astral draft rendered
+a blank workspace; no draft was discarded and no account ability was uploaded.
+Remaining work includes account deployment/assignment and actual platform speech,
+human wake/room negatives, short captures/follow-ups, interruptions, app-slider
+audibility, broader semantic/capability acceptance and the sustained-run result.
+Mac ENOSPC occurred during the audit; later free space was704MiB. No unrelated
+project files were deleted. The older observations below remain dated history.
+
+
+## Historical deployment snapshot — September 5, 2026, 10:19 HST
 
 The reconnected DevKit runs private hub `63fa1668ef345b21a17ac7c8de3f04ce78f7c6bc`
 and kernel **2.2.3**. All 106 deployable Python files match the checkout. Both system

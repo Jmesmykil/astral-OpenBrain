@@ -1,5 +1,20 @@
 # Handoff: Astral on the OpenHome DevKit
 
+## Room speech and fallback commands — September 5, 2026, 15:02 HST
+
+The running service exposed an additional failure: ordinary room speech containing
+an embedded device verb passed the registry's question-only guard. A stale referent
+then made the fallback control reply worse. Private hub6476322 fixes the imperative
+boundary and checks original intent before device-pronoun substitution. Polite
+split-particle commands and legitimate turn-it-off follow-ups are preserved.
+
+The installed focused checks passed24/0/0. Affected Mac suites passed463/0/4 and
+staged device suites477/0/2; counts overlap. Voice restarted asPID68707 with its
+parec capture child. All46 protected hashes and14/160 audio levels were unchanged;
+other services stayed running. A one-hour runtime observer began15:02:25 HST.
+Its result remains pending and will not stand in for human acoustic acceptance.
+
+
 ## Account package and control boundary — September 5, 2026
 
 The [control-socket restriction](deploy/PLATFORM-BOUNDARY.md) is deployed. The previous
