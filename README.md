@@ -49,8 +49,14 @@ The development device is a Raspberry Pi 4 with 8 GB RAM, Python 3.13 and a 128 
 The wake phrases are “open brain” and “open home”; these are triggers, while the product
 name remains Astral. The rejected trained wake classifier is not the active detector.
 
+Pages laid out in columns are read in the order they were written rather than straight
+across, so a caption beside a body column is its own passage instead of being woven word
+by word into the text next to it. The most heavily designed spreads, where display
+lettering runs through the body text, can still come back interleaved.
+
 Library shelves hold reference material, documentation, code, datasets and books. The
-current audit counted 191 physical inputs and 35 named sources. File count, source count,
+current audit counted 191 physical inputs and 35 named sources, cut into 574,308
+passages. File count, source count,
 passage count and readable coverage are different measurements. The audit found damaged
 Britannica inputs and index-update defects; recovery and current counts are recorded in
 [HANDOFF.md](HANDOFF.md). Scanned images alone do not establish searchable coverage.
@@ -73,7 +79,7 @@ deploy/install_v2.sh openhome@<devkit> --start
 `--full` examines every hostile-input case without the normal discovery time cap. The
 runner separates held, failed and skipped checks. Regression and stress runs own a
 temporary Slate service and clean up its processes; they never fall back to the live
-math socket. The latest device full run passed 4,367 checks with zero failures and five
+math socket. The latest device full run passed 5,023 checks with zero failures and five
 explicit skips, while preserving live math availability. Tests that use fake speech
 channels are software checks, not proof that a person can interrupt or be heard in the room.
 
