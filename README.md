@@ -7,14 +7,14 @@ and optional local-model assistance.
 
 The current completion audit is in progress. Read [HANDOFF.md](HANDOFF.md) for deployment
 state, evidence and the remaining checks. Automated passes do not establish wake-word
-reliability, audible playback, human interruption or successful platform assignment.
+reliability, audible playback, human interruption or successful platform spoken routing.
 
 ## Two current ways to use it
 
 | Mode | Who handles speech | Where answers run | Status |
 |---|---|---|---|
 | Local loop | Vosk wake recognition, whisper.cpp transcription and Piper speech on the DevKit | Local hub, compiled/table engines, native mathematics and optional local model | Running on the development DevKit; acoustic acceptance remains open |
-| OpenHome local ability | OpenHome's own speech and agent runtime | The DevKit shim asks the local hub, then the compiled kernel | Registered, installed and assigned on the development account; three native checks pass; platform spoken acceptance remains open |
+| OpenHome local ability | OpenHome's own speech and agent runtime | The DevKit shim asks the local hub, then the compiled kernel | Registered, installed and assigned on the development account; native integration checks pass; platform spoken acceptance remains open |
 
 The local loop and OpenHome's kiosk share one microphone. Run one at a time. In OpenHome
 mode, speech handling belongs to the platform; device-side computation does not make
@@ -71,8 +71,11 @@ deploy/install_v2.sh openhome@<devkit> --start
 ```
 
 `--full` examines every hostile-input case without the normal discovery time cap. The
-runner separates held, failed and skipped checks. Tests that use fake speech channels
-are software checks, not proof that a person can interrupt or be heard in the room.
+runner separates held, failed and skipped checks. Regression and stress runs own a
+temporary Slate service and clean up its processes; they never fall back to the live
+math socket. The latest device full run passed 4,342 checks with zero failures and five
+explicit skips, while preserving live math availability. Tests that use fake speech
+channels are software checks, not proof that a person can interrupt or be heard in the room.
 
 Deployment verifies a wheel against its build inputs and verifies the installed bytes
 in both the system interpreter and the voice environment. A compiler, pip or kernel
