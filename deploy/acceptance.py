@@ -45,9 +45,13 @@ class Watcher:
 
     def __init__(self, host, key):
         self.lines, self.stop = [], threading.Event()
-        cmd = SSH + (["-i", key] if key else []) + [host, f"tail -n0 -F {LOG}"]
-        self.proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
-                                     text=True, bufsize=1)
+        cmd = SSH + (["-i", key] if key else []) + ["-n", host, f"tail -n0 -F {LOG}"]
+        # stdin=DEVNULL and ssh -n, both on purpose. ssh reads standard input, and this one
+        # runs for the whole pass beside a prompt that is also reading standard input — so
+        # without this it swallows the keystrokes meant for the questions and the pass dies
+        # on the first ENTER. Found by running the harness before handing it to anybody.
+        self.proc = subprocess.Popen(cmd, stdin=subprocess.DEVNULL, stdout=subprocess.PIPE,
+                                     stderr=subprocess.DEVNULL, text=True, bufsize=1)
         threading.Thread(target=self._read, daemon=True).start()
 
     def _read(self):
