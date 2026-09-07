@@ -54,6 +54,29 @@ rsync -rlt --delete --chmod=u=rwX,go=rX -e "${SSHC[*]}" \
   --include='data/library/reference/*.tsv' --include='data/library/reference/*.md' \
   --include='data/state/' --exclude='*' "$HERE/hub/" "$T:~/astral-voice/hub-v2/"
 rsync -lt --chmod=u=rwx,go=rx -e "${SSHC[*]}" "$HERE/deploy/on_device.sh" "$T:~/astral-voice/hub-v2/"
+# The documents and the installer travel too, read-only, so the device can audit its own
+# claims. Without them the honesty suite skipped on the device and RETURNED, taking the
+# wake-phrase checks with it — the machine that actually wakes to those words was the one
+# machine never checking that the README names them. Same for the installer: the rules
+# that put the sound pack on this card could only be read on the machine that sent it.
+"${SSHC[@]}" "$T" 'mkdir -p ~/astral-voice/deploy'
+rsync -lt --chmod=u=rw,go=r -e "${SSHC[*]}" "$HERE/README.md" "$HERE/KNOWN-BUGS.md" \
+  "$T:~/astral-voice/"
+rsync -lt --chmod=u=rw,go=r -e "${SSHC[*]}" "$HERE/deploy/install_v2.sh" \
+  "$T:~/astral-voice/deploy/"
+# This machine's own cost profile, and only this machine's. The device decides whether to
+# offer "ask the Mac" by reading the Mac's measured profile — _offerable() calls
+# fits(cls, that_host) — so a stale copy is a stale answer. The device's was four days old
+# and predated Slate being visible here, which means the device had spent four days
+# certain the Mac could not do maths and never once offered it. The device's OWN profile
+# is still never sent: those numbers must be measured where they are used.
+MINE="$(cd "$HERE/hub" && python3 -c 'import costs; print(costs.host_id())')"
+if [ -f "$HERE/hub/data/costs/$MINE.json" ]; then
+  "${SSHC[@]}" "$T" 'mkdir -p ~/astral-voice/hub-v2/data/costs'
+  rsync -lt --chmod=u=rw,go=r -e "${SSHC[*]}" "$HERE/hub/data/costs/$MINE.json" \
+    "$T:~/astral-voice/hub-v2/data/costs/"
+  echo "profile:    sent this machine's own ($MINE) so the device knows what it can defer here"
+fi
 # The shipped ability travels too: OpenHome's own routing calls this file, and until
 # now nothing kept it current on the device.
 "${SSHC[@]}" "$T" 'mkdir -p ~/astral-voice/hub-v2/shipped'
