@@ -1,27 +1,31 @@
 # Kernel release procedure
 
-[Release 2.2.5](https://github.com/Jmesmykil/astral-OpenBrain/releases/tag/v2.2.5) is published.
-It fixes a crash a stress run found: "what is 20 percent of" followed by four hundred digits
-raised an OverflowError out of the number formatter and through the router, because an
-integer that large becomes infinity the moment it is divided and both `round()` and `int()`
-raise on that. The formatter is now total and an unsayable result is refused out loud.
+[Release 2.2.6](https://github.com/Jmesmykil/astral-OpenBrain/releases/tag/v2.2.6) is published.
+It fixes a wrong answer found by playing a question through the device's own speaker. Asked
+"and in london" as a follow-up to a turn that was itself misheard, the completion produced
+"what time is in london" — without its "it" — which matched nothing in the clock, escalated
+to the model tier, and was answered out loud with "Time downloaded software." The clock now
+accepts the dropped word; sentences that merely contain "time" still do not match.
 
 | Artifact property | Verified value |
 |---|---|
-| File | `astral_kernel-2.2.5-cp313-cp313-linux_aarch64.whl` |
-| Size | 494782 bytes |
-| SHA256 | `737a77edd61de604b6c0abdee067e07994c791d2ef459fad2058324e5c7886c6` |
-| Generated input | `a0a5aeab72225a4d7ed9191d6e1db67c83f6a04317942dc357e002c5988d0275` |
-| Compiled extension | `fb3575861f4edb541d17e965301c5642935883d3a120f158c43024ac1dc9d01a`, byte-identical in both device interpreters |
-| Verified companion hub | device full suite 5,106 held, zero failed, five skipped |
+| File | `astral_kernel-2.2.6-cp313-cp313-linux_aarch64.whl` |
+| Size | 494785 bytes |
+| SHA256 | `e9d723d618c58a870aa7498dfb24476df3ee414b0539d7d73e8b86de72e3bc15` |
+| Generated input | `8d250cadbbb3f52226abd4990fb4bf2ce5315e6da2186a8e72e5862b882546b8` |
+| Compiled extension | `8f101cec7bd0a34ea76edea7a0e592f919a9c084815857736fcb9f66ccb89d65`, byte-identical in both device interpreters |
+| Verified companion hub | device full suite 5,111 held, zero failed, five skipped |
 | Target | CPython 3.13 / Linux aarch64 |
 | Engine metadata license | Proprietary |
 
-Verified after publication: an independent unauthenticated public download matches, the
-DevKit resolves the exact pinned dependency under `pip download --require-hashes` and gets
-those same bytes, and the updated package passes `openhome validate community/astral`.
+Verified after publication: an independent unauthenticated public download matches, and the
+updated package passes `openhome validate community/astral`.
 
 ## Preserve immutable versions
+
+Existing [2.2.5](https://github.com/Jmesmykil/astral-OpenBrain/releases/tag/v2.2.5)
+remains unchanged: 494782 bytes, SHA256
+`737a77edd61de604b6c0abdee067e07994c791d2ef459fad2058324e5c7886c6`.
 
 Existing [2.2.4](https://github.com/Jmesmykil/astral-OpenBrain/releases/tag/v2.2.4)
 remains unchanged: 492916 bytes, SHA256

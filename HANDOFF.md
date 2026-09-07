@@ -2,9 +2,10 @@
 
 ## Current runtime verification — September 6, 2026
 
-The DevKit runs kernel **2.2.5** in both interpreters. The full device run passed **5,106
-checks, zero failures, five documented skips**, including all hostile inputs and the new
-stress suite. The Mac full run passed 4,997 with thirteen skips. These runs overlap and
+The DevKit runs kernel **2.2.6** in both interpreters. The full device run passed **5,111
+checks, zero failures, five documented skips**, including all hostile inputs and the stress
+suite. The Mac full run passed 5,002 with thirteen skips. The library index is schema 32,
+577,773 passages across 191 files. These runs overlap and
 must not be added together.
 
 Three defects found in the room were reproduced, repaired and gated this day.
@@ -77,9 +78,13 @@ The suite also holds three invariants for a card people put files on: every file
 the drop folder is still somewhere on the card afterwards, no malformed file raises while
 being read, and a name already taken is never overwritten.
 
-**Kernel 2.2.5 is published** at
-[v2.2.5](https://github.com/Jmesmykil/astral-OpenBrain/releases/tag/v2.2.5), 494,782 bytes,
-SHA256 `737a77ed…`. Its compiled extension is byte-identical in both device interpreters, the
+**Kernel 2.2.6 is published** at
+[v2.2.6](https://github.com/Jmesmykil/astral-OpenBrain/releases/tag/v2.2.6), 494,785 bytes,
+SHA256 `e9d723d6…`. It fixes a wrong answer found by playing a question through the device's
+own speaker: a follow-up completed to "what time is in london", without its "it", matched
+nothing in the clock, escalated to the model tier and was answered aloud with "Time
+downloaded software." The clock now accepts the dropped word. Earlier releases are
+immutable and unchanged. 2.2.5 SHA256 `737a77ed…`. Its compiled extension is byte-identical in both device interpreters, the
 current sources reproduce the input fingerprint `a0a5aeab…` exactly, an independent public
 download matches, the DevKit resolves the exact pin under `pip download --require-hashes`,
 and the package passes `openhome validate`. All three capability folders carry it. 2.2.4,
