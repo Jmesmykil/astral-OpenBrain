@@ -276,7 +276,14 @@ class AstralDaemon(MatchingCapability):
                 "I can't reach the local engine, so I'm answering from the cloud for now.")
 
     def _log(self, message):
-        handler = getattr(self.worker, "editor_logging_handler", None)
+        # Plain attribute access, caught. The platform rejects getattr outright — a
+        # deploy is refused with "Forbidden use of 'getattr'" — and reflection is not
+        # needed here anyway: older platform builds simply do not carry this handler, and
+        # the fallback below logs either way, so nothing is being swallowed.
+        try:
+            handler = self.worker.editor_logging_handler
+        except AttributeError:
+            handler = None
         if handler is not None:
             handler.error(message)
         else:
