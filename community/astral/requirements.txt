@@ -7,4 +7,4 @@
 # aarch64), which is a property of compiled code rather than a defect. Point this at the
 # release you want; a device that has the Astral local hub installed does not need it at
 # all, and one with neither says so out loud rather than going quiet.
-astral-kernel @ https://github.com/Jmesmykil/astral-OpenBrain/releases/download/v2.2.4/astral_kernel-2.2.4-cp313-cp313-linux_aarch64.whl#sha256=04b35dbc1da8c419d631876d27c839140453ff9d5182f40e3dbcae5a46a7558a
+astral-kernel @ https://github.com/Jmesmykil/astral-OpenBrain/releases/download/v2.2.5/astral_kernel-2.2.5-cp313-cp313-linux_aarch64.whl#sha256=737a77edd61de604b6c0abdee067e07994c791d2ef459fad2058324e5c7886c6

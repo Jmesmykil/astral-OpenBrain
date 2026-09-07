@@ -2,9 +2,9 @@
 
 ## Current runtime verification — September 6, 2026
 
-The DevKit runs private hub `75b9da2` and kernel **2.2.4** in both interpreters. The full
-device run passed **5,023 checks, zero failures, five documented skips**, including all
-hostile inputs. The Mac full run passed 4,924 with twelve skips. These runs overlap and
+The DevKit runs kernel **2.2.5** in both interpreters. The full device run passed **5,106
+checks, zero failures, five documented skips**, including all hostile inputs and the new
+stress suite. The Mac full run passed 4,997 with thirteen skips. These runs overlap and
 must not be added together.
 
 Three defects found in the room were reproduced, repaired and gated this day.
@@ -57,28 +57,48 @@ The library index is schema 31 with **574,308 passages across 191 files**. On th
 "how do islands form", "ring of fire", "what causes earthquakes" and "volcano" now each
 return a readable passage first; the first three returned woven text before this work.
 
-**Kernel 2.2.4 is published** at
-[v2.2.4](https://github.com/Jmesmykil/astral-OpenBrain/releases/tag/v2.2.4), 492,916 bytes,
-SHA256 `04b35dbc…`. Its compiled extension is byte-identical to the one installed in both
-device interpreters; the current sources reproduce the recorded input fingerprint
-`2ba075e6…` exactly; an independent unauthenticated public download matches; the DevKit
-resolves the exact pinned dependency under `pip download --require-hashes`; and the updated
-package passes `openhome validate`. `community/astral/requirements.txt` now pins it, and all
-three capability folders on the device carry it. Existing 2.2.3 and 2.2.2 are unchanged.
+**Stress testing found two real defects, both now fixed.** A new `stress` suite covers what
+the hostile-sentence sweep does not: several requests at once, a card full of files nobody
+curated, a failure register under flood, and input nobody would type on purpose.
 
-**The transcription timeout is explained, and it is not what it looked like.** It was
-recorded as a single unexplained 12.2 second failure. The log holds **46 of them**, spread
-across 2026-09-02 to 2026-09-06 in 22 clusters, every one `timed out after 20 seconds` at
-`-ac 512`. The captures that preceded them run from **2.6 seconds to 14.0**, and a 2.6
-second clip normally transcribes in about 2.5 — so this is not about audio length and never
-was. It is CPU contention: whisper runs `-t 4` on a four-core board that is also hosting a
-resident language model, the Slate kernel and the loop itself, and when they collide a short
-capture can exceed a twenty-second wall. The turn is then lost silently, because a
-transcription failure returns an empty string and an empty string means "nobody said
-anything" — correct for a false wake, wrong for a question. Choosing between a longer wall,
-fewer whisper threads, and saying something out loud when a turn is dropped changes what
-the device does while somebody is waiting, so it is the owner's call rather than a tuning
-detail.
+It found, first, a crash. "what is 20 percent of" followed by four hundred digits raised an
+`OverflowError` out of the number formatter and through the router: an integer that large
+becomes infinity the moment it is divided, and both `round()` and `int()` raise on that. The
+formatter is now total — it never raises, whatever it is handed — and an unsayable result is
+refused out loud. That is engine code, so it required a new wheel.
+
+It found, second, a stall that only the device could show. Fifteen thousand characters
+through the front door cost the DevKit **28.5 seconds** — eight in regular expressions and
+twenty more waiting out a subprocess timeout — for a sentence nobody said. The microphone
+cannot produce that; the platform's ability path can. Requests are now bounded at the single
+door and refused out loud: 28.5 seconds became 0.000, with ordinary questions untouched.
+
+The suite also holds three invariants for a card people put files on: every file given to
+the drop folder is still somewhere on the card afterwards, no malformed file raises while
+being read, and a name already taken is never overwritten.
+
+**Kernel 2.2.5 is published** at
+[v2.2.5](https://github.com/Jmesmykil/astral-OpenBrain/releases/tag/v2.2.5), 494,782 bytes,
+SHA256 `737a77ed…`. Its compiled extension is byte-identical in both device interpreters, the
+current sources reproduce the input fingerprint `a0a5aeab…` exactly, an independent public
+download matches, the DevKit resolves the exact pin under `pip download --require-hashes`,
+and the package passes `openhome validate`. All three capability folders carry it. 2.2.4,
+2.2.3 and 2.2.2 are unchanged and immutable.
+
+**One folder to put things in.** A person should not have to decide whether a research paper
+is a book or a document. Anything copied into the library's `drop` folder is filed onto the
+right shelf when the card is next indexed — say "index the library" — and anything nothing
+here can read stays exactly where it was put and is named when asked "what could you not
+read". Nothing is ever deleted, and a name already on the shelf is given a number rather
+than overwritten.
+
+**No silent failure, at the root.** 160 exception handlers in the hub swallow a failure
+without recording it. Most are correct; converting all of them would bury the real ones. So
+`hub/mishaps.py` is now the one register everything lost reports into — the library's
+unreadable files report through a dict subclass whose assignment IS the report, so no call
+site has to remember — and two surfaces read it: the health line stops looking healthy while
+turns are being lost, and "what went wrong" answers out loud with the reason. The count is
+held as a ratchet by the integrity suite: it may fall freely and may not rise.
 
 **Still open.** DK's most heavily designed spreads, where display lettering is set through
 the body text, can still come back interleaved in a lower-ranked hit. Human wake, room, interruption
