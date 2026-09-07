@@ -1284,9 +1284,9 @@ Open after this pass:
 
 ## 2026-09-04, afternoon, the ship sweep
 
-The owner's goal: the project perfect, no gaps or conflicts, ready to ship. Everything the
-the submission names was opened and checked (every link answers 200, every file is
-tracked), and the sweep then went after what the ledger still listed as open.
+The owner's goal: the project perfect, no gaps or conflicts, ready to ship. Every
+reference in the documentation was opened and checked (every link answers 200, every file
+is tracked), and the sweep then went after what the ledger still listed as open.
 
 - **Bare follow-ups.** "And in London" after "what time is it" and "and the date" after it
   came back unchanged and were judged silent, so the loop played the dismiss tone at a
@@ -1351,8 +1351,7 @@ tracked), and the sweep then went after what the ledger still listed as open.
   entropy, variables". Nothing stored was changed.
 - **The device came back at 16:28 after being plugged in**, and again at 21:07 after the
   deploy: the loop up, the ear kicked at start, the microphone at 160 from OpenHome's
-  configuration, the speaker at their 14. The the form holds the corrected answers in
-  every section as of 21:08.
+  configuration, the speaker at their 14.
 - **"Okay stop" took a summary offer as a yes.** Found by the DevKit's own suite run at
   21:10 (3,955 held, 1 failed): on the device, where the model is present, the check that
   expects "okay stop" to get "Okay." got a model summary about tides, because the summary

@@ -101,5 +101,5 @@ OpenHome owns volume and microphone sensitivity; the loop does not force those s
 ## License and scope
 
 These integration files are MIT. `astral-kernel` is a proprietary compiled dependency.
-The private engine sources are not included in this ability. The harness bridge proposed
-in the the submission remains future work.
+The private engine sources are not included in this ability. The proposed harness bridge
+remains future work.

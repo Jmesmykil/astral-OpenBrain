@@ -454,8 +454,7 @@ messages and distinguishes development, delivered artifacts and future work. The
 claims do not replace current acceptance. Earlier completion-audit receipts remain under
 `~/AstralBrainEngine/projects/openhome/audits/2026-09-04-completion/`.
 
-The the submission was reported by the creator. Its proposed harness bridge and longer
-term deterministic-engine ambition remain future work. Separate portfolio products are
-not shipped OpenHome functionality. No new the submission was made during this audit.
+The proposed harness bridge and the longer term deterministic-engine ambition remain
+future work. Separate portfolio products are not shipped OpenHome functionality.
 
 See [RELEASE.md](RELEASE.md) for artifact provenance and immutable release procedure.
