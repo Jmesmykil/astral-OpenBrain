@@ -2,11 +2,20 @@
 
 ## Current runtime verification — September 6, 2026
 
-The DevKit runs kernel **2.2.6** in both interpreters. The full device run passed **5,111
-checks, zero failures, five documented skips**, including all hostile inputs and the stress
-suite. The Mac full run passed 5,002 with thirteen skips. The library index is schema 32,
-577,773 passages across 191 files. These runs overlap and
-must not be added together.
+The DevKit runs kernel **2.2.6** in both interpreters. The full device run passed **5,185
+checks, zero failures, zero skips**; the Mac full run passed **5,174, zero failures, zero
+skips**. These runs overlap and must not be added together. `demo.py` on the device: 56
+lines, 56 as scripted, median 3 ms. The library index is schema 33 — 577,773 passages
+across 191 files, and 1,604 of those passages carry a page number.
+
+There are no skipped checks left on either machine. Every skip that used to be here was a
+check that had quietly stopped running, and each one hid something: the maths kernel was
+on the Mac all along and the adapter only knew how to start a compiled one; the document
+checks skipped AND returned, so the device was the one machine never confirming the README
+names the words it wakes to; four hundred hostile sentences were capped at ninety seconds
+on the machine where a crash would actually happen; and the wake-phrase checks were gated
+on a recogniser that only the listener needs, so the two words this product answers to
+went unchecked everywhere.
 
 Three defects found in the room were reproduced, repaired and gated this day.
 
@@ -54,7 +63,7 @@ computes in under 1.4 ms. A timer coming due still interrupts, and so does the
 once-a-session health sentence, because `speak()` without an interrupt does not wait its
 turn on this platform and two voices at once is worse than one clean cut.
 
-The library index is schema 31 with **574,308 passages across 191 files**. On the device,
+On the device,
 "how do islands form", "ring of fire", "what causes earthquakes" and "volcano" now each
 return a readable passage first; the first three returned woven text before this work.
 
@@ -77,6 +86,40 @@ door and refused out loud: 28.5 seconds became 0.000, with ordinary questions un
 The suite also holds three invariants for a card people put files on: every file given to
 the drop folder is still somewhere on the card afterwards, no malformed file raises while
 being read, and a name already taken is never overwritten.
+
+**Reading a page cost 3.6 seconds on the card, and the device said it could not do it.**
+`entries` is an FTS5 table, which indexes words and nothing else, so `WHERE name = ? AND
+page = ?` was a scan of all 577,773 rows — and `cast(page as integer)` guaranteed no index
+could be used even in principle. Measured on the device: working out which books have pages
+took 2,239 ms, finding one page's passages 1,372 ms, the whole question 3,615 ms. A small
+indexed table written beside the FTS insert, holding the page and the passage's rowid, makes
+both a seek: **3,615 ms to 3.2 ms**. None of it showed on the Mac, where the same code
+measures 341 microseconds against a shelf of two books. The class was also measured on no
+machine at all — it was never added to `measure_costs` — so `fits("pages")` said "not
+measured" everywhere and "what can you do" left page reading out, while the router, which
+matches a page question before the ranking gate, was reading pages perfectly well. Only the
+spoken account of the device was wrong. A check now fails if any class whose parts are
+present on a machine goes unmeasured there.
+
+**The device had been deciding what the Mac can do from a four-day-old file.** Whether to
+offer "ask the Mac" is settled by `_offerable()` calling `fits(cls, that_host)`, which
+reads the Mac's own measured profile *off the device's card*. Nothing refreshed it. The
+copy there listed thirteen classes and did not contain `slate`, so the device was certain
+the Mac could not do maths and never once offered to send any there — the cross-machine
+half of the ranking was dead and silent about it. The deploy now sends this machine's own
+profile every time, and still never sends the device its own: those numbers are only true
+where they were measured. `demo.py --lanes` on the device now reads "yes — the Mac:
+26 classes".
+
+**A title heard through a microphone was refused for not being the title.** Spoken into the
+DevKit's own speaker, "what is on page 30 of modern" came back from whisper as "page 30 of
+moderate" and was answered "I don't have anything called moderate on the card" — true, and
+useless to somebody holding the book. Whisper mishears a title the way it mishears a wake
+word, which is why the wake phrase has carried a near-miss list from the beginning. Titles
+now get the same, against whatever is on the card: accepted when a word is either close
+throughout ("pithon" for "python", 0.83) or shares five opening letters and is reasonably
+close ("moderate" for "modern", 0.71) — which still refuses modest, model, morning, piston,
+pytorch, notebook and handle.
 
 **Kernel 2.2.6 is published** at
 [v2.2.6](https://github.com/Jmesmykil/astral-OpenBrain/releases/tag/v2.2.6), 494,785 bytes,
