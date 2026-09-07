@@ -2,8 +2,8 @@
 
 ## Current runtime verification — September 6, 2026
 
-The DevKit runs kernel **2.2.6** in both interpreters. The full device run passed **5,188
-checks, zero failures, zero skips**; the Mac full run passed **5,177, zero failures, zero
+The DevKit runs kernel **2.2.6** in both interpreters. The full device run passed **5,200
+checks, zero failures, zero skips**; the Mac full run passed **5,189, zero failures, zero
 skips**. These runs overlap and must not be added together. `demo.py` on the device: 56
 lines, 56 as scripted, median 3 ms. The library index is schema 33 — 577,773 passages
 across 191 files, and 1,604 of those passages carry a page number.
@@ -120,6 +120,27 @@ not, which is why the custom wake word is V3 work rather than V2 work. These thr
 are read out of `wake/openbrain.npz` and checked against this paragraph, so they cannot
 drift apart — and until today they could, because the sentence that stated them had been
 removed and the check quietly passed on finding nothing to compare.
+
+**Asked for a joke, it read out an encyclopedia entry about the brain's joke centre.**
+Found while measuring latency, which is the only reason anybody said "and tell me a joke"
+after "what do the books say about entropy". The follow-up was resolved to "what do the
+books say about tell me a joke". The subject swap has always said only a THING may be put
+into the old question's place, with the guards written out at length — and the tail
+replacement sits above them and returns first, so everything after "and" went in whatever
+it was. The silent half was worse than the funny half: "and turn off the lights" and "and
+set a timer for five minutes" became book searches, so a command the device can carry out
+was swallowed by a lookup that could only fail. What follows "and" is now tested for being
+a request in its own right, on the SHAPE of a command rather than its first word, so "set
+theory" and "turn signals" are still subjects.
+
+**Where the time goes, measured from the moment the speaker falls silent.** About 5.4
+seconds is fixed — end-of-speech detection and whisper — and is the same for every turn.
+Everything after it is Piper rendering the whole answer before any sound leaves the
+speaker: 3.5 s for "20 percent of 80 is 16", 8.7 s for a passage from the shelf, and 17.4 s
+for a 150-word page. First sound is therefore 9.0 s, 14.1 s and 23.0 s. The page LOOKUP is
+3 ms; the wait is speech. Nothing plays until the entire wave exists, so a long answer is
+not a long answer, it is a long silence. Shortening what a page reads aloud halves it; the
+real repair is to play the first sentence while the rest renders, and that is V3 work.
 
 **A title heard through a microphone was refused for not being the title.** Spoken into the
 DevKit's own speaker, "what is on page 30 of modern" came back from whisper as "page 30 of
