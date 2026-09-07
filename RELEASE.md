@@ -1,30 +1,31 @@
 # Kernel release procedure
 
-[Release 2.2.4](https://github.com/Jmesmykil/astral-OpenBrain/releases/tag/v2.2.4) is published.
-The ability's exact requirements dependency was downloaded on the DevKit with
-`pip download --no-deps --require-hashes` and its bytes match the artifact installed in both
-device interpreters; an independent unauthenticated public download matches as well. The
-updated ability package passes `openhome validate community/astral`. Ability deployment,
-assignment and spoken platform routing remain separate and open.
+[Release 2.2.5](https://github.com/Jmesmykil/astral-OpenBrain/releases/tag/v2.2.5) is published.
+It fixes a crash a stress run found: "what is 20 percent of" followed by four hundred digits
+raised an OverflowError out of the number formatter and through the router, because an
+integer that large becomes infinity the moment it is divided and both `round()` and `int()`
+raise on that. The formatter is now total and an unsayable result is refused out loud.
 
 | Artifact property | Verified value |
 |---|---|
-| File | `astral_kernel-2.2.4-cp313-cp313-linux_aarch64.whl` |
-| Size | 492916 bytes |
-| SHA256 | `04b35dbc1da8c419d631876d27c839140453ff9d5182f40e3dbcae5a46a7558a` |
-| Generated input | `2ba075e655022dfbecf86d96d2224bb9613d58df938e38b620c26266d22c4208` |
-| Compiled extension | `29c630a6da1ab01c8c2760d3635c5cf901651f95645c9e4b9abedd5a5ecd22d5`, byte-identical in both device interpreters |
-| Verified companion hub | `75b9da2`; device full suite 5,023 held, zero failed, five skipped |
+| File | `astral_kernel-2.2.5-cp313-cp313-linux_aarch64.whl` |
+| Size | 494782 bytes |
+| SHA256 | `737a77edd61de604b6c0abdee067e07994c791d2ef459fad2058324e5c7886c6` |
+| Generated input | `a0a5aeab72225a4d7ed9191d6e1db67c83f6a04317942dc357e002c5988d0275` |
+| Compiled extension | `fb3575861f4edb541d17e965301c5642935883d3a120f158c43024ac1dc9d01a`, byte-identical in both device interpreters |
+| Verified companion hub | device full suite 5,106 held, zero failed, five skipped |
 | Target | CPython 3.13 / Linux aarch64 |
 | Engine metadata license | Proprietary |
 
-The MIT ability shim remains readable and separate. The wheel packages the compiled
-extension, public wrapper, build manifest and distribution metadata; no private Python,
-Cython or C source is included. Library, voice, notes/settings and shared mathematics
-repairs require the companion hub deployment, not the wheel alone. See
-[HANDOFF.md](HANDOFF.md) for the layered tests and the open acceptance.
+Verified after publication: an independent unauthenticated public download matches, the
+DevKit resolves the exact pinned dependency under `pip download --require-hashes` and gets
+those same bytes, and the updated package passes `openhome validate community/astral`.
 
 ## Preserve immutable versions
+
+Existing [2.2.4](https://github.com/Jmesmykil/astral-OpenBrain/releases/tag/v2.2.4)
+remains unchanged: 492916 bytes, SHA256
+`04b35dbc1da8c419d631876d27c839140453ff9d5182f40e3dbcae5a46a7558a`.
 
 Existing [2.2.3](https://github.com/Jmesmykil/astral-OpenBrain/releases/tag/v2.2.3)
 remains unchanged: 474035 bytes, SHA256
