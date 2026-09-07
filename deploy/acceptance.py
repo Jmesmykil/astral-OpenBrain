@@ -3,7 +3,7 @@
 
     deploy/acceptance.py                     the whole pass
     deploy/acceptance.py --only wake         one section
-    deploy/acceptance.py --host openhome@<devkit>
+    deploy/acceptance.py --host user@host          (or set ASTRAL_DEVKIT)
 
 WHY THIS EXISTS
 
@@ -25,6 +25,7 @@ play anything. Every trial counts, including the ones you fluff — a denominato
 drops bad takes is how a device gets a reputation it has not earned.
 """
 import argparse
+import os
 import json
 import re
 import subprocess
@@ -108,7 +109,9 @@ def ask(question):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--host", default="openhome@<devkit>")
+    ap.add_argument("--host", default=os.environ.get("ASTRAL_DEVKIT"),
+                    required="ASTRAL_DEVKIT" not in os.environ,
+                    help="the DevKit as user@host; defaults to $ASTRAL_DEVKIT")
     ap.add_argument("--key", default=str(Path.home() / ".ssh/id_ed25519"))
     ap.add_argument("--only", default=None, help="one section: wake room short follow long interrupt audible")
     ap.add_argument("--out", default=None)

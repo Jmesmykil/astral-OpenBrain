@@ -1,7 +1,7 @@
 #!/bin/zsh
 # Put the version-two loop on the DevKit and wire it as the user service.
 #
-#   deploy/install_v2.sh [openhome@<devkit>]
+#   deploy/install_v2.sh [user@host]        (or set ASTRAL_DEVKIT)
 #
 # Copies the hub (engine, router, kernels, sounds, data) to ~/astral-voice/hub-v2 on the
 # device, makes the chime files, points the LAN route at this Mac, installs the
@@ -10,7 +10,7 @@
 # OpenHome kiosk and this loop must not both own the microphone.
 set -e
 HERE=$(cd "$(dirname "$0")/.." && pwd)
-T=${1:-openhome@<devkit>}
+T=${1:-${ASTRAL_DEVKIT:?pass the DevKit as user@host, or set ASTRAL_DEVKIT}}
 START=0; [[ "$2" == "--start" ]] && START=1
 export SSH_AUTH_SOCK=
 SSHC=(ssh -i "$HOME/.ssh/id_ed25519" -o IdentitiesOnly=yes -o BatchMode=yes -o ConnectTimeout=8)
