@@ -1288,11 +1288,6 @@ The owner's goal: the project perfect, no gaps or conflicts, ready to ship. Ever
 the submission names was opened and checked (every link answers 200, every file is
 tracked), and the sweep then went after what the ledger still listed as open.
 
-- **The the submission was audited** against the form's own prompts, the submission
-  announcement and the five milestone stages OpenHome lists ((removed)). The public
-  repository now carries the MIT licence it had been claiming, RELEASE.md names the 2.2.1
-  release, and the application's numbers, links and open-source statement match what a
-  reviewer finds.
 - **Bare follow-ups.** "And in London" after "what time is it" and "and the date" after it
   came back unchanged and were judged silent, so the loop played the dismiss tone at a
   person mid-conversation. A place onto a question that has no place yet, or one of the
@@ -1348,11 +1343,6 @@ tracked), and the sweep then went after what the ledger still listed as open.
   spoken follow-ups of two or three words through the speaker are lost more often than long
   ones, and a mishearing can reach the reader. Both need a quiet-room pass with a person
   speaking, not the device.
-- **The the form.** The corrected answers (the CLI is OpenHome's with one validator fix in
-  a fork, the abilities repository is not the applicant's, MECH is a separate product, Slate
-  is the engine's lane) are in (removed) and (removed). The browser
-  extension disconnected before sections 12, 13, 15, 16, 17 and 18 could be re-entered, so
-  the form draft still carries the old wording of those six until they are pasted.
 - **The boot greeting reads back subjects, not mishearings.** It said "We were on volcanoes,
   or land is on, entropy" after the 14:58 reboot: a mishearing recorded as a subject was read
   out as a topic. Subjects the greeting says back are now things, not clauses (a name that
@@ -1379,10 +1369,6 @@ The state at the close of the day, all of it verified rather than assumed.
 - **The DevKit suite is green: 3,969 checks held, 0 failed, 6 skipped**, run on the device
   under its own interpreter against the deployed code. The Mac holds 3,910; the device holds
   more because the model and kernel paths are live there and silent on the Mac.
-- **The the form is a copy of the source file.** All ten answers were compared section by
-  section against (removed) and every length matches to the character. It carries the harness
-  bridge as the critical selected feature, the local assistant as phase 1 delivered, and the
-  deterministic engine as the road beyond, with the risk stated. Submit is the owner's.
 - **Corrected before it went out, on the owner's word:** the OpenHome CLI is OpenHome's, and
   what is his is one commit in his fork, the validator fix; the abilities repository is not
   his; Astral MECH is a separate product from the Astral Brain Engine, and Slate is the

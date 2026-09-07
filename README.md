@@ -23,7 +23,7 @@ that whole path offline.
 The local route order is mechanical computation, a local model when offered and accepted,
 a named machine on the LAN, then an explicitly enabled cloud route. The cloud route is disabled in the current local
 configuration; a Mac endpoint is configured on the LAN and the phone endpoint is unset. A named refusal or an ambiguous choice must
-never authorize a transfer. The harness bridge described in the funding material is
+never authorize a transfer. The harness bridge is
 future work; this release does not provide general access to project files or execute
 harness tasks by voice.
 
@@ -101,6 +101,5 @@ verification failure stops deployment before the loop is restarted. See
 - [V2-CAPABILITIES.md](V2-CAPABILITIES.md): what the device does and how, in one page.
 - [REVIEW-2026-09-01.md](REVIEW-2026-09-01.md): the earlier upstream review.
 
-Funding and presentation material is kept outside this repository. The harness, Slate
-mathematics, Astral MECH and Q OS have distinct product identities, and none of their
-proposed future integration forms part of the completed OpenHome release.
+The harness, Slate mathematics, Astral MECH and Q OS have distinct product identities,
+and none of their proposed future integration forms part of this release.
