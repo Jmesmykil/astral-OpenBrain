@@ -130,6 +130,46 @@ not be opened, bypassing the very register written to stop that. A research pape
 the card could fail to parse and nobody would be told. They report now, by name and with the
 reason, and the silent-handler ratchet came down from 160 to 150 with them.
 
+**A spoken answer arrives in 7.6 seconds, not 12.2.** None of the wait was the engine, which
+answers in a third of a second — all of it was the capture. `SIL_PEAK` is a constant chosen
+for a quiet room and it decided when speech had ENDED, so in a loud room nothing ever fell
+below it: measured over 765 real captures, 20 percent ran to the fourteen-second ceiling, and
+where the ambient peak read 1500 or more, 48 of 177 never saw silence at all. Ending is now
+judged against the room and starting still against the constant, which is the whole safety of
+it — a measured floor can only end a burst sooner, never make the device deaf to a quiet
+voice, and in a quiet room the two numbers are identical. Five clean runs on the device:
+captures fell from 7.7 seconds to 3.4-4.1 and the answer arrived at +7.6 where it had been
++12.2, all five transcribed correctly.
+
+**There is now a labelled wake rate, and it cost a repair.** Every previous number came from
+counting log lines in a room nobody annotated. A stimulus synthesised from chosen text is its
+own ground truth, so: twelve conversational negatives and six positives gave 0 false
+activations and 0 misses, and fourteen adversarial near-misses — "open a", "open and",
+"opening ceremony at home", "hope and brain" — activated it 6 to 8 times across runs. That is
+the recogniser, and it is the argument for the trained head scoped to V3.
+
+Three of those fourteen made the device SPEAK, inventing a device out of the words after the
+verb: "I don't have any devices set up yet, so I can't open bank account without address."
+Two paths reached device control and only `control.py` asked whether the target was a thing in
+a room; the registry path asks now. Re-run against the same corpus the three nonsense answers
+are gone — silent, as "ignored: not a request" or "floor: not for me". A false wake that stays
+quiet costs nobody anything; a false wake that talks is the one worth fixing, and unlike the
+recogniser it was fixable here. Evidence in `acceptance/wake-rate-v1/`.
+
+**The column repair covers 95.4 percent of it.** Measured across all 65 DK volumes rather than
+sampled: 19,813 pages, 54,108 columnar blocks, 51,620 unwound and 2,488 declined because
+unwinding would push readable prose under the passage floor. The residual is 1.96 percent of
+all blocks. Three attempts to measure the damage by scanning the finished index were abandoned
+and are written down in `acceptance/library-layout-v1/COVERAGE.md`, because each measured
+English rather than damage — author initials and mathematical variables are indistinguishable
+by shape from letter-spaced OCR debris, and a number from a detector that cannot tell them
+apart is worse than no number.
+
+**Silent handlers are down to 146** from 160, held by a ratchet that may fall and may not
+rise. The last four discarded the owner's own choices: a failed settings read replaced the
+voice and the speech model he picked with the defaults, so the device sounded or heard wrong
+with the symptom and the cause in different places.
+
 **Still open.** DK's most heavily designed spreads, where display lettering is set through
 the body text, can still come back interleaved in a lower-ranked hit. Human wake, room, interruption
 and audibility acceptance remain open, as does platform spoken-session routing and the
