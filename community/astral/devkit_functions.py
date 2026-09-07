@@ -388,7 +388,7 @@ def health(*_):
              "local hub installed" if have_hub else "no local hub"]
     _emit_success("Astral: " + ", ".join(parts) + ".",
                   {"kernel": bool(engine), "hub": have_hub,
-                   "version": getattr(engine, "__version__", None)})
+                   "version": engine.__version__ if engine else None})
 
 
 FUNCTION_REGISTRY = {
