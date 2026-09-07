@@ -2,8 +2,8 @@
 
 ## Current runtime verification — September 6, 2026
 
-The DevKit runs kernel **2.2.6** in both interpreters. The full device run passed **5,185
-checks, zero failures, zero skips**; the Mac full run passed **5,174, zero failures, zero
+The DevKit runs kernel **2.2.6** in both interpreters. The full device run passed **5,188
+checks, zero failures, zero skips**; the Mac full run passed **5,177, zero failures, zero
 skips**. These runs overlap and must not be added together. `demo.py` on the device: 56
 lines, 56 as scripted, median 3 ms. The library index is schema 33 — 577,773 passages
 across 191 files, and 1,604 of those passages carry a page number.
@@ -110,6 +110,16 @@ half of the ranking was dead and silent about it. The deploy now sends this mach
 profile every time, and still never sends the device its own: those numbers are only true
 where they were measured. `demo.py --lanes` on the device now reads "yes — the Mac:
 26 classes".
+
+**The trained wake head, and why it is still not the detector.** It ships in the tree and
+is not wired to anything; the Vosk phrase recogniser is what wakes the device. Its own
+measured numbers are the argument: on its 0.95 threshold it wakes on 66 of 100 spoken
+positives, scores an empty room at 0.55, and false-fires on about 0.0 an hour. A detector
+that misses a third of the time is not an improvement on a phrase recogniser that does
+not, which is why the custom wake word is V3 work rather than V2 work. These three figures
+are read out of `wake/openbrain.npz` and checked against this paragraph, so they cannot
+drift apart — and until today they could, because the sentence that stated them had been
+removed and the check quietly passed on finding nothing to compare.
 
 **A title heard through a microphone was refused for not being the title.** Spoken into the
 DevKit's own speaker, "what is on page 30 of modern" came back from whisper as "page 30 of
