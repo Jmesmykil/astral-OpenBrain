@@ -1,18 +1,45 @@
 # Hardware acceptance: current Astral installation
 
-Updated September 5, 2026. This is a pending acceptance procedure, not a record of completed human tests.
+Updated September 6, 2026. This is a pending acceptance procedure, not a record of completed
+human tests.
 
-The current user service runs live_hub.py, which already includes wake interruption and follow-ups. Its latest startup reports **open brain** and **open home**, local whisper-base.en-q5_1 with audio context 512, and the Google Voice HAT input. Use **open brain** for this run. The product remains OpenHome/Astral; a wake phrase is not a product rename.
+**Run `deploy/acceptance.py` rather than working through this by hand.** It prints each
+sentence to say, watches the loop's own log for what it made of it, and asks the one
+question the log cannot answer — what happened in the room — then writes a receipt. This
+document is the context around that; the harness is the procedure.
 
-Do not redeploy, start a second microphone consumer, or switch to duplex.py as test setup. Installation agreement has already been verified. The kiosk is inactive; keep one microphone owner. Switching to OpenHome platform voice is a separate coordinated step after account ability registration.
+The user service runs live_hub.py, which includes wake interruption and follow-ups. Wake
+phrases are **open brain** and **open home**; both route into Astral, and while the local
+loop owns the microphone neither reaches OpenHome's own agent. Whisper is base.en-q5_1 with
+an audio context sized to each capture (a floor of 512, grown for long questions) — it is no
+longer fixed at 512, which used to cut anything past 10.24 seconds. Input is the Google
+Voice HAT.
+
+Do not redeploy, start a second microphone consumer, or switch to duplex.py as test setup.
+The kiosk is inactive; keep one microphone owner. Switching to OpenHome platform voice is a
+separate coordinated step and is R04, still unproven.
 
 ## Verified starting point
 
-The source/support comparison matches 168 files and three Astral service definitions. Both Python interpreters match kernel 2.2.3. Schema 26 retains 191 physical sources and 412,863 passages. These facts do not establish human audibility.
+Kernel **2.2.6** in both interpreters, matching the published release byte for byte. Library
+index **schema 32**, 191 physical sources, **577,773 passages**. Device full suite 5,111
+held, zero failed, five skipped; Mac 5,002 held, zero failed. None of that establishes human
+audibility, which is the whole point of this pass.
 
-The actual app speaker slider was exercised and restored to 14%; microphone sensitivity remains 160%. Pointer changes reached both the physical mixer and saved SPEAKER_VOLUME. In the observed Safari control, arrow keys changed the display without committing to the device; clicking the focused slider committed the selected value. Re-read the mixer and saved setting rather than trusting the displayed number.
+Audio levels belong to the owner and to OpenHome's app, not to this procedure. Read them,
+record them, and do not set them: `pactl get-sink-volume @DEFAULT_SINK@` and
+`get-source-volume`. **A pass run at a low speaker level proves nothing about audibility** —
+raise it in the app first if that is what is being judged.
 
-The completed one-hour native WebSocket observer returned 183/183 correct answers before library 26 activation. It bypassed acoustic capture, recognition and audible speech. Do not count it as the human voice pass.
+## What has already been driven without a person
+
+`acceptance/acoustic-selfecho-v1/` holds a self-echo pass: the device speaks the stimulus
+through its own speaker and its own microphone hears it (`turn.sh`). That already exercised
+the acoustic path end to end and found two defects — a library answer read aloud as
+interleaved OCR, and a follow-up that escalated to the model tier and was answered with an
+invented sentence. What it cannot do is recognise the creator's voice or hear the room, so
+R07's positive half and R10 still need a person. Read that receipt's README before quoting
+its score: its pass criterion asked whether the device spoke, not whether it was right.
 
 ## Read-only preflight
 
@@ -31,7 +58,7 @@ wpctl get-volume @DEFAULT_AUDIO_SINK@
 wpctl get-volume @DEFAULT_AUDIO_SOURCE@
 ~~~
 
-The three Astral services should be active and the kiosk inactive. The second command therefore normally exits nonzero. Speaker and microphone should read 0.14 and 1.60. If state differs, investigate the actual owner/process before starting another loop.
+The three Astral services should be active and the kiosk inactive. The second command therefore normally exits nonzero. Record whatever the speaker and microphone read; the owner sets them, not this pass. If state differs, investigate the actual owner/process before starting another loop.
 
 Use bounded recording/log tools only for identified test turns. Retain prompt, trial time, captured signal, ASR, route, response and actual audible outcome. Mark empty, missed and incorrect trials explicitly. A log event without human ground truth is neither a proved success nor a proved false wake.
 
