@@ -2,8 +2,8 @@
 
 ## Current runtime verification — September 6, 2026
 
-The DevKit runs kernel **2.2.6** in both interpreters. The full device run passed **5,200
-checks, zero failures, zero skips**; the Mac full run passed **5,189, zero failures, zero
+The DevKit runs kernel **2.2.7** in both interpreters. The full device run passed **5,263
+checks, zero failures, zero skips**; the Mac full run passed **5,258, zero failures, zero
 skips**. These runs overlap and must not be added together. `demo.py` on the device: 56
 lines, 56 as scripted, median 3 ms. The library index is schema 33 — 577,773 passages
 across 191 files, and 1,604 of those passages carry a page number.
@@ -120,6 +120,54 @@ not, which is why the custom wake word is V3 work rather than V2 work. These thr
 are read out of `wake/openbrain.npz` and checked against this paragraph, so they cannot
 drift apart — and until today they could, because the sentence that stated them had been
 removed and the check quietly passed on finding nothing to compare.
+
+**Seven things found by speaking to the device that no suite could see.** A sweep of the
+turns a person actually says, spoken into the DevKit's own microphone with nobody in the
+room, each one followed by the follow-up that would naturally come after it. Every one of
+these passed every check.
+
+- *"And another one"*, after its own joke. Heard perfectly and then discarded as "not a
+  request" — true of the words, false of the person. It was not among the phrases that
+  lean on the last turn, so it never reached the completion that would have made sense of
+  it. It asks the last question again now.
+- *"Cancel the timer"* came back from whisper as **"canceled the timer"** and matched
+  nothing, so a running timer could not be stopped by voice at all. The past tense is
+  accepted rather than argued with.
+- *"And read me page 42"*, after a question about entropy, became *"read me page 42 of
+  entropy"* — a page of a topic. A part belongs to something that has parts, decided now
+  by whether the question being followed named a part at all.
+- Underneath that: only "of" was stripped from the ends of a subject, so *"what is on page
+  30 of the python handbook"* left the subject **"on  of the python handbook"** once the
+  page was cut out of the middle. "In" was handled and "on" was not, which is the only
+  reason chapters looked right and pages did not.
+- The boot greeting said *"We were on entropy, **me a joke**, card."* A filter already
+  rejected subjects opening with a conjunction or holding a verb — it was added when the
+  greeting said "volcanoes, or land is on, entropy" — and "me a joke" has neither. It is
+  what survives "tell me a joke" once the verb comes off. A subject does not begin with a
+  pronoun.
+- *"What did we talk about"* fell through to the library and returned a page about file
+  I/O. *"What were we talking about"* and *"what did we discuss"* reached nothing. The only
+  phrase that worked was "what have we been working on". The store held entropy, london and
+  volcanoes throughout — the greeting reads them at boot. **The memory worked and could not
+  be asked**, which is a worse shape than a memory that does not work.
+- *"Who are you"*, said while the floor was still open, was acknowledged rather than
+  answered: the floor admits smalltalk only for jokes and facts, because "how are you" and
+  "good morning" are what a room says to itself. But it is addressed to the thing being
+  asked about, and after the wake word it answered properly — so whether the device would
+  say what it was depended on whether it had just finished speaking.
+
+And once the memory could be asked, it said *"define entropy, entropy, card"* — the same
+subject twice, because the verbs stripped before a subject is taken included "summarise"
+and not "define", "explain", "describe", "spell", "translate" or "pronounce". That is
+repaired at both ends: the subject a new turn is filed under no longer carries its verb,
+and the filter that decides what the device says back rejects the ones already stored,
+since nothing stored is ever rewritten. Only verbs with no noun of their own are refused —
+"set theory" and "turn signals" are subjects, and treating them as commands is the same
+mistake the follow-up guard made on its first attempt.
+
+The sweep that found all of this is `deploy/acoustic-sweep.sh`. It raises the speaker so
+the device can hear itself, puts the level back, and prints what was said, what was heard
+and what came out.
 
 **Asked for a joke, it read out an encyclopedia entry about the brain's joke centre.**
 Found while measuring latency, which is the only reason anybody said "and tell me a joke"
