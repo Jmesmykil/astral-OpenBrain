@@ -1130,7 +1130,7 @@ every failure is in what it says or stays silent about):
 
 ## 2026-09-04, after the call
 
-- **Hardware note from OpenHome (OpenHome):** the DevKit's audio cable connections need
+- **Hardware note from OpenHome:** the DevKit's audio cable connections need
   reseating from time to time. That is a candidate cause for the deaf starts and the
   suspended sink seen this week; check the cables first, then the stream.
 - **The level hold never ran.** For a day `_hold_levels` raised a NameError on its first
