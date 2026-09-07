@@ -105,6 +105,31 @@ site has to remember — and two surfaces read it: the health line stops looking
 turns are being lost, and "what went wrong" answers out loud with the reason. The count is
 held as a ratchet by the integrity suite: it may fall freely and may not rise.
 
+**A subscription is a provider too.** Requiring a metered API key to reach a model somebody
+already pays for is an accounting decision dressed up as an architecture. A provider with
+`"shape": "subscription"` in `routes.json` is reached by running a command that is already
+signed in as the owner, with the question on standard input — no key, no metering. The
+command is declared in `routes.json` rather than shipped, because the program that reaches it
+is a fact about one machine. A command this machine does not have is refused by name rather
+than attempted and blamed on the provider; nothing is ever passed through a shell. This is
+also what a higher rung than the DevKit actually means: the Mac carries four capabilities to
+the device's ten, so copying the card there would change nothing, while a subscription
+command on the Mac reaches a model the Pi cannot hold.
+
+**An answer must have the shape the question asked for.** A question about a time or a
+quantity is not answered by a sentence carrying neither. Asked "what time is in london" — a
+follow-up that had lost its "it" — the reader replied "Time downloaded software.", a fragment
+of its own corpus. The clock now accepts the dropped word, and separately the router refuses
+a reader answer whose shape does not match the question, trying the books first and then
+saying it will not guess. It joins the guards already here for empty glosses and for
+six-word explanations of why the sky is blue.
+
+**The document readers no longer lose files quietly.** Ten of them — epub, xlsx, rtf,
+subtitles, notebooks, mail, pdf and the document paths — returned nothing when a file could
+not be opened, bypassing the very register written to stop that. A research paper copied onto
+the card could fail to parse and nobody would be told. They report now, by name and with the
+reason, and the silent-handler ratchet came down from 160 to 150 with them.
+
 **Still open.** DK's most heavily designed spreads, where display lettering is set through
 the body text, can still come back interleaved in a lower-ranked hit. Human wake, room, interruption
 and audibility acceptance remain open, as does platform spoken-session routing and the

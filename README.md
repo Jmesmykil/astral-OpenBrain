@@ -54,6 +54,12 @@ across, so a caption beside a body column is its own passage instead of being wo
 by word into the text next to it. The most heavily designed spreads, where display
 lettering runs through the body text, can still come back interleaved.
 
+Anything copied into the library's `drop` folder is filed onto the right shelf the next time
+the card is indexed — say "index the library" — so putting a book, a paper or a report on the
+device does not require deciding which shelf it belongs to. Nothing is deleted, a name already
+taken is given a number rather than overwritten, and a kind nothing here can read stays where
+it was put and is named when asked "what could you not read".
+
 Library shelves hold reference material, documentation, code, datasets and books. The
 current audit counted 191 physical inputs and 35 named sources, cut into 574,308
 passages. File count, source count,
