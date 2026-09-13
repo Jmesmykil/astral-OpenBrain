@@ -11,7 +11,7 @@ function fixture(t, spawnFailure = false) {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), "openhome-dispatch-"));
   t.after(() => fs.rmSync(root, {recursive:true, force:true}));
   const caps = path.join(root, "local_capabilities");
-  for (const name of ["alpha", "beta", "astral", "astral-daemon", "jamesmykilastral"]) {
+  for (const name of ["alpha", "beta", "openbrain", "openbraindaemon", "astral", "astral-daemon", "jamesmykilastral"]) {
     fs.mkdirSync(path.join(caps,name), {recursive:true});
     fs.writeFileSync(path.join(caps,name,"devkit_functions.py"), name.toUpperCase());
   }
@@ -38,7 +38,8 @@ function fixture(t, spawnFailure = false) {
 const request=(cap="alpha",args=[])=>({capability_name:cap,function_name:"respond",args});
 const call=(cap,fn,extra={})=>({capability_name:cap,function_name:fn,args:[],...extra});
 const QUIET='{"success":true,"spoken_response":"","data":{},"error":null}';
-const ALIASES=["astral","astral-daemon","jamesmykilastral"], AUTONOMOUS=["respond_now","due_alerts","heard"];
+const ALIASES=["openbrain","openbraindaemon","astral","astral-daemon","jamesmykilastral"],
+      AUTONOMOUS=["respond_now","due_alerts","heard"];
 const SIX=["capability_name","function_name","args","success","output","error"];
 
 test("overlapping abilities read their own source and clean up",t=>{
@@ -109,7 +110,7 @@ test("paired install declines every autonomous function for every daemon alias w
     assert.deepEqual(log.slice(1),[alias,fn],"alias and function are logged");
     assert.ok(!JSON.stringify(log).includes("7 plus 10"),"args are never logged");
   }
-  assert.equal(f.replies.length,9);assert.equal(f.calls.length,0,"no spawn");assert.deepEqual(f.files(),[],"no request file");
+  assert.equal(f.replies.length,ALIASES.length*AUTONOMOUS.length);assert.equal(f.calls.length,0,"no spawn");assert.deepEqual(f.files(),[],"no request file");
 });
 test("paired install keeps foreground functions of the same alias spawning unchanged",t=>{
   const f=fixture(t);f.pair();
@@ -125,7 +126,8 @@ test("paired install keeps foreground functions of the same alias spawning uncha
 test("standalone install without the router file runs respond_now unchanged",t=>{
   const f=fixture(t);
   for (const alias of ALIASES) f.run(call(alias,"respond_now",{args:["what time is it"]}));
-  assert.equal(f.calls.length,3);assert.deepEqual(f.calls.map(c=>c.args[2]),["respond_now","respond_now","respond_now"]);
+  assert.equal(f.calls.length,ALIASES.length);
+  assert.deepEqual(f.calls.map(c=>c.args[2]),ALIASES.map(()=>"respond_now"));
   f.calls[0].child.stdout.emit("data",'{"success":true,"spoken_response":"noon"}');f.calls[0].child.emit("close",0);
   assert.equal(f.replies[0].data.output,'{"success":true,"spoken_response":"noon"}');
 });
