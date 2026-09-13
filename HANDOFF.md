@@ -280,7 +280,7 @@ The five device skips are the deploy-machine installer, the retired trained wake
 
 Some earlier helper receipts queried inactive system units instead of the actual Astral user services. Those comparisons alone did not prove preservation. The correction records real user-service start times preceding the affected operations; the current full run explicitly checks user units, their kernel child and actual answers. Original receipts and the first rolled-back deployment attempt remain preserved in the local acceptance ledger.
 
-The existing account works and Astral is registered as `jamesmykilastral` and installed on the DevKit. Assignment is not currently shown by the platform: the ability record returns an empty `personality_ids`, so it is registered but attached to no agent. Still open: platform spoken routing, human wake/room/interruption/audibility acceptance, the remaining capability/library semantic matrix, final source publication and final handoff. Read the latest local acceptance ledger for progress after this timestamp. Earlier dated sections below are historical snapshots.
+The ability is registered as `OpenBrain`, ability id 9249, category local, on the existing account. The earlier `jamesmykilastral` registration was deleted, because the dashboard has no rename and the CLI has no update verb: `openhome deploy` only creates, and it refuses any name that already exists, reporting even this account's own abilities as belonging to another account. `personality_ids` is empty, so OpenBrain is registered and attached to no agent. Still open: platform spoken routing, human wake/room/interruption/audibility acceptance, the remaining capability/library semantic matrix, final source publication and final handoff. Read the latest local acceptance ledger for progress after this timestamp. Earlier dated sections below are historical snapshots.
 
 ## Current account and repeat deployment — September 5, 2026, 17:50 HST
 
@@ -512,7 +512,7 @@ Use the existing authorized account key through an ephemeral CLI environment for
 ```sh
 openhome validate community/astral
 openhome list --json
-openhome status jamesmykilastral --json
+openhome status OpenBrain --json
 ```
 
 A new registration requires an actual ZIP and an alphanumeric account name; directory-only deploy is invalid. Preserve existing account records and use the supported in-place release update API/editor for updates. Local package validation, typed native calls, assignment read-back and physical voice are distinct acceptance surfaces. Platform voice testing must also respect the local-only inference boundary; do not start a hosted conversation merely to obtain a green result.

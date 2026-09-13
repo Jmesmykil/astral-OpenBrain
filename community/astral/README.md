@@ -53,7 +53,7 @@ credentials:
 
 ```sh
 OPENHOME_NO_UPDATE=1 openhome deploy "$bundle_dir/astral.zip" \
-  --name astral --category local
+  --name OpenBrain --category local
 ```
 
 That command asks for the description and comma-separated trigger phrases; use the
