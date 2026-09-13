@@ -250,9 +250,9 @@ own speaker: a follow-up completed to "what time is in london", without its "it"
 nothing in the clock, escalated to the model tier and was answered aloud with "Time
 downloaded software." The clock now accepts the dropped word. Earlier releases are
 immutable and unchanged. 2.2.5 SHA256 `737a77ed…`. Its compiled extension is byte-identical in both device interpreters, the
-current sources reproduce the input fingerprint `a0a5aeab…` exactly, an independent public
+the 2.2.5-era sources reproduced the input fingerprint `a0a5aeab…` exactly, an independent public
 download matches, the DevKit resolves the exact pin under `pip download --require-hashes`,
-and the package passes `openhome validate`. All three capability folders carry it. 2.2.4,
+and the package passes `openhome validate`. Both tracked capability folders carry it. 2.2.4,
 2.2.3 and 2.2.2 are unchanged and immutable.
 
 **One folder to put things in.** A person should not have to decide whether a research paper
@@ -345,7 +345,7 @@ historical snapshots.
 
 ## Current runtime verification — September 5, 2026, 20:02 HST
 
-Private hub 7a88d13d71629d507cf76e7edca74f612bf62e00 is deployed. All 30 device suites passed: **4,367 checks, zero failures, five documented skips**, including all 419 hostile inputs. The run preserved 115 source hashes, 47 protected file hashes, audio levels, actual user services and the live Slate child. Registered native requests passed 3/3 before and after. The test-owned kernel was cleaned up with no running descendants. The compiled 2.2.3 artifact is unchanged.
+A private hub commit is deployed. All 30 device suites passed: **4,367 checks, zero failures, five documented skips**, including all 419 hostile inputs. The run preserved 115 source hashes, 47 protected file hashes, audio levels, actual user services and the live Slate child. Registered native requests passed 3/3 before and after. The test-owned kernel was cleaned up with no running descendants. The compiled 2.2.3 artifact is unchanged.
 
 Schema27 retains all **191 source files** and contains **417,340 passages**. A final independent census found no missing files, changed source hashes, unread inputs or chunk-count mismatches. The repairs preserve words separated by wide OCR column spacing, remove lookup request scaffolding from the topic, and distinguish exact qualified API names such as json.load and json.loads. All 71 non-gzip source chunk counts and the 17 predicates from four visually reviewed PDF pages were preserved. Seven targeted raw-word predicates and 46 installed retrieval scenarios passed.
 
@@ -357,7 +357,7 @@ The schema26/source rollback is retained at /home/openhome/astral-voice/platform
 
 ## Previous runtime verification — September 5, 2026, 19:03 HST
 
-Private hub `fbd3e7d620c151a3e617b2c81394fb30b49817c2` is deployed. The full device run completed all 30 suites and all 419 hostile inputs: **4,342 held, zero failed, five explicitly skipped**, in 149 seconds. All 115 selected Python/support source hashes and 47 protected file hashes stayed unchanged during the run. Audio levels, actual user-service processes and the live Slate child stayed unchanged. Three registered native requests passed before and after; the final equation response was `x = 4` in 181 ms. This is a software/native-path observation, not an acoustic latency measurement.
+A private hub commit is deployed. The full device run completed all 30 suites and all 419 hostile inputs: **4,342 held, zero failed, five explicitly skipped**, in 149 seconds. All 115 selected Python/support source hashes and 47 protected file hashes stayed unchanged during the run. Audio levels, actual user-service processes and the live Slate child stayed unchanged. Three registered native requests passed before and after; the final equation response was `x = 4` in 181 ms. This is a software/native-path observation, not an acoustic latency measurement.
 
 The latest corrections fix decimal memory units, replace unconditional privacy claims with the actual local/platform/diagnostic boundaries, expire abandoned math requests, and make readiness/recovery follow a working kernel. Tests and stress runs now own an isolated Slate process instead of falling back to the live socket. The full run recorded its test kernel and verified cleanup with no running descendants remaining. Focused device checks passed 586/0/2 before the full run; these counts overlap and must not be added together.
 
@@ -369,11 +369,11 @@ The existing account works; Astral remains registered, installed and assigned. S
 
 ## Current account and repeat deployment — September 5, 2026, 17:50 HST
 
-The existing account key works. Astral is registered as `jamesmykilastral`, installed on the DevKit and assigned to the existing Astral agent. The original17 installed abilities and the other7 agents were preserved. Three actual Node/Python/shim/hub requests through the registered name pass. This is not a platform spoken-turn receipt.
+The existing account key works. Astral is registered as `jamesmykilastral`, installed on the DevKit and assigned to the existing Astral agent. The original 17 installed abilities and the other 7 agents were preserved. Three actual Node/Python/shim/hub requests through the registered name pass. This is not a platform spoken-turn receipt.
 
-The companion installer now refreshes names explicitly recorded in `~/astral-voice/state/openhome-capability-names.txt`, one alphanumeric registration name per line. It preserves existing names, platform metadata and the canonical `astral`/`astral-daemon` copies. Keep this owner-state file with device configuration when migrating; do not infer managed folders by scanning arbitrary capability code. Malformed names and symlink targets fail before copying. Current Mac deployment checks:70 held,0 failed,0 skipped. Installed device:63 held,0 failed,1 skipped (the Mac-only restart group). The real refresh preserved46 owner hashes, capability contents, audio levels and service processes.
+The companion installer now refreshes names explicitly recorded in `~/astral-voice/state/openhome-capability-names.txt`, one alphanumeric registration name per line. It preserves existing names, platform metadata and the canonical `astral`/`astral-daemon` copies. Keep this owner-state file with device configuration when migrating; do not infer managed folders by scanning arbitrary capability code. Malformed names and symlink targets fail before copying. Current Mac deployment checks: 70 held, 0 failed, 0 skipped. Installed device: 63 held, 0 failed, 1 skipped (the Mac-only restart group). The real refresh preserved 46 owner hashes, capability contents, audio levels and service processes.
 
-The account's committed initial release and editable release contain identical archive bytes. OpenHome renamed the uploaded Python class to match the registration name; a source hash difference alone is not evidence of a changed algorithm. Actual platform runtime selection and physical voice acceptance remain unverified. The corrected persistent CLI uses the existing API key without requiring a JWT;14 auth/name checks, typecheck and build pass. No new account, credential or inference provider was introduced.
+The account's committed initial release and editable release contain identical archive bytes. OpenHome renamed the uploaded Python class to match the registration name; a source hash difference alone is not evidence of a changed algorithm. Actual platform runtime selection and physical voice acceptance remain unverified. The corrected persistent CLI uses the existing API key without requiring a JWT; 14 auth/name checks, typecheck and build pass. No new account, credential or inference provider was introduced.
 
 Still open: platform spoken routing, human wake/room/interruption/audibility acceptance, the full capability/library semantic matrix, final regression and source publication. Earlier dated sections below retain historical states; use this section and the local acceptance ledger for current account status.
 
@@ -386,7 +386,7 @@ Arrow keys alone changed the displayed value without committing to the device un
 
 ## Installation reconciliation — September 5, 2026, 16:41 HST
 
-All168 selected source/support files and all three Astral service definitions match. Both actual Python interpreters match the pinned2.2.3 wheel; the installed platform sync and Node boundary sources also agree. Private hub7d45259ca46535f2bd69feef47d47d1e0f629f0b adds the final deployment regression checks; runtime code remains the deployed library26 version below.
+All 168 selected source/support files and all three Astral service definitions match. Both actual Python interpreters match the pinned 2.2.3 wheel; the installed platform sync and Node boundary sources also agree. A private hub commit adds the final deployment regression checks; runtime code remains the deployed library 26 version below.
 
 The installer now copies dependency metadata with the daemon shim. Fresh/upgrade cases previously failed; final Mac deployment checks pass51/0/0 and installed device44/0/1. The device skip is the seven Mac-side installer restart checks, which pass on the Mac. Stale staged main.py and BOUNDARY.md were reconciled. Five support/test files changed, with exact backups at /home/openhome/astral-voice/platform-hardening/install-manifest-v2. Services,46 protected hashes and14%/160% audio levels were preserved.
 
@@ -396,11 +396,11 @@ Installation agreement is verified for this snapshot. Remaining account integrat
 
 ## Historical deployment — September 5, 2026, 16:11 HST
 
-Private hub879a0444d9c984072d4b10aafc923b373c0835e8 is deployed. All109 installer-selected Python files match the local source. E13 prevents the diagnostic soak from touching persistent state or hardware; E14 preserves complete subtitle text; E15 preserves PDF printed-page labels and technical code. The schema26 index retains191 physical sources and now contains412,863 passages. Four visually checked PDF pages pass17 selected live-index predicates; this is bounded semantic evidence.
+A private hub commit is deployed. All109 installer-selected Python files match the local source. E13 prevents the diagnostic soak from touching persistent state or hardware; E14 preserves complete subtitle text; E15 preserves PDF printed-page labels and technical code. The schema26 index retains191 physical sources and now contains412,863 passages. Four visually checked PDF pages pass17 selected live-index predicates; this is bounded semantic evidence.
 
-Affected final Mac checks passed202/0/1, staged device library/pages221/0/0, installed isolation3/3 and postactivation native answers3/3. These runs overlap. VoicePID72284 has a capture child; bridgePID72285 is active. All46 protected hashes and speaker14%/mic160% levels were preserved. Rollback lives at /home/openhome/astral-voice/platform-hardening/library26-v1/rollback.
+Affected final Mac checks passed 202/0/1, staged device library/pages 221/0/0, installed isolation 3/3 and postactivation native answers 3/3. These runs overlap. Voice PID 72284 has a capture child; bridge PID 72285 is active. All 46 protected hashes and speaker 14% / mic 160% levels were preserved. Rollback lives at /home/openhome/astral-voice/platform-hardening/library26-v1/rollback.
 
-The earlier one-hour observer completed183/183 native answers with zero detector issues, before this library migration. It does not prove human audibility or a final-library26 acoustic soak. Existing Safari account authentication is confirmed; no new account or GPT-app login is needed. Astral ability registration/assignment remains unfinished, with its draft opening blank. Human voice/app acceptance, remaining coverage and final publication remain open. Later local commits are not yet pushed; published kernel2.2.3 bytes are unchanged.
+The earlier one-hour observer completed 183/183 native answers with zero detector issues, before this library migration. It does not prove human audibility or a final library 26 acoustic soak. Existing Safari account authentication is confirmed; no new account or GPT-app login is needed. Astral ability registration/assignment remains unfinished, with its draft opening blank. Human voice/app acceptance, remaining coverage and final publication remain open. Later local commits are not yet pushed; published kernel 2.2.3 bytes are unchanged.
 
 The earlier dated snapshots below retain their historical counts and pending statements.
 
@@ -408,7 +408,7 @@ Mac free space recovered to6.35GB at15:40HST; this task deleted no unrelated pro
 
 ## Historical deployment snapshot — September 5, 2026, 10:19 HST
 
-The reconnected DevKit runs private hub `63fa1668ef345b21a17ac7c8de3f04ce78f7c6bc`
+The reconnected DevKit runs a private hub commit
 and kernel **2.2.3**. All 106 deployable Python files match the checkout. Both system
 Python and the voice environment match the verified wheel. The latest guarded deployment
 finished successfully; the voice service started at 10:13:19 HST (PID 19661), the shared

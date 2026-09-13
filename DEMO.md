@@ -4,6 +4,11 @@ Two ways to run it. Both use the same script, and the script is a program, every
 it goes through the live router on the live card, and the run fails loudly if any line
 answers with nothing. Nothing here is a promise that hasn't already happened.
 
+`demo.py` and `lan.py` live with the private hub and are not in this repository.
+This page records what the demo does and what it has been observed to answer. To
+check an installation yourself, use `community/astral/devkit_functions.py`, which is
+here and is directly callable.
+
 ```
 python3 demo.py                 run it silently, print what every line answers, with timings
 python3 demo.py --speak         say it out loud on the device: both sides, real chimes

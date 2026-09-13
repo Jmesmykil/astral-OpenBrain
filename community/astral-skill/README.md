@@ -78,10 +78,9 @@ and escape velocity are computed from mass and equatorial radius and agree with
 published figures for eight bodies to better than half a percent.
 
 The engine source and its tests ship in `hub/` next to this file. `main.py` is generated
-from them (`python3 hub/build_ability.py`), and `hub/test_artifact_parity.py` proves the
-shipped file answers every phrase the way the source does. `hub/test_golden.py` pins
-155 phrases byte for byte, the ones it must stay silent on included, and
-`hub/test_hardening.py` fuzzes four thousand utterances and rechecks every result a second
+from them (`python3 hub/build_ability.py`), and the artifact parity test proves the
+shipped file answers every phrase the way the source does. The golden suite pins 155 phrases byte for byte, the ones it must stay silent on included, and
+The hardening suite fuzzes four thousand utterances and rechecks every result a second
 independent way: statistics against Python's own `statistics` module, factorizations
 multiplied back out, physics against published constants.
 
