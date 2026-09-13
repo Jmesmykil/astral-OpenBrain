@@ -1,0 +1,9 @@
+{
+  "unique_name": "CHANGE-ME-daemon",
+  "name": "CHANGE-ME-daemon",
+  "description": "Runs for the whole call and offers every turn to the DevKit engine first. When the device has an exact answer it interrupts and speaks it; when it has nothing, which is most turns, it stays silent and OpenHome's normal routing handles the turn. It also speaks local timers when they come due.",
+  "category": "background_daemon",
+  "matching_hotwords": [
+    "change me daemon"
+  ]
+}
