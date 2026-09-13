@@ -1,130 +1,146 @@
 # Astral for OpenHome
 
-Astral provides answers and conversation on an OpenHome DevKit. Its deterministic engine
-handles time, arithmetic, conversions, grades, chemistry, physics and statistics. The
-local hub adds the library on the SD card, definitions, notes, timers, memory, conversation
-and optional local-model assistance.
+Astral answers out loud on an OpenHome DevKit, on the device, without sending the
+question anywhere. Ask it the time, a calculation, a unit conversion, a molar mass or an
+escape velocity and it computes the answer and speaks it. Ask it anything else and it
+says nothing, so the agent takes the turn.
 
-The current completion audit is in progress. Read [HANDOFF.md](HANDOFF.md) for deployment
-state, evidence and the remaining checks. Automated passes do not establish wake-word
-reliability, audible playback, human interruption or successful platform spoken routing.
+The point is not that it is fast, though it is. The point is that a question with exactly
+one right answer should be computed rather than recalled. A model asked for the escape
+velocity of Mars produces a number that is usually close and occasionally invented. This
+produces the number.
 
-## Current development deployment — September 12, 2026
+```
+what is twenty percent of eighty   →  20 percent of 80 is 16.
+molar mass of water                →  The molar mass of water (H2O) is 18.015 grams per mole.
+escape velocity of mars            →  Escape velocity at Mars is 5.02 kilometers per second,
+                                      11234.25 miles per hour.
+turn on the kitchen light          →  Turning on the kitchen light.   (publishes home/kitchen_light/set)
+```
 
-The DevKit now runs a coordinated hub, browser and Node bridge. The hub owns the
-microphone and selects each turn; the browser receives only a selected OpenHome agent
-request. Local takeover retires the previous agent transport. V9 also binds native
-results to their original turn/session and declines duplicate autonomous Astral callbacks
-before they execute. Agent context carries
-only its own bounded conversation. See [HANDOFF.md](HANDOFF.md) for the current proof
-and [deploy/turn-router/README.md](deploy/turn-router/README.md) for the paired install.
+## What it answers
 
-The current installed hub passed 1,038 targeted device checks with zero failures or
-skips after the additional room-test repairs. The earlier full frozen run passed
-5,490/0/0. In the actual room the device spoke 23 → 28 → 56, and time → London worked.
-All 517 mixer samples in the agent run held speaker volume at 50%.
+Time and date. Arithmetic, percentages, tips, tax and splitting a bill. Unit conversions
+across weight, length, volume, temperature, speed, area, time, energy, pressure, force,
+data sizes and astronomical distance. Grades: what you need on the final, weighted
+totals, percent to letter, GPA. Chemistry: molar mass for a named compound or a formula,
+moles and grams, molarity, pH, the ideal gas law, and the atomic mass and number of all
+118 elements. Physics: escape velocity and surface gravity for the Sun, the Moon and
+every planet, weight on another world, free fall, energy, momentum, force, work, power,
+Ohm's law, time dilation, Schwarzschild radius, photon energy, light travel time.
+Statistics: mean, median, mode, range, variance, sample and population standard
+deviation, z scores, combinations. Number tools: binary, hex and octal, logs, trig, GCD
+and LCM, primes, modulo, the quadratic formula, fractions, significant figures.
 
-Physical interruption remains open: playback stops, but echo cancellation sometimes
-loses words from the new request. Both microphone sources and browser playback are
-paused after unrelated dialogue entered the last test. Saved speaker/raw microphone
-levels are 50%/160%. Personal voice enrollment remains deferred. See
-[the audio configuration package](deploy/audio-runtime/README.md) and the current handoff.
+It also reads DevKit telemetry and publishes supported MQTT device commands.
 
-The table below describes the individual components; they are coordinated by the new
-pair on the development DevKit.
+Two things it says out loud rather than assuming. A letter grade names the scale it used,
+because a grading scale is a convention and not a fact. A standard deviation says whether
+it is the sample or the population one, because those are different numbers.
 
-| Mode | Who handles speech | Where answers run | Status |
-|---|---|---|---|
-| Local loop | Vosk wake recognition, whisper.cpp transcription and Piper speech on the DevKit | Local hub, compiled/table engines, native mathematics and optional local model | Running on the development DevKit; acoustic acceptance remains open |
-| OpenHome local ability | OpenHome agent and browser playback; selected text comes from the hub on the paired device | The DevKit shim can ask the local hub, then the compiled kernel | Enabled on the development account; native checks pass; hosted source reconciliation and spoken acceptance remain open |
+## Installing it
 
-The paired browser opens no microphone. Older independent loop/kiosk installations
-must still run one capture owner at a time. Requests selected for OpenHome use its
-remote agent service; local computation does not make that path offline.
+Add the ability to an agent from the OpenHome dashboard. The platform installs what
+`community/astral/requirements.txt` names, the same way it installs any other dependency,
+and that is the compiled engine:
 
-The local route order is mechanical computation, a local model when offered and accepted,
-a named machine on the LAN, then an explicitly enabled cloud route. The OpenHome agent
-is enabled as a named choice on the development device; other cloud providers remain
-disabled. A Mac endpoint is configured on the LAN and the phone endpoint is unset. A named refusal or an ambiguous choice must
-never authorize a transfer. The harness bridge is
-future work; this release does not provide general access to project files or execute
-harness tasks by voice.
+```
+astral-kernel @ https://github.com/Jmesmykil/astral-OpenBrain/releases/download/v2.2.6/astral_kernel-2.2.6-cp313-cp313-linux_aarch64.whl#sha256=...
+```
 
-## Development and package boundary
+The wheel is built for CPython 3.13 on linux aarch64, which is what a DevKit runs. A
+compiled wheel is specific to an interpreter and an architecture; that is a property of
+compiled code, not a defect. Releases are on this repository's
+[releases page](https://github.com/Jmesmykil/astral-OpenBrain/releases).
 
-`community/astral/` is the readable MIT integration. `devkit_functions.py` delegates
-answering to the hub or `astral-kernel`, reads device telemetry and publishes supported
-MQTT commands. The compiled engine is separately licensed and proprietary. Its public
-contract has two functions: `answer(text, now=None)` and `command(text, last_device=None)`.
-See [BOUNDARY.md](community/astral/BOUNDARY.md).
+A device that already has the Astral local hub installed does not need the wheel at all.
+One that has neither says so when you ask it something, rather than going quiet.
 
-The hub sources are maintained in a separate private repository at `hub/` in the
-development checkout. They are not included in this integration repository. PR 361 in
-OpenHome's abilities repository is merged; that does not make the hub sources
-accessible.
+## Using it
 
-`community/astral-skill/` retains the earlier cloud-side, source-inlined integration. It is
-historical and is not the current compiled DevKit release. The former source-bundling
-follow-up script is retired; it must not be used to publish the private hub.
+Say a trigger phrase, then the question. The wake phrases are "open brain" and "open
+home"; the product is Astral.
 
-## Device and library
+The ability is also directly callable, which is how to check an installation without
+speaking to it:
 
-The development device is a Raspberry Pi 4 with 8 GB RAM, Python 3.13 and a 128 GB card.
-The wake phrases are “open brain” and “open home”; these are triggers, while the product
-name remains Astral. The rejected trained wake classifier is not the active detector.
+```sh
+python3 devkit_functions.py health
+{"success": true, "spoken_response": "Astral: kernel 2.2.6, local hub installed.",
+ "data": {"kernel": true, "hub": true, "version": "2.2.6"}, "error": null}
 
-Pages laid out in columns are read in the order they were written rather than straight
-across, so a caption beside a body column is its own passage instead of being woven word
-by word into the text next to it. The most heavily designed spreads, where display
-lettering runs through the body text, can still come back interleaved.
+python3 devkit_functions.py respond "molar mass of water"
+{"success": true, "spoken_response": "The molar mass of water (H2O) is 18.015 grams per mole.",
+ "data": {"query": "molar mass of water", "from": "hub", "class": "chem"}, "error": null}
+```
 
-Anything copied into the library's `drop` folder is filed onto the right shelf the next time
-the card is indexed — say "index the library" — so putting a book, a paper or a report on the
-device does not require deciding which shelf it belongs to. Nothing is deleted, a name already
-taken is given a number rather than overwritten, and a kind nothing here can read stays where
-it was put and is named when asked "what could you not read".
+Every call returns one JSON object with `success`, `spoken_response`, `data` and `error`.
+An empty `spoken_response` means Astral has no exact answer and the agent should take the
+turn. `data.from` names what answered: the local hub if one is installed, otherwise the
+compiled kernel.
 
-Library shelves hold reference material, documentation, code, datasets and books. The
-current reconnect audit found schema 33, 191 indexed sources and 577,773
-passages. Source count,
-passage count and readable coverage are different measurements. The audit found damaged
-Britannica inputs and index-update defects; recovery and current counts are recorded in
-[HANDOFF.md](HANDOFF.md). Scanned images alone do not establish searchable coverage.
+Callable functions: `respond`, `respond_now`, `route_answer`, `device_control`,
+`due_alerts`, `heard`, `health`, `get_temperature`, `get_uptime`, `get_disk`,
+`get_memory`. Anything unrecognised is treated as a question.
 
-The approved Astral sound pack is played as authored. Its `MASTERED.txt` marker bypasses
-playback levelling. OpenHome's saved speaker and microphone settings remain authoritative;
-one measured agent sequence held its mixer level; broader sentence-level consistency remains open.
+## How it fits together
 
-## Work on the current release
+Three pieces, with a deliberate line between them.
+
+**The ability** is `community/astral/`. It is MIT, it is readable, and it is the whole of
+what runs inside OpenHome's runtime. It decides nothing about answers; it asks, then
+performs the device I/O.
+
+**The engine** is `astral-kernel`, a compiled package installed from `requirements.txt`.
+Its public contract is two functions: `answer(text, now=None)` returns a spoken string or
+nothing, and `command(text, last_device=None)` returns a structured device command. See
+[BOUNDARY.md](community/astral/BOUNDARY.md).
+
+**The local hub** adds the library on the SD card, definitions, notes, timers, memory,
+conversation and optional local-model assistance. Its sources are maintained in a
+separate private repository and are not included here, so a clone of this repository
+alone cannot rebuild the local loop. The ability and the compiled engine do not need it.
+
+`community/astral-skill/` is the earlier cloud-side integration, kept for history. It is
+not the current DevKit release.
+
+## Requirements
+
+An OpenHome DevKit: Raspberry Pi 4, 8 GB, CPython 3.13, linux aarch64. The ability itself
+is Python standard library only. No API keys and no external services.
+
+## Working on it
 
 From the private development checkout:
 
 ```sh
-python3 hub/tests/run.py --full
+python3 hub/tests/run.py --full          # every hostile-input case, no discovery cap
 python3 hub/tests/run.py library ability voice
 python3 hub/tests/room_regressions/run.py
 openhome validate community/astral
 deploy/install_v2.sh openhome@<devkit> --start
 ```
 
-`--full` examines every hostile-input case without the normal discovery time cap. The
-runner separates held, failed and skipped checks. Regression and stress runs own a
-temporary Slate service and clean up its processes; they never fall back to the live
-math socket. The latest frozen device full run passed 5,490 checks with zero failures
-and zero skips, while preserving live math availability. Tests that use fake speech
-channels are software checks, not proof that a person can interrupt or be heard in the room.
+The runner separates held, failed and skipped checks, because a skipped check that reads
+as a pass is worse than a failure. Deployment verifies a wheel against its build inputs
+and verifies the installed bytes in both interpreters; a compiler, pip or kernel
+verification failure stops before the loop restarts. See [RELEASE.md](RELEASE.md).
 
-Deployment verifies a wheel against its build inputs and verifies the installed bytes
-in both the system interpreter and the voice environment. A compiler, pip or kernel
-verification failure stops deployment before the loop is restarted. See
-[RELEASE.md](RELEASE.md) for the release artifact contract.
+Tests that use synthetic speech channels are software checks. They are not evidence that
+a person can be heard in a room, and nothing here treats them as such.
 
-## Project records
+## Status
 
-- [HANDOFF.md](HANDOFF.md): current operating instructions and completion status.
-- [KNOWN-BUGS.md](KNOWN-BUGS.md): current open issues followed by the dated historical ledger.
-- [V2-CAPABILITIES.md](V2-CAPABILITIES.md): what the device does and how, in one page.
-- [REVIEW-2026-09-01.md](REVIEW-2026-09-01.md): the earlier upstream review.
+The engine, the ability and the compiled release are in use on the development DevKit.
+Acoustic acceptance is not finished: physical interruption still loses words from a new
+request while playback stops, and wake-word reliability, audible playback and platform
+spoken routing are not established by automated passes.
 
-The harness, Slate mathematics, Astral MECH and Q OS have distinct product identities,
-and none of their proposed future integration forms part of this release.
+[HANDOFF.md](HANDOFF.md) carries the current deployment state and evidence.
+[KNOWN-BUGS.md](KNOWN-BUGS.md) carries open issues and the dated ledger.
+[V2-CAPABILITIES.md](V2-CAPABILITIES.md) describes what the device does in one page.
+
+## Licence
+
+The ability, and everything else in this repository, is MIT — see [LICENSE](LICENSE).
+The compiled `astral-kernel` engine is separately licensed and proprietary.
