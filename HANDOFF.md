@@ -1,6 +1,85 @@
 # Handoff: Astral on the OpenHome DevKit
 
-## Current runtime verification — September 6, 2026
+## Current verification — September 12, 2026, 20:03 HST
+
+**Physical interruption remains unresolved.** The device can stop an audible answer
+but sometimes loses words from the new question through echo cancellation. Both
+microphone sources and Chromium output are paused after the last recording included
+extra dialogue. The quiet-room clarification is pending. The creator already authorized
+synthetic self-tests and continues to defer personal voice enrollment.
+
+The installed V9 browser/native pair gives the hub the only microphone capture.
+It chooses the responder, correlates native results to their original turn/socket,
+and declines autonomous duplicate Astral answer/alert/corpus callbacks before execution.
+Foreground ability calls and unrelated abilities remain available. Already-performed
+side effects are not undone by an interruption.
+
+Additional hub repairs cover the observed clock variant, known-city follow-up completion,
+the agent follow-up's final request gate, buffered voice priority, stale wake cleanup,
+verified-AEC pre-roll preservation, and anchored name introduction. Canonical/device hashes
+are recorded in the acceptance audit. Kernel 2.2.7 parity remains the reconnect result.
+
+The current installed source passed **1,038 device checks, zero failures and zero skips**:
+voice 792, memory 145, conversation 79, duplex 11, barge 11. That run owned a temporary
+Slate service and temporary state; it did not use the live math socket. The earlier
+full frozen run passed 5,490/0/0 and predates these additional repairs. The dedicated
+room-defect regression runner preserves 51 focused checks. These counts overlap.
+The reduced-assets Mac voice run had 11 known baseline fixture failures and two skips.
+
+The device physically spoke 23 → 28 → 56 at 18:49. Output PCM confirmed the answers,
+and all 517 mixer samples held the speaker at 50% with no muted Chromium output stream.
+Time → London passed at 18:22. Actual agent/local overlap stopped playback in about
+0.7–0.9 seconds, but the new question was transcribed incorrectly. Raw recordings
+transcribed correctly when replayed through the same recognizer; filtered recordings
+did not. The suppression comparison did not fix this and defaults were restored.
+Earlier muted protocol tests are not audibility evidence.
+
+Current audio uses native AEC with both microphone and speaker-reference links,
+960/48000 block timing, HAT headroom 1024, and four OpenHome audio loops at RR20.
+Chromium does not restore stale stream mute/volume properties. Saved speaker/raw mic
+levels are 50%/160%; filtered source and browser playback are 100%. Global sink mute
+is off. The numbers-only remote diagnostic is opt-in via ASTRAL_REMOTE_DIAGNOSTICS=1 and off in the running hub. Its earlier five samples did not show a recognition backlog. Latest source parity and repeated 1038/0/0 device checks are in diagnostic-opt-in/device-tests.json in the acceptance folder.
+
+The self-contained [audio package](deploy/audio-runtime/README.md) passed 23 unit
+checks on Mac and Pi, real no-op apply, a one-comment hub-level apply and rollback,
+and 38 live configuration checks. Exact original bytes/mode/uid/gid were restored.
+Other restart levels have unit evidence; a full fresh installation and cold reboot
+have not been exercised. The [browser/Node pair](deploy/turn-router/README.md) must
+precede a hub installation on a fresh device.
+
+The initial room observer mistakenly used normal owner state and parent-ear capture.
+After backup, its exact accidental God name entry/new person node were removed,
+restoring the prior blank name. Seventy-one records inside owned test windows were
+quarantined with 68 existing WAVs; 71 other records were unchanged. Prior outside
+consumer ingestion is unknown; other interaction counters are not claimed unchanged.
+Future observers use a private tmpfs state fixture and omit parent-ear capture. A
+silent enter/write-marker/exit proof preserved owner state and restored production
+configuration behind mute. No temporary service override remains.
+
+Ability 8854 is enabled on the existing account. Selected backend record 20224 is
+labelled v1; CLI version 3 counts records. The selected hosted ZIP lacks the local
+corpus hook and heard shim. The unshipped hook mixes prior generated agent context
+into alleged fresh user speech; no upload was made. V9's persistent native dispatcher
+protects the device boundary across backend shim synchronization.
+
+Library schema 33, 191 indexed sources and 577,773 passages have integrity and selected
+retrieval evidence, not universal readability or OCR proof. PR 361 is merged. This
+development repository and the nested hub remain private. No commit, push, publication,
+visibility change or Discord message was made.
+
+Current evidence:
+ the private acceptance record `AUDIT-CURRENT.md` for protocol 20260912
+and the sibling REQUIREMENTS-CURRENT.json ledger. That folder also contains acoustic
+failures, installer receipts, the corrected test-state proof and an unsent factual
+Discord draft. Remaining acceptance includes speech preservation during overlap,
+background rejection, percentages, reader scenarios and named routing/refusal.
+Raw-shadow recovery is experimental only and remains off because it can retain the
+agent's own in-flight speech. Personal speaker identity is not established.
+
+## Historical runtime verification — September 6, 2026
+
+The following dated notes are retained as history; their versions, counts and operating
+mode are superseded by the current verification above.
 
 The DevKit runs kernel **2.2.6** in both interpreters. The full device run passed **5,111
 checks, zero failures, five documented skips**, including all hostile inputs and the stress
@@ -372,7 +451,7 @@ not part of the active Vosk phrase recognizer. Hash integrity does not establish
 OCR accuracy, recognition of every diagram, or page labels in plain OCR archives.
 
 Detailed, dated receipts and every skip reason:
-`~/AstralBrainEngine/projects/openhome/audits/2026-09-05-ponytail-premortem/`.
+the private audit record for the 2026-09-05 ponytail and premortem pass.
 
 ## Machines and ownership
 
@@ -452,7 +531,7 @@ The exact September 4 OPEN HOME session is
 messages and distinguishes development, delivered artifacts and future work. The dated
 [known-bug ledger](KNOWN-BUGS.md) preserves previous observations; its historical readiness
 claims do not replace current acceptance. Earlier completion-audit receipts remain under
-`~/AstralBrainEngine/projects/openhome/audits/2026-09-04-completion/`.
+the private audit record for the 2026-09-04 completion pass.
 
 The proposed harness bridge and the longer term deterministic-engine ambition remain
 future work. Separate portfolio products are not shipped OpenHome functionality.

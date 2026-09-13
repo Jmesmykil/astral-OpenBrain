@@ -217,6 +217,17 @@ class AstralDaemon(MatchingCapability):
             return                              # nothing new since the last look
         self.answered_turn, self.last_text = index, text
 
+        # Every turn the platform transcribed goes to the corpus, on a task of its own.
+        # The answer below is raced against INTERRUPT_DEADLINE and loses the turn if it
+        # arrives late, so nothing that merely records may sit inside that budget — and
+        # it must not join the device calls this turn makes, either.
+        #
+        # A task needs a session to own it. `worker` is set in call() and is None only
+        # where there is no session at all, and a session that does not exist has no
+        # turns to keep: this is a precondition, not a swallowed failure.
+        if self.worker is not None:
+            self.worker.session_tasks.create(self.keep_for_the_corpus(text))
+
         seen = time.monotonic()
         # respond_now, not respond: the same engine on a budget, and silence instead of a
         # late answer. respond() may spend twelve seconds and then say "the local engine
@@ -241,6 +252,20 @@ class AstralDaemon(MatchingCapability):
 
         await self.capability_worker.send_interrupt_signal()
         await self.capability_worker.speak(spoken)
+
+    async def keep_for_the_corpus(self, text):
+        """Hand one heard turn to the hub's corpus. Never speaks, never blocks a turn.
+
+        The hub's own ear only opens on a wake word or an open floor. This daemon sees
+        the whole session, so this is the only route by which a turn nobody addressed
+        reaches the material a recognizer learns from. A failure here loses one line of
+        corpus and must never cost the room an answer.
+        """
+        try:
+            await self.capability_worker.send_devkit_capability_action(
+                function_name="heard", args=[text], timeout=DEVICE_TIMEOUT)
+        except Exception as error:              # noqa: BLE001
+            self._log(f"Astral daemon: turn not kept for the corpus: {error}")
 
     async def announce_due_alerts(self):
         """Speak any timer or reminder that has come due on the device."""

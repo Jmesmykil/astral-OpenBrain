@@ -307,6 +307,16 @@ def due_alerts(*_):
     _emit_success(out.get("say") or "", {"count": out.get("count", 0), "hub": True})
 
 
+def heard(*words):
+    """Keep a turn the platform transcribed. Records for the corpus; never speaks."""
+    text = " ".join(str(w) for w in words).strip()
+    if not text:
+        _emit_none()
+        return
+    out = hub("heard", text, timeout=3)
+    _emit_success("", {"kept": bool(out and out.get("kept")), "hub": out is not None})
+
+
 def route_answer(route="", *words):
     """Use the route the user chose; report failures explicitly.
 
@@ -396,6 +406,7 @@ FUNCTION_REGISTRY = {
     "device_control": device_control,
     "respond_now": respond_now,
     "due_alerts": due_alerts,
+    "heard": heard,
     "route_answer": route_answer,
     "get_temperature": get_temperature,
     "get_uptime": get_uptime,

@@ -1,6 +1,48 @@
 # Astral, known bugs and limitations
 
-## Current runtime verification — September 6, 2026
+## Current open acceptance — September 12, 2026, 20:03 HST
+
+Read [HANDOFF.md](HANDOFF.md) for source parity, receipts and the current paused state.
+
+- Real overlapping speech can stop local or agent playback but lose the new question
+  through echo cancellation. Raw replay retained the words; filtered replay did not.
+  Current software tests do not resolve this physical failure.
+- The audible 23 → 28 → 56 chain and time → London passed. Percentage follow-ups,
+  capture/processing/playback interruption coverage, reader speech and named
+  routing/refusal still need completed acoustic scenarios.
+- One 517-sample run held speaker volume at 50%. Broader sentence-level loudness,
+  cold-reboot persistence and arbitrary background-video rejection remain open.
+- Last room recordings included extra dialogue. Both microphones and Chromium output
+  are paused pending quiet-room clarification. Personal enrollment is deferred.
+- Wake phrases are “open brain” and “open home”; the product name Astral is not a
+  verified wake alias. Speaker identity is not guaranteed.
+- Raw-shadow recovery remains an unshipped experiment. It cannot yet identify all
+  in-flight agent self-speech and must not be treated as the solution.
+- Initial acoustic tests used production state and parent-ear capture. The accidental
+  name entry was removed after backup, and 71 test-window records/68 existing WAVs
+  were quarantined. Outside consumer ingestion is unknown. Other synthetic interaction
+  counters may remain. Future observers now use temporary state; silent restoration
+  is proved, while abrupt process death can require cleanup or reboot.
+- Hosted record 20224/v1 lacks the local corpus hook and heard shim. The unshipped hook
+  can mislabel generated prior dialogue as fresh user speech. The V9 persistent
+  dispatcher declines autonomous Astral callbacks before native execution; explicit
+  foreground calls remain available. Renamed capability aliases need separate review.
+- The paired browser/Node installation must precede fresh hub installation. The audio
+  package has real hub-level apply/rollback proof and 38 live checks; other restart
+  levels, crash recovery and a fresh-device installation have narrower evidence.
+- Diagnostic inspection is now optional and off in normal operation. The earlier
+  five samples showed no backlog; they do not explain the filtered speech loss.
+- Library integrity and selected retrieval checks do not prove every passage or OCR
+  result readable. Universal harness access and optional phone routes are future work.
+
+Current installed suites: 1,038/0/0 on the device. The earlier frozen full run was
+5,490/0/0. Counts overlap; old full-suite success is not physical acceptance.
+The current audit retains earlier failed/rolled-back deployments and acoustic failures.
+
+## Historical runtime verification — September 6, 2026
+
+These dated notes are historical. The current deployment, levels, counts and open work
+are described above and in the current handoff.
 
 The DevKit runs kernel **2.2.7** in both interpreters. The full device run passed **5,263
 checks, zero failures, zero skips**; the Mac full run passed **5,258, zero failures, zero
@@ -420,7 +462,7 @@ not part of the active Vosk phrase recognizer. Hash integrity does not establish
 OCR accuracy, recognition of every diagram, or page labels in plain OCR archives.
 
 Detailed, dated receipts and every skip reason:
-`~/AstralBrainEngine/projects/openhome/audits/2026-09-05-ponytail-premortem/`.
+the private audit record for the 2026-09-05 ponytail and premortem pass.
 
 ## Earlier verified baseline — September 5, approximately 01:15 HST
 
@@ -1414,4 +1456,3 @@ wake word. This is the pass the earlier note asked for.
 - Still open from this pass: one stimulus in six was captured at a peak of 1,098 and
   transcribed as nothing, and a second at 8,357 also came back empty. Two empty bursts in
   six turns through the speaker, in a quiet room, is worth another look.
-
