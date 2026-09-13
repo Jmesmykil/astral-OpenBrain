@@ -242,9 +242,10 @@ throughout ("pithon" for "python", 0.83) or shares five opening letters and is r
 close ("moderate" for "modern", 0.71) — which still refuses modest, model, morning, piston,
 pytorch, notebook and handle.
 
-**Kernel 2.2.6 is published** at
+**Kernel 2.2.7 is the current release**, 494,779 bytes, SHA256 `a1107b5b…`, running in
+both device interpreters. It supersedes
 [v2.2.6](https://github.com/Jmesmykil/astral-OpenBrain/releases/tag/v2.2.6), 494,785 bytes,
-SHA256 `e9d723d6…`. It fixes a wrong answer found by playing a question through the device's
+SHA256 `c636265d…`. It fixes a wrong answer found by playing a question through the device's
 own speaker: a follow-up completed to "what time is in london", without its "it", matched
 nothing in the clock, escalated to the model tier and was answered aloud with "Time
 downloaded software." The clock now accepts the dropped word. Earlier releases are
