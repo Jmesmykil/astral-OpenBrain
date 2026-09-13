@@ -21,32 +21,26 @@ inputs, and `openhome validate community/astral-devkit` passes.
 
 ## Preserve immutable versions
 
-Existing [2.2.6](https://github.com/Jmesmykil/astral-OpenBrain/releases/tag/v2.2.6) remains
-unchanged: 494785 bytes, SHA256 `c636265d3289bfc2706b376ef784ad85c0c32243e58b30cf87c4b613c3549d8e`. It fixed a wrong
-answer found by playing a question through the device's own speaker. Asked "and in london"
-as a follow-up to a turn that was itself misheard, the completion produced "what time is in
-london", without its "it", which matched nothing in the clock, escalated to the model tier
-and was answered out loud with "Time downloaded software." The clock now accepts the dropped
-word; sentences that merely contain "time" still do not match.
+Two releases carry a published wheel. Never clobber an existing asset: one version must
+continue to identify the same bytes.
 
-Existing [2.2.5](https://github.com/Jmesmykil/astral-OpenBrain/releases/tag/v2.2.5)
-remains unchanged: 494782 bytes, SHA256
-`737a77edd61de604b6c0abdee067e07994c791d2ef459fad2058324e5c7886c6`.
+| Release | Size | SHA256 |
+|---|---|---|
+| [2.2.7](https://github.com/Jmesmykil/astral-OpenBrain/releases/tag/v2.2.7) | 494779 | `a1107b5bc78d62e24325dbb5f0bb7818dd96c66b70f6a12f739308ebe8289081` |
+| [2.2.6](https://github.com/Jmesmykil/astral-OpenBrain/releases/tag/v2.2.6) | 494785 | `c636265d3289bfc2706b376ef784ad85c0c32243e58b30cf87c4b613c3549d8e` |
 
-Existing [2.2.4](https://github.com/Jmesmykil/astral-OpenBrain/releases/tag/v2.2.4)
-remains unchanged: 492916 bytes, SHA256
-`04b35dbc1da8c419d631876d27c839140453ff9d5182f40e3dbcae5a46a7558a`.
+2.2.6 fixed a wrong answer found by playing a question through the device's own speaker.
+Asked "and in london" as a follow-up to a turn that was itself misheard, the completion
+produced "what time is in london", without its "it", which matched nothing in the clock,
+escalated to the model tier and was answered out loud with "Time downloaded software."
+The clock now accepts the dropped word; sentences that merely contain "time" still do not
+match.
 
-Existing [2.2.3](https://github.com/Jmesmykil/astral-OpenBrain/releases/tag/v2.2.3)
-remains unchanged: 474035 bytes, SHA256
-`68378bef23dc3d53387689130bba192cd9f4293107d7f86a10a605ce6e32ff8f`. Its asset size was
-rechecked after publishing 2.2.4.
-
-Existing [2.2.2](https://github.com/Jmesmykil/astral-OpenBrain/releases/tag/v2.2.2) remains
-unchanged: 460607 bytes, SHA256
-`2c7ca3dc0b466a26f2279bf1a5ff14c06ff344f2643fcae9e00e247f0b0fd33e`.
-Its asset digest, size and update timestamp were rechecked after publishing 2.2.3. Never
-clobber an existing asset: one version must continue to identify the same bytes.
+Tags `v2.2.5`, `v2.2.4`, `v2.2.3`, `v2.2.2`, `v2.2.1` and `v2.2.0` exist in git, and no
+wheel was ever published for any of them; their asset URLs return 404. Sizes and digests
+for those builds were recorded locally during development and cannot be reproduced by a
+reader, so they are not listed here. A digest nobody can check against a file nobody can
+fetch is worse than no digest at all.
 
 ## Build, publish and verify
 
