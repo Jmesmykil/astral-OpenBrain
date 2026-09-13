@@ -45,6 +45,8 @@ bundle_dir="$(mktemp -d)"
   astral/config.json astral/README.md astral/BOUNDARY.md)
 ```
 
+`sh deploy/build_packages.sh` assembles both deployable packages, this one and the background daemon, into `build/` and prints the validate commands for each. It copies the shim and the pinned requirements rather than storing them twice, so the two packages cannot drift apart.
+
 The CLI uploads a ZIP; it does not zip directories or read deployment metadata from
 `config.json`. The archive above contains the foreground ability under `astral/` and
 excludes the optional background daemon, caches and private hub. Keep the ZIP path for
@@ -53,8 +55,10 @@ credentials:
 
 ```sh
 OPENHOME_NO_UPDATE=1 openhome deploy "$bundle_dir/astral.zip" \
-  --name OpenBrain --category local
+  --name "$YOUR_UNIQUE_NAME" --category local
 ```
+
+Ability names are unique across every OpenHome account, not only your own. `OpenBrain` is taken, and so is anything else already registered by anyone, so pick your own before deploying. A name that is in use fails with *"already exists in other users account"* even when the account holding it is your own, so that message is not evidence about who owns the name.
 
 That command asks for the description and comma-separated trigger phrases; use the
 values in `community/astral/config.json`. For unattended use, supply `--description`,
