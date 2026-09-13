@@ -59,9 +59,9 @@ contract has two functions: `answer(text, now=None)` and `command(text, last_dev
 See [BOUNDARY.md](community/astral/BOUNDARY.md).
 
 The hub sources are maintained in a separate private repository at `hub/` in the
-development checkout. They are not included in this integration repository, which is
-also currently private. PR 361 in OpenHome's abilities repository is merged; that does
-not make this development repository or its hub publicly accessible.
+development checkout. They are not included in this integration repository. PR 361 in
+OpenHome's abilities repository is merged; that does not make the hub sources
+accessible.
 
 `community/astral-skill/` retains the earlier cloud-side, source-inlined integration. It is
 historical and is not the current compiled DevKit release. The former source-bundling
