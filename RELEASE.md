@@ -1,27 +1,33 @@
 # Kernel release procedure
 
-[Release 2.2.6](https://github.com/Jmesmykil/astral-OpenBrain/releases/tag/v2.2.6) is published.
-It fixes a wrong answer found by playing a question through the device's own speaker. Asked
-"and in london" as a follow-up to a turn that was itself misheard, the completion produced
-"what time is in london" — without its "it" — which matched nothing in the clock, escalated
-to the model tier, and was answered out loud with "Time downloaded software." The clock now
-accepts the dropped word; sentences that merely contain "time" still do not match.
+[Release 2.2.7](https://github.com/Jmesmykil/astral-OpenBrain/releases/tag/v2.2.7) is the
+current release and is what the DevKit runs.
 
 | Artifact property | Verified value |
 |---|---|
-| File | `astral_kernel-2.2.6-cp313-cp313-linux_aarch64.whl` |
-| Size | 494785 bytes |
-| SHA256 | `e9d723d618c58a870aa7498dfb24476df3ee414b0539d7d73e8b86de72e3bc15` |
-| Generated input | `8d250cadbbb3f52226abd4990fb4bf2ce5315e6da2186a8e72e5862b882546b8` |
-| Compiled extension | `8f101cec7bd0a34ea76edea7a0e592f919a9c084815857736fcb9f66ccb89d65`, byte-identical in both device interpreters |
-| Verified companion hub | device full suite 5,111 held, zero failed, five skipped |
+| File | `astral_kernel-2.2.7-cp313-cp313-linux_aarch64.whl` |
+| Size | 494779 bytes |
+| SHA256 | `a1107b5bc78d62e24325dbb5f0bb7818dd96c66b70f6a12f739308ebe8289081` |
+| Engine source fingerprint | `2293f7c7478a58f4b72d8bb009a7765f2e692675f2d5b3bd7dd2e0be51508c16` |
+| Installed on device | 2.2.7 in both interpreters; compiled extension `f429691b3b1fbdb4d3ebb157fcc41c0e`, identical in both |
 | Target | CPython 3.13 / Linux aarch64 |
 | Engine metadata license | Proprietary |
 
-Verified after publication: an independent unauthenticated public download matches, and the
-updated package passes `openhome validate community/astral`.
+Verified after publication: an anonymous unauthenticated download matches the digest above,
+the device's installed `build.json` carries the same engine source fingerprint as the build
+inputs, and `openhome validate community/astral-devkit` passes.
+
+`community/astral/requirements.txt` pins this release by SHA-256.
 
 ## Preserve immutable versions
+
+Existing [2.2.6](https://github.com/Jmesmykil/astral-OpenBrain/releases/tag/v2.2.6) remains
+unchanged: 494785 bytes, SHA256 `c636265d3289bfc2706b376ef784ad85c0c32243e58b30cf87c4b613c3549d8e`. It fixed a wrong
+answer found by playing a question through the device's own speaker. Asked "and in london"
+as a follow-up to a turn that was itself misheard, the completion produced "what time is in
+london", without its "it", which matched nothing in the clock, escalated to the model tier
+and was answered out loud with "Time downloaded software." The clock now accepts the dropped
+word; sentences that merely contain "time" still do not match.
 
 Existing [2.2.5](https://github.com/Jmesmykil/astral-OpenBrain/releases/tag/v2.2.5)
 remains unchanged: 494782 bytes, SHA256

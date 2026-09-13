@@ -45,7 +45,7 @@ Add the ability to an agent from the OpenHome dashboard. The platform installs w
 and that is the compiled engine:
 
 ```
-astral-kernel @ https://github.com/Jmesmykil/astral-OpenBrain/releases/download/v2.2.6/astral_kernel-2.2.6-cp313-cp313-linux_aarch64.whl#sha256=...
+astral-kernel @ https://github.com/Jmesmykil/astral-OpenBrain/releases/download/v2.2.7/astral_kernel-2.2.7-cp313-cp313-linux_aarch64.whl#sha256=...
 ```
 
 The wheel is built for CPython 3.13 on linux aarch64, which is what a DevKit runs. A
@@ -66,8 +66,8 @@ speaking to it:
 
 ```sh
 python3 devkit_functions.py health
-{"success": true, "spoken_response": "Astral: kernel 2.2.6, local hub installed.",
- "data": {"kernel": true, "hub": true, "version": "2.2.6"}, "error": null}
+{"success": true, "spoken_response": "Astral: kernel 2.2.7, local hub installed.",
+ "data": {"kernel": true, "hub": true, "version": "2.2.7"}, "error": null}
 
 python3 devkit_functions.py respond "molar mass of water"
 {"success": true, "spoken_response": "The molar mass of water (H2O) is 18.015 grams per mole.",
