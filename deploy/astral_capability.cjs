@@ -12,7 +12,8 @@ const { spawn } = require("node:child_process");
 // removing the router later takes effect without a restart.
 const PAIRED_MARKER = "astral_turn_router.cjs";
 const AUTONOMOUS_FUNCTIONS = new Set(["respond_now", "due_alerts", "heard"]);
-const DAEMON_ALIASES = new Set(["astral", "astral-daemon", "exampleaccount"]);
+const DAEMON_ALIASES = new Set(["openbrain", "openbraindaemon",
+                                "astral", "astral-daemon", "exampleaccount"]);
 // The exact nested shape the daemon's health checks read as "healthy, nothing to say".
 const QUIET_OUTPUT = JSON.stringify({success: true, spoken_response: "", data: {}, error: null});
 const ID_PATTERN = /^[A-Za-z0-9_-]{1,128}$/;

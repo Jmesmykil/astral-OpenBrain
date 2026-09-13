@@ -76,8 +76,13 @@ done
 # list survives hub syncs and contains one verified alphanumeric name per line.
 # Account sync installs the named folder; an upgrade must refresh that folder too.
 REGISTRATIONS=~/astral-voice/state/openhome-capability-names.txt
-TARGETS=(astral-daemon)
-if [ -d "$CAPS/astral" ]; then TARGETS+=(astral); fi
+# Legacy folders are refreshed only while they still exist. Naming one here
+# unconditionally recreated it on every deploy long after its registration was
+# deleted, leaving a shim installed for an ability the account no longer has.
+TARGETS=()
+for legacy in astral-daemon astral; do
+  if [ -d "$CAPS/$legacy" ]; then TARGETS+=("$legacy"); fi
+done
 [ ! -L "$CAPS" ] || { echo "ability: capability root is a symlink" >&2; exit 1; }
 [ ! -L "$REGISTRATIONS" ] || { echo "ability: registration list is a symlink" >&2; exit 1; }
 if [ -e "$REGISTRATIONS" ]; then
@@ -93,6 +98,14 @@ if [ -e "$REGISTRATIONS" ]; then
     [ "$seen" = 1 ] || TARGETS+=("$name")
   done < "$REGISTRATIONS"
 fi
+# An empty target list would install nothing and say it succeeded. With legacy
+# folders now conditional, that is reachable whenever the registration list is
+# missing, so it fails here instead of leaving a device with no shim.
+[ "${#TARGETS[@]}" -gt 0 ] || {
+  echo "ability: no capability targets; $REGISTRATIONS names none and no legacy folder exists" >&2
+  exit 1
+}
+
 # Check every target before changing the first. Never follow an alias or entrypoint
 # symlink into owner files. Existing config/README/platform metadata stay untouched.
 for name in "${TARGETS[@]}"; do
