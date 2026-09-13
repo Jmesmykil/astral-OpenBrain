@@ -1,0 +1,12 @@
+[Unit]
+Description=Astral shared native echo reference
+Requires=pipewire.service
+After=pipewire.service
+
+[Service]
+ExecStart=/usr/bin/pw-cli -m -d load-module libpipewire-module-echo-cancel "{ monitor.mode=true audio.rate=48000 audio.channels=1 audio.position=[MONO] library.name=aec/libspa-aec-webrtc capture.props={node.name=astral_aec_capture target.object=alsa_input.platform-soc_sound.pro-input-0} sink.props={node.name=astral_aec_reference target.object=alsa_output.platform-soc_sound.pro-output-0} source.props={node.name=astral_echo_cancel node.description=AstralSharedEchoCancel priority.session=1}}"
+Restart=on-failure
+RestartSec=3
+
+[Install]
+WantedBy=default.target

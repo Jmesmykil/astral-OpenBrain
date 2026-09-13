@@ -12,3 +12,9 @@ __pycache__/
 
 # internal — kept local, not in the public repo
 hub/
+
+# OpenHome's dashboard app, modified for turn routing. Their source, not ours, so it
+# is not republished here. protocol.json carries its sha256 and check_installed.py
+# verifies the file installed on the device against that, so nothing in the tooling
+# needs this file to be present in the repository.
+deploy/turn-router/App.tsx

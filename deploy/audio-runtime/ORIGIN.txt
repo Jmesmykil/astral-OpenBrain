@@ -1,0 +1,27 @@
+audio-runtime-candidate — origin of the packaged bytes (captured read-only, 2026-09-13 04:5x UTC)
+
+Device: openhome (Debian 13 trixie, aarch64), PipeWire 1.4.2 (libspa-0.2-modules 1.4.2-1+rpt3),
+WirePlumber 0.5.8-2, rtkit 0.13-5.1+b1, polkitd 126-2, VoiceHAT card 2 snd_rpi_googlevoicehat_soundcard.
+Applied by root at 04:47:44 UTC (its report: applied=true, polkit_authorized=true,
+reference_link_verified=true, four openhome data-loops RR 20).
+Levels at capture: speaker 50 % (-18.06 dB), microphone 160 % (12.25 dB); ~/.env SPEAKER_VOLUME=50 MIC_SENSITIVITY=160.
+
+Files copied byte-for-byte with `cat` over SSH (polkit rule via sudo -n cat). sha256 on device == sha256 here (modification times in UTC):
+
+205af203e785c919e2c83083f888fee936cd284e3c593ca55a2b88d903c106aa  ~/.config/systemd/user/astral-aec.service                          664 openhome 677 B  2026-09-12 21:21
+630f06555c66688402be0e9ff9e7d1ae7ff4f62a2d8b9449e62c6f029298a29f  ~/.config/systemd/user/astral-aec.service.d/30-graph-timing.conf   664 openhome 152 B  2026-09-13 03:41
+15b2ed88c9f94c70c4358ed0d4c19b531339bd4239b3cedf1500c88311b1f9fd  ~/.config/systemd/user/astral-aec.service.d/40-aec-block.conf      664 openhome 539 B  2026-09-13 03:41
+76f5646c534e83d24a2a649fcd414c4d99c8ce7a0c86a77c6d96e8896d5e1e66  ~/.config/systemd/user/astral-hub.service.d/20-single-router.conf   644 openhome 148 B  2026-09-13 02:37  (directory root:root 755)
+cd0c4815daf16e05ba7749b5d24e6b53016d841235d357dcf5c7e1d6efbdfdd0  ~/.config/wireplumber/wireplumber.conf.d/51-astral-voicehat-headroom.conf 664 openhome 387 B 2026-09-13 03:37
+f488abcfb08492d840fba72fc661d9c5dda49d9610ec23ac4cba59954ae0f9d0  ~/.config/wireplumber/wireplumber.conf.d/52-astral-browser-state.conf     664 openhome 174 B 2026-09-13 04:47
+8bcc22e175f2374c3f8646f9c67073f13e5f2147c4396480efc73a280d84c9fb  /etc/polkit-1/rules.d/49-openhome-rtkit.rules                        644 root     266 B  2026-09-13 04:47
+
+Live graph at capture: clock.force-quantum 960; astral_aec_capture/astral_aec_reference/astral_echo_cancel
+node.latency 960/48000, all running; HAT nodes headroom 1024, no node.link-group (node.group pro-audio-2 kept),
+output audio.position [ FL FR ], input AUX0,AUX1; links sink monitor_FL/FR -> astral_aec_reference,
+capture_AUX0/1 -> astral_aec_capture; exactly one pacat capture on astral_echo_cancel (hub), no Chromium
+source-outputs; astral-hub Requires/After astral-aec with ASTRAL_MIC_SOURCE=astral_echo_cancel ASTRAL_MIC_AEC=1;
+pkcheck acquire-real-time for the pipewire MainPID: rc 0; data-loops of pipewire, wireplumber, pipewire-pulse
+and the AEC pw-cli: RR 20. WirePlumber stream-properties key Output/Audio:application.name:Chromium = mute:false.
+
+Nothing on the device was written by this packaging. Root reviews and installs.
