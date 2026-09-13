@@ -1,0 +1,9 @@
+{
+  "bridge_sha256": "d1a38e7888e07d57e342162c4a482f1e9dac1b45084b9b27d5bab515713b58f0",
+  "app_sha256": "8284b188a3f303d3862dcbf6386da984fcda2460e42047ee0ebad0aabf9aab3c",
+  "native_dispatch_sha256": "be29669bb73b16c0d8085d7d7f866d81e7cd3fa8ca6bd3b3e7be1f21a7ec2ff1",
+  "assets": {
+    "dist/index.html": "8c90000beeb3045a1ed669f358903499fc5610c282ff08345b54b348d6b76c6c",
+    "dist/assets/index-C_6osB3E.js": "5f79e7237f02453fe68c755b21cb5957b8dba5dfa4bba4ca7370387f43e49afc"
+  }
+}

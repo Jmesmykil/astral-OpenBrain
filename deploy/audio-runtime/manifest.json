@@ -1,0 +1,65 @@
+[
+  {
+    "name": "astral-aec.service",
+    "dst": "/home/openhome/.config/systemd/user/astral-aec.service",
+    "mode": "664",
+    "owner": "openhome",
+    "level": "aec",
+    "sha": "205af203e785c919e2c83083f888fee936cd284e3c593ca55a2b88d903c106aa",
+    "size": 677
+  },
+  {
+    "name": "30-graph-timing.conf",
+    "dst": "/home/openhome/.config/systemd/user/astral-aec.service.d/30-graph-timing.conf",
+    "mode": "664",
+    "owner": "openhome",
+    "level": "aec",
+    "sha": "630f06555c66688402be0e9ff9e7d1ae7ff4f62a2d8b9449e62c6f029298a29f",
+    "size": 152
+  },
+  {
+    "name": "40-aec-block.conf",
+    "dst": "/home/openhome/.config/systemd/user/astral-aec.service.d/40-aec-block.conf",
+    "mode": "664",
+    "owner": "openhome",
+    "level": "aec",
+    "sha": "15b2ed88c9f94c70c4358ed0d4c19b531339bd4239b3cedf1500c88311b1f9fd",
+    "size": 539
+  },
+  {
+    "name": "20-single-router.conf",
+    "dst": "/home/openhome/.config/systemd/user/astral-hub.service.d/20-single-router.conf",
+    "mode": "644",
+    "owner": "openhome",
+    "level": "hub",
+    "sha": "76f5646c534e83d24a2a649fcd414c4d99c8ce7a0c86a77c6d96e8896d5e1e66",
+    "size": 148
+  },
+  {
+    "name": "51-astral-voicehat-headroom.conf",
+    "dst": "/home/openhome/.config/wireplumber/wireplumber.conf.d/51-astral-voicehat-headroom.conf",
+    "mode": "664",
+    "owner": "openhome",
+    "level": "wireplumber",
+    "sha": "cd0c4815daf16e05ba7749b5d24e6b53016d841235d357dcf5c7e1d6efbdfdd0",
+    "size": 387
+  },
+  {
+    "name": "52-astral-browser-state.conf",
+    "dst": "/home/openhome/.config/wireplumber/wireplumber.conf.d/52-astral-browser-state.conf",
+    "mode": "664",
+    "owner": "openhome",
+    "level": "wireplumber",
+    "sha": "f488abcfb08492d840fba72fc661d9c5dda49d9610ec23ac4cba59954ae0f9d0",
+    "size": 174
+  },
+  {
+    "name": "49-openhome-rtkit.rules",
+    "dst": "/etc/polkit-1/rules.d/49-openhome-rtkit.rules",
+    "mode": "644",
+    "owner": "root",
+    "level": "audio-stack",
+    "sha": "8bcc22e175f2374c3f8646f9c67073f13e5f2147c4396480efc73a280d84c9fb",
+    "size": 266
+  }
+]
