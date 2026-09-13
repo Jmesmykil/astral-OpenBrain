@@ -6,14 +6,21 @@
 # Copies the hub (engine, router, kernels, sounds, data) to ~/astral-voice/hub-v2 on the
 # device, makes the chime files, points the LAN route at this Mac, installs the
 # astral-hub user service running live_hub.py in the device's kws-venv, and prints the
-# state. Idempotent. Does not start the service unless --start is given, because the
-# OpenHome kiosk and this loop must not both own the microphone.
+# state. A paired turn-router browser stays running as the selected agent output;
+# the hub owns microphone admission. Older unpaired releases retain kiosk exclusion.
 set -e
 HERE=$(cd "$(dirname "$0")/.." && pwd)
 T=${1:-${ASTRAL_DEVKIT:?pass the DevKit as user@host, or set ASTRAL_DEVKIT}}
 START=0; [[ "$2" == "--start" ]] && START=1
 export SSH_AUTH_SOCK=
 SSHC=(ssh -i "$HOME/.ssh/id_ed25519" -o IdentitiesOnly=yes -o BatchMode=yes -o ConnectTimeout=8)
+# Fail before any local or device write if the required browser pair is incompatible.
+PAIR=0
+if [[ -f "$HERE/hub/voice_turns.py" ]]; then
+  PAIR=1
+  CONTRACT=$(python3 -c 'import base64,pathlib,sys; print(base64.b64encode(pathlib.Path(sys.argv[1]).read_bytes()).decode())' "$HERE/deploy/turn-router/protocol.json")
+  "${SSHC[@]}" "$T" python3 - "$CONTRACT" < "$HERE/deploy/turn-router/check_installed.py"
+fi
 MAC_IP=$(ipconfig getifaddr en0 2>/dev/null || ipconfig getifaddr en1)
 
 # the LAN route: the Pi asks THIS Mac; the token is shared by copying the file
@@ -30,13 +37,14 @@ cur.setdefault("phone", {"host": None})
 # creator's to throw, and a route that quietly vanished would take the offer with it.
 cur.setdefault("cloud", {"enabled": False})
 routes.write_text(json.dumps(cur, indent=2) + "\n")
-print("routes:", cur)
+print("Mac route:", cur["mac"])
 PY
 
 # --delete, because a file removed here must be removed there. Without it the device
 # kept an obsolete test_golden.py alive, which is the only reason a broken import in
 # measure_costs.py went unnoticed for a day.
 rsync -rlt --delete --chmod=u=rwX,go=rX -e "${SSHC[*]}" \
+  --exclude='data/routes.json' \
   --include='*.py' --include='kernels/' --include='kernels/*.py' \
   --include='tests/' --include='tests/*.py' --include='tests/fixtures/' --include='tests/fixtures/*.txt' --include='wake/' --include='wake/*.npz' \
   --include='data/' --include='data/*.json' \
@@ -53,6 +61,21 @@ rsync -rlt --delete --chmod=u=rwX,go=rX -e "${SSHC[*]}" \
   --include='data/library/' --include='data/library/reference/' \
   --include='data/library/reference/*.tsv' --include='data/library/reference/*.md' \
   --include='data/state/' --exclude='*' "$HERE/hub/" "$T:~/astral-voice/hub-v2/"
+# Device choices stay on the device. A deployment updates only this Mac's address.
+"${SSHC[@]}" "$T" python3 - "$MAC_IP" <<'PYROUTES'
+import json, os, pathlib, sys
+path = pathlib.Path.home() / "astral-voice/hub-v2/data/routes.json"
+cur = json.loads(path.read_text()) if path.exists() else {}
+cur["mac"] = {"host": sys.argv[1], "port": 8790}
+cur.setdefault("phone", {"host": None})
+cur.setdefault("cloud", {"enabled": False})
+tmp = path.with_suffix(".deploy-tmp")
+tmp.write_text(json.dumps(cur, indent=2) + "\n")
+if path.exists():
+    tmp.chmod(path.stat().st_mode & 0o777)
+os.replace(tmp, path)
+print("Device routing choices preserved; Mac address refreshed.")
+PYROUTES
 rsync -lt --chmod=u=rwx,go=rx -e "${SSHC[*]}" "$HERE/deploy/on_device.sh" "$T:~/astral-voice/hub-v2/"
 # The documents and the installer travel too, read-only, so the device can audit its own
 # claims. Without them the honesty suite skipped on the device and RETURNED, taking the
@@ -97,8 +120,10 @@ if "${SSHC[@]}" "$T" 'systemctl --user is-active --quiet astral-hub.service'; th
   echo "astral-hub is running: restarting it so the deployed code is the running code"
   START=1
 fi
-if (( START )); then
+if (( START && ! PAIR )); then
   "${SSHC[@]}" "$T" 'set -e; systemctl --user stop openhome-dashboard.service 2>/dev/null || { if systemctl --user is-active --quiet openhome-dashboard.service; then exit 1; fi; }; systemctl --user restart astral-hub.service; sleep 3; systemctl --user is-active astral-hub.service; tail -5 ~/astral-voice/astral-hub.log'
+elif (( START )); then
+  "${SSHC[@]}" "$T" 'set -e; systemctl --user is-active --quiet openhome-dashboard.service; systemctl --user restart astral-hub.service; sleep 3; systemctl --user is-active astral-hub.service; tail -5 ~/astral-voice/astral-hub.log'
 else
-  echo "installed, not started. Start with: deploy/install_v2.sh $T --start   (stops the OpenHome kiosk first: one mic, one owner)"
+  echo "installed, not started. Start with: deploy/install_v2.sh $T --start"
 fi
