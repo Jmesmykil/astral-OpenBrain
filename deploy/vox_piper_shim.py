@@ -3,8 +3,20 @@
 
 The hub's _render_speech runs `PIPER --model <voice> --output_file <wav>` with the text on
 stdin, then validates the wave frame by frame and publishes it atomically. This presents
-that exact surface and renders through vox_core's word path instead, so swapping the voice
-is a path change in live_hub.py and nothing else.
+that exact surface and renders through vox_core's word path instead. Pointing live_hub.py
+here is the whole mechanical change.
+
+That is not the same as having swapped the voice, and this file should not be read as
+saying it is. MEASURED, against the 2050 things this hub says and the 11038 words in them:
+Vox can build 0 of those words and 0 of those utterances, so every turn goes to Piper
+below. A letter-to-phone layer, which the lexicon spelling ah and ee makes tempting, would
+take it to 6 of 11038 - the single word `data` - and leave whole utterances at zero. The
+wall is not the size of the inventory and not how good the rendering is: it is that the
+lexicon builds CVCV and nothing else. A CVCV voice with unlimited vowels and consonants
+still tops out near 530 of 11038 words and 1 of 2050 utterances, because the ten commonest
+things this hub says are 2514 of those 11038 tokens and not one of them is CVCV - `the` is
+CCV, `a` and `i` are V, `and` is VCC, `to` is CV. What would move the number is syllable
+shapes, V and CV and VC and CVC, before any further CVCV units.
 
 What it does NOT do is pretend. vox_say refuses any word outside its inventory, and this
 refuses the whole utterance rather than speaking a partial one: half a sentence in a new
@@ -19,13 +31,34 @@ RATE = 44100                      # what lex.say(word, 44100.0) renders at
 GAP_MS = 60                       # silence between words, so the judge sees word edges
 
 
+class NoVox(Exception):
+    """vox_say could not be run at all, which is not the same as a word it cannot say."""
+
+
 def render(word, vox_say, lexicon_dir):
-    """One word as f32 samples, or None if this inventory cannot build it."""
+    """One word as f32 samples, or None if this inventory cannot build it.
+
+    Raises NoVox when the binary itself is missing, unexecutable or hangs. That is a
+    DIFFERENT fact from "not in the inventory" and the caller says so out loud, because
+    telling somebody their words are unbuildable when really they never built Vox sends
+    them to fix the wrong thing. Either way the utterance still goes to Piper: somebody
+    who installs this ability without building Vox gets the voice they already had, not
+    a stack trace in the middle of a turn.
+    """
     with tempfile.NamedTemporaryFile(suffix=".f32", delete=False) as t:
         raw = t.name
     try:
         env = dict(os.environ, VOX_LEXICON_DIR=lexicon_dir)
-        r = subprocess.run([vox_say, word, raw], capture_output=True, text=True, env=env)
+        try:
+            r = subprocess.run([vox_say, word, raw], capture_output=True, text=True,
+                               env=env, timeout=20)
+        except OSError as exc:                # not there, not executable, wrong arch
+            raise NoVox(f"cannot run {vox_say}: {exc}") from exc
+        except subprocess.TimeoutExpired:
+            # A hang is not a word this inventory cannot build, but it must not hold the
+            # turn open either. Twenty seconds is far beyond the 0.34 s a word takes on
+            # the DevKit, so this only fires when something is actually wrong.
+            raise NoVox(f"{vox_say} did not return within 20s on {word!r}")
         if r.returncode != 0:
             return None
         with open(raw, "rb") as f:
@@ -96,16 +129,22 @@ def main():
 
     out, missing = [], []
     gap = [0.0] * int(RATE * GAP_MS / 1000)
-    for w in words:
-        s = render(w.strip(".,!?;:").lower(), a.vox_say, a.lexicon)
-        if s is None:
-            missing.append(w)
-            continue
-        out.extend(s); out.extend(gap)
+    try:
+        for w in words:
+            s = render(w.strip(".,!?;:").lower(), a.vox_say, a.lexicon)
+            if s is None:
+                missing.append(w)
+                continue
+            out.extend(s); out.extend(gap)
+    except NoVox as exc:
+        print(f"Vox is not usable here ({exc}); the whole utterance goes to Piper",
+              file=sys.stderr)
+        return piper_whole(words, ["vox_say is not runnable"], a)
     if missing:
-        # WHOLE utterance to Piper, never a mix. Vox's inventory is 1008 CVCV words, so most
-        # real sentences contain at least one word it cannot build; refusing them was correct
-        # while this was a demonstration and is useless as a voice. Per WORD would be worse
+        # WHOLE utterance to Piper, never a mix. Vox's inventory is 1008 CVCV words, and on
+        # this hub's own 2050 spoken strings that is EVERY one of them: not a single utterance
+        # it says is buildable. Refusing them is correct while this is a demonstration and is
+        # useless as a voice, and the arithmetic is in the module docstring. Per WORD is worse
         # than either: two different voices inside one sentence is a defect a listener hears
         # immediately, and the hub has no way to say "some of this is someone else".
         return piper_whole(words, missing, a)
