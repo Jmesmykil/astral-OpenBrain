@@ -14,7 +14,7 @@ __pycache__/
 # your own ability names for the packaged config.json (see README), never committed
 config.local.json
 
-# internal — kept local, not in the public repo
+# the private hub sources: a separate repository, kept beside this one
 hub/
 
 # OpenHome's dashboard app, modified for turn routing. Their source, not ours, so it
