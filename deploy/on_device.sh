@@ -281,6 +281,31 @@ fi
 systemctl --user enable astral-ability.service
 systemctl --user enable astral-gateway.service
 systemctl --user restart astral-gateway.service
+# Advertise the gateway on the LAN so the phone finds home by itself: the service type,
+# the port, and the certificate fingerprint to pin before the first byte is trusted.
+if command -v avahi-daemon >/dev/null 2>&1; then
+  for _ in 1 2 3 4 5 6 7 8 9 10; do
+    [ -f ~/astral-voice/state/gateway/tls/cert.pem ] && break
+    sleep 1
+  done
+  FP=$(cd ~/astral-voice/hub-v2 && ~/astral-voice/kws-venv/bin/python3 -c "from fabric import gateway; print(gateway.fingerprint(gateway.ensure_tls(gateway.state_dir())[0]))" 2>/dev/null)
+  if [ -n "$FP" ]; then
+    sudo -n tee /etc/avahi/services/astral-gateway.service >/dev/null <<ADV
+<?xml version="1.0" standalone='no'?>
+<!DOCTYPE service-group SYSTEM "avahi-service.dtd">
+<!-- The Astral home gateway: executors (the phone, a computer) find it here and pin fp. -->
+<service-group>
+  <name replace-wildcards="yes">%h Astral gateway</name>
+  <service>
+    <type>_astral-gateway._tcp</type>
+    <port>8443</port>
+    <txt-record>fp=$FP</txt-record>
+    <txt-record>api=v1</txt-record>
+  </service>
+</service-group>
+ADV
+  fi
+fi
 systemctl --user restart astral-ability.service
 $PY ability_server.py --check
 echo "kiosk:      $(systemctl --user is-active openhome-dashboard.service || true)"
