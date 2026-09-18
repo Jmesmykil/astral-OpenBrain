@@ -4,6 +4,106 @@ from src.agent.capability import MatchingCapability
 from src.main import AgentWorker
 from src.agent.capability_worker import CapabilityWorker
 
+# ── route words: an exact copy of hub/route_words.py. The hub suite fails if they differ. ──
+# Every offered route is picked by any of these, said as a complete selection.
+WORDS = {
+    "phone": ("phone", "iphone", "android", "mobile", "cell", "cell phone", "cellphone", "smartphone"),
+    "mac": ("computer", "mac", "macbook", "imac", "laptop", "desktop", "pc", "windows pc", "linux box"),
+    "local-model": ("here", "locally", "this device", "the model", "local model", "model on this device"),
+    "cloud:openhome": ("openhome", "open home", "openhome agent", "open home agent", "agent"),
+}
+# A named cloud provider is picked by its own name.
+PROVIDERS = {
+    "anthropic": ("claude", "anthropic"), "openai": ("chatgpt", "chat gpt", "openai", "gpt"),
+    "google": ("gemini", "google"), "xai": ("grok",), "groq": ("groq",),
+    "mistral": ("mistral",), "deepseek": ("deepseek", "deep seek"), "openrouter": ("openrouter",),
+    "together": ("together",), "openhome": ("openhome", "open home", "openhome agent", "open home agent", "agent"),
+}
+# "The cloud" picks a cloud route only when exactly one is offered.
+CLOUD_WORDS = ("cloud", "internet", "online")
+REFUSAL = re.compile(r"\b(?:no|nope|nah|not|never|neither|none|cancel|stop|don't|dont|do not|"
+                     r"forget it|forget about it|leave it|skip it|without)\b")
+_YES_WORD = r"(?:yes|yeah|yep|yup|sure|ok|okay|go ahead|do it|send it|go for it)"
+YES = re.compile(rf"(?:please )?{_YES_WORD}(?: {_YES_WORD})*(?: please| thanks| thank you)?|please")
+# A route's name can occur in a question, a hedge or a comparison ("what is the cloud",
+# "maybe my computer", "mac or cloud"). Only a complete selection authorizes sending: an
+# optional yes, an optional verb, an optional determiner, the name, an optional please.
+PREFIX = (r"(?:please )?(?:(?:yes|yeah|yep|sure|ok|okay) )?"
+          r"(?:(?:(?:can|could|would) you )?"
+          r"(?:ask|use|try|go with|send (?:it|that|this) to|do it|run it|answer it|do it on|do that on) )?"
+          r"(?:the |my |your |on |on the |on my )?")
+SUFFIX = r"(?: please| thanks| thank you)?"
+ORDINAL = re.compile(r"(?:the )?(first|1st|second|2nd|third|3rd|last)(?: one)?" + SUFFIX)
+_ORDINAL_INDEX = {"first": 0, "1st": 0, "second": 1, "2nd": 1, "third": 2, "3rd": 2, "last": -1}
+
+
+def normalize(reply) -> str:
+    """Lower case, curly apostrophes straightened, punctuation gone, spaces single."""
+    text = str(reply or "").lower().replace("\u2019", "'")
+    return " ".join(re.findall(r"[a-z0-9']+", text))
+
+
+def words_for(route: str, offered) -> tuple:
+    """The words that pick `route` out of this particular offer."""
+    if route in WORDS:
+        words = WORDS[route]
+    elif route.startswith("cloud:"):
+        provider = route.split(":", 1)[1]
+        words = PROVIDERS.get(provider, (provider,))
+    else:
+        words = (route,)
+    clouds = [r for r in offered if r == "cloud" or r.startswith("cloud:")]
+    if (route == "cloud" or route.startswith("cloud:")) and len(clouds) == 1:
+        words = tuple(words) + tuple(w for w in CLOUD_WORDS if w not in words)
+    return tuple(words)
+
+
+def _mentions(said: str, phrase: str) -> bool:
+    return re.search(r"(?:^| )" + re.escape(phrase) + r"(?: |$)", said) is not None
+
+
+def choose(reply, offered) -> tuple:
+    """(route or None, how). See the module note for what each `how` means."""
+    offered = list(offered or [])
+    said = normalize(reply)
+    if not said or not offered:
+        return None, "unclear"
+    if REFUSAL.search(said):
+        return None, "refused"
+    selected = [r for r in offered
+                if any(re.fullmatch(PREFIX + re.escape(w) + SUFFIX, said) for w in words_for(r, offered))]
+    if len(selected) == 1:
+        return selected[0], "named"
+    m = ORDINAL.fullmatch(said)
+    if m:
+        index = _ORDINAL_INDEX[m.group(1)]
+        if -len(offered) <= index < len(offered):
+            return offered[index], "ordinal"
+    if YES.fullmatch(said):
+        first = offered[0]
+        if len(offered) == 1 or not (first == "cloud" or first.startswith("cloud:")):
+            return first, "yes"                  # the nearest: the ranking names it first
+        return None, "ambiguous"                 # only elsewheres offered: say which
+    mentioned = [r for r in offered if any(_mentions(said, w) for w in words_for(r, offered))]
+    if len(selected) > 1 or len(mentioned) > 1:
+        return None, "ambiguous"                 # "your phone or the agent": ask which
+    return None, "unclear"
+
+
+def which_one(spoken_names) -> str:
+    """The one follow-up question, when the answer did not pick between two or more."""
+    names = list(spoken_names)
+    if len(names) == 2:
+        return f"Which one: {names[0]}, or {names[1]}?"
+    return "Which one: " + ", ".join(names[:-1]) + f", or {names[-1]}?"
+# ── end of the copy ──
+
+
+# What each route is called out loud, for the one follow-up question when a reply did not
+# pick between them. The device sends its own names with an offer; these are the fallback.
+SPOKEN = {"phone": "your phone", "mac": "your computer", "local-model": "the model on the device",
+          "cloud": "the cloud", "cloud:openhome": "the OpenHome agent"}
+
 
 class AstralCapability(MatchingCapability):
     """Astral — a deterministic layer for the exact-answer class.
@@ -40,7 +140,8 @@ class AstralCapability(MatchingCapability):
             data = self._data_from_result(result)
 
             if spoken and data.get("offer"):
-                await self._offer_a_route(transcript, spoken, data.get("routes") or [])
+                await self._offer_a_route(transcript, spoken, data.get("routes") or [],
+                                          data.get("names") or [])
             elif spoken:
                 await self.capability_worker.speak(spoken)
             # else: no local answer -> stay quiet and let the agent handle the turn
@@ -50,21 +151,29 @@ class AstralCapability(MatchingCapability):
         finally:
             self.capability_worker.resume_normal_flow()
 
-    async def _offer_a_route(self, transcript, question, routes):
+    async def _offer_a_route(self, transcript, question, routes, names=()):
         """The device knows what was asked and cannot do it here. Ask where to send it.
 
         This is the ranking speaking: it only ever gets here for a question the device
-        recognised and priced, never for chatter, so the question is not a shrug — it
-        names the places that could actually answer. The reply decides:
+        recognised and priced, never for chatter, so the question is not a shrug. It names
+        the places that could actually answer, and the reply is read by choose(), the same
+        reading the house loop uses:
 
-          the cloud  -> say nothing, and the agent takes the turn, because on this path
-                        the platform owns the subsequent response.
-          a machine  -> the device asks it over the local network and speaks the answer.
-          anything else, or no answer at all -> nothing is sent anywhere.
+          a machine      -> the device asks it over the local network and speaks the answer
+          the agent      -> say nothing: the agent takes the turn, as the platform intends
+          not a choice   -> one more question ("Which one: your phone, or the OpenHome agent?")
+          no, or unclear -> "Okay." and nothing is sent anywhere, the agent included
         """
         reply = await self.capability_worker.run_io_loop(question)
-        chosen = self._route_named(reply or "", routes)
-        if chosen is None or chosen == "cloud":
+        chosen, how = choose(reply or "", routes)
+        if how == "ambiguous":
+            spoken = list(names) if len(names) == len(routes) else [SPOKEN.get(r, r) for r in routes]
+            reply = await self.capability_worker.run_io_loop(which_one(spoken))
+            chosen, how = choose(reply or "", routes)
+        if chosen is None:
+            await self.capability_worker.speak("Okay.")
+            return
+        if chosen == "cloud" or chosen == "cloud:openhome":
             return                              # the agent's turn, untouched
         result = await self.capability_worker.send_devkit_capability_action(
             function_name="route_answer", args=[chosen, transcript], timeout=30)
@@ -74,33 +183,8 @@ class AstralCapability(MatchingCapability):
 
     @staticmethod
     def _route_named(reply, routes):
-        """Which offered route the answer picked, or None for no and for silence.
-
-        A bare yes is only an answer when one place was offered. With two, a person
-        answers with the name, and taking a plain "yes" as the first of them would be
-        putting words in their mouth about where their words go.
-        """
-        said = " ".join(re.findall(r"[a-z0-9']+", str(reply).lower().replace("’", "'")))
-        if re.search(r"\b(no|not|never|don't|do not|stop|cancel|nah|nope|without)\b", said):
-            return None
-        words = {"mac": ("mac", "computer", "laptop", "desktop"),
-                 "phone": ("phone", "mobile", "cell"),
-                 "cloud": ("cloud", "internet", "online")}
-        # A route's name can occur in a refusal, question or comparison. Require a
-        # complete selection instead of treating every mention as permission to send.
-        prefix = (r"(?:please )?(?:(?:yes|yeah|yep|sure|ok|okay) )?"
-                  r"(?:(?:(?:can|could|would) you )?"
-                  r"(?:ask|use|try|go with|send (?:it|that|this) to) )?(?:the |my |your )?")
-        suffix = r"(?: please| thanks)?"
-        selected = [route for route in routes
-                    if any(re.fullmatch(prefix + re.escape(word) + suffix, said)
-                           for word in words.get(route, (route,)))]
-        if len(selected) == 1:
-            return selected[0]
-        if len(routes) == 1 and re.fullmatch(
-                r"(?:yes|yeah|yep|sure|ok|okay|please|go ahead)(?: please| thanks)?", said):
-            return routes[0]
-        return None
+        """Which offered route the answer picked, or None: choose() without the follow-up."""
+        return choose(reply, routes)[0]
 
     def _data_from_result(self, result):
         """The structured half of the device's answer. Never raises; {} means nothing."""

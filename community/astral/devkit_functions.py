@@ -181,6 +181,7 @@ def respond(*words):
     if out and out.get("kind") == "ask" and out.get("say"):
         _emit_success(out["say"], {"query": q, "from": "hub", "offer": True,
                                    "routes": out.get("routes") or [],
+                                   "names": out.get("names") or [],
                                    "class": out.get("class")})
         return
 
