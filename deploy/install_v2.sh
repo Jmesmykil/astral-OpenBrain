@@ -29,15 +29,10 @@ import json, pathlib, sys
 hub = pathlib.Path(sys.argv[1]) / "hub"
 sys.path.insert(0, str(hub)); import lan
 lan.token()
-routes = hub / "data/routes.json"
-cur = json.loads(routes.read_text()) if routes.exists() else {}
-cur["mac"] = {"host": sys.argv[2], "port": lan.PORT}
-cur.setdefault("phone", {"host": None})
-# Never turned on by a deploy, and never dropped by one either: the switch is the
-# creator's to throw, and a route that quietly vanished would take the offer with it.
-cur.setdefault("cloud", {"enabled": False})
-routes.write_text(json.dumps(cur, indent=2) + "\n")
-print("Mac route:", cur["mac"])
+# The deployer's address is written only on the device (below), never into the repository:
+# what ships must work in anybody's house. Machines that dial in to the gateway need no
+# address at all; this fixed LAN route is the older way to reach a computer.
+print("Mac route (device only):", {"host": sys.argv[2], "port": lan.PORT})
 PY
 
 # --delete, because a file removed here must be removed there. Without it the device
