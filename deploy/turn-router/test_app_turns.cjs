@@ -46,7 +46,7 @@ let results=[];async function test(name,fn){try{await fn();results.push({name,pa
 await test("unexpected transport close immediately frees pending native capacity",async()=>{
  const r=rig();await r.open(r.turn());
  vm.runInContext(stripTypeScriptTypes(lift("handleDevkitCapability")+"\nglobalThis.requestNative=handleDevkitCapability;"),r.c);
- r.c.requestNative({capability_name:"exampleaccount",function_name:"get_uptime",args:[]});
+ r.c.requestNative({capability_name:"examplebrain",function_name:"get_uptime",args:[]});
  assert.equal(r.c.nativeRequestsRef.current.size,1);
  r.c.api.handleSocketClose(1006);
  assert.equal(r.c.nativeRequestsRef.current.size,0);
@@ -62,13 +62,13 @@ function native(r){const created=[];r.c.configRef={current:null};r.c.setConfig=(
  // of the validated correlation. `sent` is the request the App handed to the local socket.
  const wire=(sent,over={},meta=sent.data._astral)=>{const {_astral,...data}=sent.data;const result={type:"devkit-capability-result",data:{...data,success:true,output:'{"success":true,"spoken_response":"old answer"}',error:null,...over}};if(meta!==undefined)result._astral=meta;return result};
  const deliver=result=>local.onmessage({data:JSON.stringify(result)});
- const request=(message={capability_name:"exampleaccount",function_name:"respond",args:["q"]})=>{const before=local.sent.length;r.c.nativeLifecycle.handleDevkitCapability(message);return local.sent.slice(before).find(x=>x.type==="devkit-capability")};
+ const request=(message={capability_name:"examplebrain",function_name:"respond",args:["q"]})=>{const before=local.sent.length;r.c.nativeLifecycle.handleDevkitCapability(message);return local.sent.slice(before).find(x=>x.type==="devkit-capability")};
  return {local,created,pending,wire,deliver,request};}
 const T1="11111111-1111-4111-8111-111111111111",T2="22222222-2222-4222-8222-222222222222";
 await test("a late native result cannot enter a replacement agent session",async()=>{
  const r=rig(),n=native(r);
  await r.open(r.turn(T1,"Explain a long computation."));
- const sent=n.request({capability_name:"exampleaccount",function_name:"respond",args:["old question"]});assert(sent);
+ const sent=n.request({capability_name:"examplebrain",function_name:"respond",args:["old question"]});assert(sent);
  await r.open(r.turn(T2,"A different question."));
  const count=r.cloud.length;
  n.deliver(n.wire(sent));
@@ -77,7 +77,7 @@ await test("a late native result cannot enter a replacement agent session",async
 });
 await test("a native request carries local-only correlation and its same-turn result is forwarded once, stripped",async()=>{
  const r=rig(),n=native(r);await r.open(r.turn(T1));
- const sent=n.request({capability_name:"exampleaccount",function_name:"respond",args:["q"],_astral:{request_id:"forged",turn_id:"forged"}});
+ const sent=n.request({capability_name:"examplebrain",function_name:"respond",args:["q"],_astral:{request_id:"forged",turn_id:"forged"}});
  assert(sent);assert.deepEqual(Object.keys(sent.data).sort(),["_astral","args","capability_name","function_name"]);
  assert.equal(typeof sent.data._astral.request_id,"string");assert.notEqual(sent.data._astral.request_id,"forged","incoming metadata is replaced, never trusted");
  assert.equal(sent.data._astral.turn_id,T1);assert.equal(n.pending().size,1);
@@ -85,7 +85,7 @@ await test("a native request carries local-only correlation and its same-turn re
  assert.equal(r.timers.at(-1).ms,20000,"entry expires after 20 s");
  const before=r.cloud.length;n.deliver(n.wire(sent,{args:["q"]}));
  assert.equal(r.cloud.length,before+1);const forwarded=r.cloud.at(-1);
- assert.deepEqual(forwarded,{type:"devkit-capability-result",data:{capability_name:"exampleaccount",function_name:"respond",args:["q"],success:true,output:'{"success":true,"spoken_response":"old answer"}',error:null}});
+ assert.deepEqual(forwarded,{type:"devkit-capability-result",data:{capability_name:"examplebrain",function_name:"respond",args:["q"],success:true,output:'{"success":true,"spoken_response":"old answer"}',error:null}});
  assert(!JSON.stringify(forwarded).includes("_astral"),"local correlation never reaches the cloud");
  assert.equal(n.pending().size,0,"forwarded entries are removed");
  n.deliver(n.wire(sent));assert.equal(r.cloud.length,before+1,"a duplicate result is dropped");
@@ -129,14 +129,14 @@ await test("native admission is refused without a routed owner, at capacity, and
  r.c.routedTurnRef.current={id:T1,owner:"openhome"};r.c.websocketRef.current=null;
  assert.equal(n.request(),undefined,"no remote socket: nothing reaches Node");assert.equal(n.pending().size,0);
  await r.open(r.turn(T1));const before=r.cloud.length;
- for(let i=0;i<8;i++)assert(n.request({capability_name:"exampleaccount",function_name:"respond",args:[String(i)]}));
- assert.equal(n.pending().size,8);const ninth=n.request({capability_name:"exampleaccount",function_name:"health",args:[]});
+ for(let i=0;i<8;i++)assert(n.request({capability_name:"examplebrain",function_name:"respond",args:[String(i)]}));
+ assert.equal(n.pending().size,8);const ninth=n.request({capability_name:"examplebrain",function_name:"health",args:[]});
  assert.equal(ninth,undefined,"over capacity: no native call");assert.equal(n.pending().size,8,"no pending leak");
- assert.deepEqual(r.cloud.at(-1),{type:"devkit-capability-result",data:{capability_name:"exampleaccount",function_name:"health",args:[],success:false,output:null,error:"Too many native requests pending"}});
+ assert.deepEqual(r.cloud.at(-1),{type:"devkit-capability-result",data:{capability_name:"examplebrain",function_name:"health",args:[],success:false,output:null,error:"Too many native requests pending"}});
  assert.equal(r.cloud.length,before+1);
  n.pending().clear();n.local.readyState=3;assert.equal(n.request(),undefined);assert.equal(n.pending().size,0);
  assert.equal(r.cloud.at(-1).data.error,"Local WebSocket not connected");
- n.local.readyState=1;n.local.send=()=>{throw new Error("write after end")};r.c.nativeLifecycle.handleDevkitCapability({capability_name:"exampleaccount",function_name:"respond",args:["x"]});
+ n.local.readyState=1;n.local.send=()=>{throw new Error("write after end")};r.c.nativeLifecycle.handleDevkitCapability({capability_name:"examplebrain",function_name:"respond",args:["x"]});
  assert.equal(n.pending().size,0,"a failed send leaves nothing pending");assert.equal(r.cloud.at(-1).data.error,"Local WebSocket send failed");assert.deepEqual(r.cloud.at(-1).data.args,["x"]);
  const bad=n.request(null);assert.equal(bad,undefined);
 });

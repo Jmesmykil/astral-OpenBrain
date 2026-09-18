@@ -1,22 +1,59 @@
 // Native DevKit execution with confined source paths and one script per request.
 const fs = require("node:fs");
+const os = require("node:os");
 const path = require("node:path");
 const { randomUUID } = require("node:crypto");
 const { spawn } = require("node:child_process");
 
 // On a paired install (the turn router lives beside this dispatcher) the Astral daemon
 // must not act through the native path: the local hub owns alerts, the corpus and the
-// kernel. These autonomous functions are declined for these aliases only; foreground
-// respond/route_answer/health/telemetry/device_control and every other ability keep
-// their behavior. The router file is checked per request, so losing its token or
-// removing the router later takes effect without a restart.
+// kernel. These autonomous functions are declined for Astral's own capability names only;
+// foreground respond/route_answer/health/telemetry/device_control and every other ability
+// keep their behavior. The router file and the name list are read per request, so pairing,
+// unpairing or registering another name takes effect without a restart.
 const PAIRED_MARKER = "astral_turn_router.cjs";
 const AUTONOMOUS_FUNCTIONS = new Set(["respond_now", "due_alerts", "heard"]);
-const DAEMON_ALIASES = new Set(["openbrain", "openbraindaemon",
-                                "astral", "astral-daemon", "exampleaccount"]);
+// The package's own folder names. An account registers the ability under names of its
+// own, and those are listed on the device, one per line, in the file on_device.sh reads
+// to refresh each registered folder; they are read from there, never written here.
+const PACKAGE_NAMES = ["astral", "astral-daemon"];
+const REGISTRATIONS = path.join("astral-voice", "state", "openhome-capability-names.txt");
+const REGISTRATION_NAME = /^[A-Za-z][A-Za-z0-9]*$/;
+const REGISTRATIONS_MAX_BYTES = 65536;
 // The exact nested shape the daemon's health checks read as "healthy, nothing to say".
 const QUIET_OUTPUT = JSON.stringify({success: true, spoken_response: "", data: {}, error: null});
 const ID_PATTERN = /^[A-Za-z0-9_-]{1,128}$/;
+
+// Where Astral's state lives: ASTRAL_HOME when set, else the running user's home when the
+// install is there, else the stock DevKit user's. The platform runs this as root, whose
+// own home holds nothing of Astral's.
+function astralHome() {
+  if (process.env.ASTRAL_HOME) return process.env.ASTRAL_HOME;
+  const home = os.homedir();
+  return fs.existsSync(path.join(home, "astral-voice")) ? home : "/home/openhome";
+}
+
+// The package names plus every registration name the device lists. A missing list leaves
+// the package names; a link, a non-regular file, an oversized file or a malformed line
+// adds nothing, the same names on_device.sh would refuse to install.
+function astralNames() {
+  const names = new Set(PACKAGE_NAMES);
+  let fd;
+  try {
+    fd = fs.openSync(path.join(astralHome(), REGISTRATIONS),
+                     fs.constants.O_RDONLY | fs.constants.O_NOFOLLOW | fs.constants.O_NONBLOCK);
+    const info = fs.fstatSync(fd);
+    if (!info.isFile() || info.size > REGISTRATIONS_MAX_BYTES) throw new Error("not a small regular file");
+    for (const name of fs.readFileSync(fd, "utf8").split("\n")) {
+      if (REGISTRATION_NAME.test(name)) names.add(name);
+    }
+  } catch (err) {
+    if (err.code !== "ENOENT") console.error("Ignoring the capability name list:", err.code || err.message);
+  } finally {
+    if (fd !== undefined) fs.closeSync(fd);
+  }
+  return names;
+}
 
 module.exports = function handleCapability(ws, payload) {
   const { capability_name, function_name, args = [], _astral } = payload || {};
@@ -61,8 +98,8 @@ module.exports = function handleCapability(ws, payload) {
       }
       correlation = {request_id: _astral.request_id, turn_id: _astral.turn_id};
     }
-    if (AUTONOMOUS_FUNCTIONS.has(function_name) && DAEMON_ALIASES.has(capability_name) &&
-        fs.existsSync(path.join(__dirname, PAIRED_MARKER))) {
+    if (AUTONOMOUS_FUNCTIONS.has(function_name) && fs.existsSync(path.join(__dirname, PAIRED_MARKER)) &&
+        astralNames().has(capability_name)) {
       console.error("Declined autonomous native call on paired install:", capability_name, function_name);
       finish(true, QUIET_OUTPUT, null);
       return;

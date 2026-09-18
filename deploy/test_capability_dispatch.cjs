@@ -7,14 +7,20 @@ const {EventEmitter} = require("node:events");
 const {test} = require("node:test");
 const source = fs.readFileSync(path.join(__dirname, "astral_capability.cjs"), "utf8");
 
-function fixture(t, spawnFailure = false) {
+// Made-up registration names: an account's own names come from the device's list.
+const REGISTERED=["examplebrain","examplebraindaemon"];
+function fixture(t, spawnFailure = false, {env, homedir} = {}) {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), "openhome-dispatch-"));
   t.after(() => fs.rmSync(root, {recursive:true, force:true}));
   const caps = path.join(root, "local_capabilities");
-  for (const name of ["alpha", "beta", "openbrain", "openbraindaemon", "astral", "astral-daemon", "exampleaccount"]) {
+  for (const name of ["alpha", "beta", "astral", "astral-daemon", "with-dash", "laterbrain", ...REGISTERED]) {
     fs.mkdirSync(path.join(caps,name), {recursive:true});
     fs.writeFileSync(path.join(caps,name,"devkit_functions.py"), name.toUpperCase());
   }
+  const home = path.join(root, "home");
+  const list = path.join(home, "astral-voice/state/openhome-capability-names.txt");
+  fs.mkdirSync(path.dirname(list), {recursive:true});
+  fs.writeFileSync(list, REGISTERED.join("\n") + "\n");
   const server = path.join(root, "openhome-node-server");
   fs.mkdirSync(server);
   const calls = [], replies = [], logs = [];
@@ -23,12 +29,13 @@ function fixture(t, spawnFailure = false) {
     const child = new EventEmitter(); child.stdout=new EventEmitter(); child.stderr=new EventEmitter();
     calls.push({executable,args,options,child}); return child;
   }
+  const fakeOs = homedir ? {...os, homedir} : os;
   const context={__dirname:server, module:{exports:{}},
-    process:{env:{LOCAL_CAPABILITIES_DIR:caps}}, console:{error(...parts){logs.push(parts)}},
-    require:name=>name==="node:child_process"?{spawn}:require(name)};
+    process:{env:env || {LOCAL_CAPABILITIES_DIR:caps, ASTRAL_HOME:home}}, console:{error(...parts){logs.push(parts)}},
+    require:name=>name==="node:child_process"?{spawn}:name==="node:os"?fakeOs:require(name)};
   vm.createContext(context); vm.runInContext(source,context);
   const ws={send:value=>replies.push(JSON.parse(value))};
-  return {root,caps,server,calls,replies,logs,ws,run:(payload,socket=ws)=>context.module.exports(socket,payload),
+  return {root,caps,home,list,server,calls,replies,logs,ws,run:(payload,socket=ws)=>context.module.exports(socket,payload),
     // A paired install has the turn router beside the dispatcher; the token is its own file.
     pair:(withToken=true)=>{fs.writeFileSync(path.join(server,"astral_turn_router.cjs"),"// router");
       if (withToken) fs.writeFileSync(path.join(server,"token"),"secret");},
@@ -38,7 +45,7 @@ function fixture(t, spawnFailure = false) {
 const request=(cap="alpha",args=[])=>({capability_name:cap,function_name:"respond",args});
 const call=(cap,fn,extra={})=>({capability_name:cap,function_name:fn,args:[],...extra});
 const QUIET='{"success":true,"spoken_response":"","data":{},"error":null}';
-const ALIASES=["openbrain","openbraindaemon","astral","astral-daemon","exampleaccount"],
+const ALIASES=["astral","astral-daemon",...REGISTERED],
       AUTONOMOUS=["respond_now","due_alerts","heard"];
 const SIX=["capability_name","function_name","args","success","output","error"];
 
@@ -141,8 +148,42 @@ test("the router file is checked per request: pairing and unpairing take effect 
   f.run(call("astral-daemon","heard"));assert.equal(f.calls.length,1,"paired with token: declined");
   fs.rmSync(path.join(f.server,"astral_turn_router.cjs"));   // token left behind, router gone
   f.run(call("astral","respond_now"));assert.equal(f.calls.length,2,"router removed: spawns again");
-  f.unpair();f.run(call("exampleaccount","heard"));assert.equal(f.calls.length,3);
+  f.unpair();f.run(call("examplebrain","heard"));assert.equal(f.calls.length,3);
   assert.deepEqual(f.files().length,3);
+});
+test("registered names come from the device's list, read per request",t=>{
+  const f=fixture(t);f.pair();
+  f.run(call("laterbrain","respond_now"));assert.equal(f.calls.length,1,"not listed: it runs");
+  fs.appendFileSync(f.list,"laterbrain\n");
+  f.run(call("laterbrain","respond_now"));assert.equal(f.calls.length,1,"listed later: declined without a restart");
+  assert.equal(f.replies.at(-1).data.output,QUIET);
+  fs.writeFileSync(f.list,"examplebrain\nwith-dash\nlaterbrain \n");
+  f.run(call("with-dash","heard"));f.run(call("laterbrain","heard"));
+  assert.equal(f.calls.length,3,"a line on_device.sh would refuse adds no name");
+  f.run(call("examplebrain","heard"));assert.equal(f.calls.length,3,"the valid line still counts");
+});
+test("a missing, linked or oversized list leaves only the package names",t=>{
+  const f=fixture(t);f.pair();
+  const outside=path.join(f.root,"elsewhere.txt");fs.writeFileSync(outside,"examplebrain\n");
+  fs.rmSync(f.list);fs.symlinkSync(outside,f.list);
+  f.run(call("examplebrain","due_alerts"));assert.equal(f.calls.length,1,"a linked list is not followed");
+  assert.ok(f.logs.some(l=>String(l[0]).includes("Ignoring the capability name list")));
+  fs.rmSync(f.list);fs.writeFileSync(f.list,"examplebrain\n"+"x".repeat(70000)+"\n");
+  f.run(call("examplebrain","due_alerts"));assert.equal(f.calls.length,2,"an oversized list is not read");
+  fs.rmSync(f.list);
+  f.run(call("examplebrain","due_alerts"));assert.equal(f.calls.length,3,"no list: registered names run");
+  f.run(call("astral-daemon","due_alerts"));assert.equal(f.calls.length,3,"and the package names are still declined");
+});
+test("without ASTRAL_HOME the running user's home is used only when Astral is installed there",t=>{
+  const installed=fixture(t,false,{homedir:()=>"",env:{}});
+  const home=installed.home;
+  const withInstall=fixture(t,false,{homedir:()=>home,env:{LOCAL_CAPABILITIES_DIR:installed.caps}});
+  withInstall.pair();withInstall.run(call("examplebrain","heard"));
+  assert.equal(withInstall.calls.length,0,"the list in that home is read");
+  const bare=fs.mkdtempSync(path.join(os.tmpdir(),"openhome-dispatch-home-"));t.after(()=>fs.rmSync(bare,{recursive:true,force:true}));
+  const without=fixture(t,false,{homedir:()=>bare,env:{LOCAL_CAPABILITIES_DIR:installed.caps}});
+  without.pair();without.run(call("examplebrain","heard"));
+  assert.equal(without.calls.length,1,"a home without the install is not where the list is");
 });
 test("an unrelated ability using the same function name is not declined on a paired install",t=>{
   const f=fixture(t);f.pair();

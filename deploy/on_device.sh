@@ -75,6 +75,8 @@ done
 # Account registration names can differ from the public package name. This owner
 # list survives hub syncs and contains one verified alphanumeric name per line.
 # Account sync installs the named folder; an upgrade must refresh that folder too.
+# The native dispatcher (astral_capability.cjs) reads the same list for the names
+# whose autonomous calls it declines on a paired install.
 REGISTRATIONS=~/astral-voice/state/openhome-capability-names.txt
 # Legacy folders are refreshed only while they still exist. Naming one here
 # unconditionally recreated it on every deploy long after its registration was
