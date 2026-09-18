@@ -2,8 +2,10 @@
 
 Astral answers out loud on an OpenHome DevKit, on the device, without sending the
 question anywhere. Ask it the time, a calculation, a unit conversion, a molar mass or an
-escape velocity and it computes the answer and speaks it. Ask it anything else and it
-says nothing, so the agent takes the turn.
+escape velocity and it computes the answer and speaks it. Ask it anything else and, with
+the local hub installed, it offers to ask something that can answer (your phone, your
+computer, or the OpenHome agent) and sends nothing without a yes; without the hub it says
+nothing, so the agent takes the turn.
 
 The point is not that it is fast, though it is. The point is that a question with exactly
 one right answer should be computed rather than recalled. A model asked for the escape
@@ -162,9 +164,10 @@ it, proves it belongs to the owner of the house, and then takes signed tasks and
 answers. Nothing on the phone or computer listens; there is no VPN, no mesh and no relay. When a
 question is outside what the device can answer within rank, it says which machine it would need
 and asks before sending it anywhere. The owner signs in once: approve the device at home with a
-six-digit code, or use a GitHub, Google or X account. Nothing about the owner is built in; the
-first account to sign in becomes the owner of that house.
+six-digit code, or use a GitHub account. Google and X sign-in are built in and appear once the
+house is given its own app ids for them. Nothing about the owner is built in; the first account
+to sign in becomes the owner of that house.
 
-The gateway ships with the local hub, which is not part of this repository yet. The wire
-contract (canonical JSON, the signed task, card and receipt shapes) is stable and will be
-published with it, so any client can join.
+The gateway ships with the local hub, which is not part of this repository yet, and so does
+the phone app (Astral Oasis). The wire contract (canonical JSON, the signed task, card and
+receipt shapes) is stable and will be published with them, so any client can join.
