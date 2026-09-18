@@ -50,6 +50,77 @@ class InstallContract(unittest.TestCase):
         self.assertEqual(routes.read_bytes(), original)
         self.assertFalse((repo / "hub/data/lan.token").exists())
 
+    def _installer_in(self, repo):
+        (repo / "deploy/turn-router").mkdir(parents=True)
+        shutil.copy2(INSTALLER, repo / "deploy/install_v2.sh")
+        for name in ("check_installed.py", "protocol.json"):
+            shutil.copy2(HERE / name, repo / "deploy/turn-router" / name)
+        return repo / "deploy/install_v2.sh"
+
+    def _tools(self, **scripts):
+        bins = self.root / "bin"
+        bins.mkdir(exist_ok=True)
+        for name, script in scripts.items():
+            path = bins / name
+            path.write_text("#!/bin/sh\n" + script + "\n")
+            path.chmod(0o755)
+        return dict(os.environ, PATH=str(bins) + os.pathsep + os.environ["PATH"])
+
+    def test_missing_hub_fails_first_in_one_sentence(self):
+        installer = self._installer_in(self.root / "repo")
+        calls = self.root / "calls"
+        env = self._tools(ssh=f'echo "ssh $*" >> "{calls}"', rsync=f'echo "rsync $*" >> "{calls}"')
+        result = subprocess.run(["zsh", str(installer), "user@fixture.invalid"], env=env,
+                                capture_output=True, text=True, timeout=10)
+        self.assertEqual(result.returncode, 1)
+        self.assertEqual(len(result.stderr.strip().splitlines()), 1, result.stderr)
+        self.assertIn("hub/", result.stderr)
+        self.assertFalse(calls.exists(), "nothing reaches ssh or rsync")
+
+    def test_ssh_uses_configuration_and_agent_unless_a_key_is_named(self):
+        repo = self.root / "repo"
+        installer = self._installer_in(repo)
+        (repo / "hub").mkdir()
+        (repo / "hub/voice_turns.py").write_text("# paired\n")
+        seen = self.root / "seen"
+        env = self._tools(ssh=f'echo "$* agent=${{SSH_AUTH_SOCK-unset}}" > "{seen}"; exit 42')
+        env["SSH_AUTH_SOCK"] = "/fixture/agent.sock"
+        env.pop("ASTRAL_SSH_KEY", None)
+        subprocess.run(["zsh", str(installer), "user@device"], env=env, capture_output=True, timeout=10)
+        line = seen.read_text()
+        self.assertTrue(line.startswith("-o BatchMode=yes -o ConnectTimeout=8 user@device "), line)
+        self.assertNotIn("-i ", line)
+        self.assertIn("agent=/fixture/agent.sock", line)
+        subprocess.run(["zsh", str(installer), "user@device"], env=dict(env, ASTRAL_SSH_KEY="/fixture/key"),
+                       capture_output=True, timeout=10)
+        line = seen.read_text()
+        self.assertTrue(line.startswith("-i /fixture/key -o IdentitiesOnly=yes "), line)
+        self.assertTrue(line.rstrip("\n").endswith(" agent="), "a named key is used without the agent")
+
+    def test_lan_address_is_the_source_toward_the_device_or_one_clear_failure(self):
+        repo = self.root / "repo"
+        installer = self._installer_in(repo)
+        (repo / "hub").mkdir()
+        (repo / "hub/lan.py").write_text("PORT = 8790\n\ndef token():\n    pass\n")
+        env = self._tools(
+            ssh='if [ "$1" = "-G" ]; then echo "user fixture"; echo "hostname $FIXTURE_HOST"; exit 0; fi; exit 42',
+            rsync="exit 44")
+        env.pop("ASTRAL_LAN_ADDR", None)
+
+        def run(host, **extra):
+            return subprocess.run(["zsh", str(installer), "user@alias"], env=dict(env, FIXTURE_HOST=host, **extra),
+                                  capture_output=True, text=True, timeout=20)
+        found = run("127.0.0.1")
+        self.assertEqual(found.returncode, 44, found.stderr)
+        self.assertIn("'host': '127.0.0.1'", found.stdout, "ssh's host name for the alias, then its route")
+        failed = run("fixture.invalid")
+        self.assertEqual(failed.returncode, 1)
+        self.assertEqual(len(failed.stderr.strip().splitlines()), 1, failed.stderr)
+        self.assertIn("ASTRAL_LAN_ADDR", failed.stderr)
+        given = run("fixture.invalid", ASTRAL_LAN_ADDR="192.0.2.7")
+        self.assertEqual(given.returncode, 44, given.stderr)
+        self.assertIn("'host': '192.0.2.7'", given.stdout)
+
     def test_pair_and_served_asset_validation(self):
         node = self.root / "openhome_devkit/openhome-node-server/astral_turn_router.cjs"
         app = self.root / "openhome_devkit/openhome-dashboard-pi/src/App.tsx"

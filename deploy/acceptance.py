@@ -36,7 +36,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 LOG = "~/astral-voice/astral-hub.log"
-SSH = ["ssh", "-o", "IdentitiesOnly=yes", "-o", "BatchMode=yes", "-o", "ConnectTimeout=8"]
+SSH = ["ssh", "-o", "BatchMode=yes", "-o", "ConnectTimeout=8"]
 
 MARK = re.compile(r"\[(wake|burst|heard|route|said|spoken|floor[^\]]*|barge|ignored[^\]]*)\]")
 
@@ -46,13 +46,15 @@ class Watcher:
 
     def __init__(self, host, key):
         self.lines, self.stop = [], threading.Event()
-        cmd = SSH + (["-i", key] if key else []) + ["-n", host, f"tail -n0 -F {LOG}"]
+        # Your ssh configuration and agent, unless one key is named: then that key alone.
+        cmd = SSH + (["-i", key, "-o", "IdentitiesOnly=yes"] if key else []) + ["-n", host, f"tail -n0 -F {LOG}"]
         # stdin=DEVNULL and ssh -n, both on purpose. ssh reads standard input, and this one
         # runs for the whole pass beside a prompt that is also reading standard input — so
         # without this it swallows the keystrokes meant for the questions and the pass dies
         # on the first ENTER. Found by running the harness before handing it to anybody.
         self.proc = subprocess.Popen(cmd, stdin=subprocess.DEVNULL, stdout=subprocess.PIPE,
-                                     stderr=subprocess.DEVNULL, text=True, bufsize=1)
+                                     stderr=subprocess.DEVNULL, text=True, bufsize=1,
+                                     env=dict(os.environ, SSH_AUTH_SOCK="") if key else None)
         threading.Thread(target=self._read, daemon=True).start()
 
     def _read(self):
@@ -112,7 +114,9 @@ def main():
     ap.add_argument("--host", default=os.environ.get("ASTRAL_DEVKIT"),
                     required="ASTRAL_DEVKIT" not in os.environ,
                     help="the DevKit as user@host; defaults to $ASTRAL_DEVKIT")
-    ap.add_argument("--key", default=str(Path.home() / ".ssh/id_ed25519"))
+    ap.add_argument("--key", default=os.environ.get("ASTRAL_SSH_KEY"),
+                    help="one ssh key to use alone, without the agent; defaults to $ASTRAL_SSH_KEY, "
+                         "else your ssh configuration and agent")
     ap.add_argument("--only", default=None, help="one section: wake room short follow long interrupt audible")
     ap.add_argument("--out", default=None)
     args = ap.parse_args()

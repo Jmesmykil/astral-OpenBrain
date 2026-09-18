@@ -13,9 +13,10 @@
 #   open brain and another one
 #   TURNS
 #
-# It raises the speaker to hear itself and PUTS IT BACK — his listening level is 10% and
-# is not ours to leave changed. Follow-ups belong next to the turn they follow: adjacency
-# is what produced "what do the books say about tell me a joke".
+# It raises the speaker to hear itself and PUTS IT BACK — the listening level belongs to
+# whoever lives with the device and is not ours to leave changed. Follow-ups belong next
+# to the turn they follow: adjacency is what produced "what do the books say about tell
+# me a joke".
 set -u
 _WAS=$(pactl get-sink-volume @DEFAULT_SINK@ | head -1 | grep -o '[0-9]*%' | head -1)
 _restore() { pactl set-sink-volume @DEFAULT_SINK@ "$_WAS"; echo "[speaker back to $_WAS]"; }
@@ -29,15 +30,19 @@ pactl set-sink-volume @DEFAULT_SINK@ 70%
 # A conversation spoken into the device's own microphone, in the order a person says it.
 # Follow-ups sit next to the turn before them on purpose: that adjacency is what produced
 # "what do the books say about tell me a joke".
-L=/home/openhome/astral-voice/astral-hub.log
-CK=/home/openhome/astral-checks
+# The device's own paths: this runs there, as the user the hub runs as.
+A=${ASTRAL_HOME:-$HOME}/astral-voice
+L=$A/astral-hub.log
+# Where each spoken turn is synthesised: ASTRAL_SWEEP_DIR, else a fresh temporary directory.
+CK=${ASTRAL_SWEEP_DIR:-$(mktemp -d)}
+mkdir -p "$CK"
 say_turn() {
   local text="$1"
   for i in $(seq 1 90); do pgrep -x mpv >/dev/null 2>&1 || break; sleep 1; done
   sleep 2
   local n0=$(wc -l < $L)
-  cd /home/openhome/astral-voice/hub-v2
-  UTT="$text" /home/openhome/astral-voice/kws-venv/bin/python3 -c "
+  cd "$A/hub-v2"
+  UTT="$text" "$A/kws-venv/bin/python3" -c "
 import sys,os; sys.path.insert(0,'.')
 import live_hub, subprocess
 subprocess.run([live_hub.PIPER,'--model',live_hub.voice_now(),'--output_file','$CK/s.wav'], input=os.environ['UTT'], capture_output=True, text=True)

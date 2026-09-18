@@ -3,8 +3,12 @@
 #
 #   deploy/install_v2.sh [user@host]        (or set ASTRAL_DEVKIT)
 #
+# ssh uses your own configuration and agent. ASTRAL_SSH_KEY names one key to use alone,
+# without the agent. ASTRAL_LAN_ADDR gives this computer's address on the device's network
+# when it cannot be worked out.
+#
 # Copies the hub (engine, router, kernels, sounds, data) to ~/astral-voice/hub-v2 on the
-# device, makes the chime files, points the LAN route at this Mac, installs the
+# device, makes the chime files, points the LAN route at this computer, installs the
 # astral-hub user service running live_hub.py in the device's kws-venv, and prints the
 # state. A paired turn-router browser stays running as the selected agent output;
 # the hub owns microphone admission. Older unpaired releases retain kiosk exclusion.
@@ -12,8 +16,12 @@ set -e
 HERE=$(cd "$(dirname "$0")/.." && pwd)
 T=${1:-${ASTRAL_DEVKIT:?pass the DevKit as user@host, or set ASTRAL_DEVKIT}}
 START=0; [[ "$2" == "--start" ]] && START=1
-export SSH_AUTH_SOCK=
-SSHC=(ssh -i "$HOME/.ssh/id_ed25519" -o IdentitiesOnly=yes -o BatchMode=yes -o ConnectTimeout=8)
+[[ -d "$HERE/hub" ]] || { echo "install_v2.sh deploys the private hub/ sources, and this checkout has no hub/ directory." >&2; exit 1; }
+SSHC=(ssh -o BatchMode=yes -o ConnectTimeout=8)
+if [[ -n "${ASTRAL_SSH_KEY:-}" ]]; then
+  export SSH_AUTH_SOCK=
+  SSHC=(ssh -i "$ASTRAL_SSH_KEY" -o IdentitiesOnly=yes -o BatchMode=yes -o ConnectTimeout=8)
+fi
 # Fail before any local or device write if the required browser pair is incompatible.
 PAIR=0
 if [[ -f "$HERE/hub/voice_turns.py" ]]; then
@@ -21,10 +29,24 @@ if [[ -f "$HERE/hub/voice_turns.py" ]]; then
   CONTRACT=$(python3 -c 'import base64,pathlib,sys; print(base64.b64encode(pathlib.Path(sys.argv[1]).read_bytes()).decode())' "$HERE/deploy/turn-router/protocol.json")
   "${SSHC[@]}" "$T" python3 - "$CONTRACT" < "$HERE/deploy/turn-router/check_installed.py"
 fi
-MAC_IP=$(ipconfig getifaddr en0 2>/dev/null || ipconfig getifaddr en1)
+# This computer's address toward the device: the source address the system would use to
+# reach it (a UDP connect sends nothing, and works the same on macOS and Linux), after ssh
+# resolves any alias in your configuration. ASTRAL_LAN_ADDR overrides it.
+LAN_ADDR=${ASTRAL_LAN_ADDR:-}
+if [[ -z "$LAN_ADDR" ]]; then
+  DEVICE_HOST=$(ssh -G "$T" 2>/dev/null | awk '$1 == "hostname" {print $2; exit}') || true
+  LAN_ADDR=$(python3 -c 'import socket, sys
+s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+s.connect((sys.argv[1], 9))
+print(s.getsockname()[0])' "${DEVICE_HOST:-${T#*@}}" 2>/dev/null) || true
+fi
+[[ -n "$LAN_ADDR" && "$LAN_ADDR" != "0.0.0.0" ]] || {
+  echo "Could not work out this computer's address toward $T; set ASTRAL_LAN_ADDR to it." >&2
+  exit 1
+}
 
-# the LAN route: the Pi asks THIS Mac; the token is shared by copying the file
-python3 - "$HERE" "$MAC_IP" <<'PY'
+# the LAN route: the Pi asks THIS computer; the token is shared by copying the file
+python3 - "$HERE" "$LAN_ADDR" <<'PY'
 import json, pathlib, sys
 hub = pathlib.Path(sys.argv[1]) / "hub"
 sys.path.insert(0, str(hub)); import lan
@@ -32,7 +54,7 @@ lan.token()
 # The deployer's address is written only on the device (below), never into the repository:
 # what ships must work in anybody's house. Machines that dial in to the gateway need no
 # address at all; this fixed LAN route is the older way to reach a computer.
-print("Mac route (device only):", {"host": sys.argv[2], "port": lan.PORT})
+print("route to this computer (device only):", {"host": sys.argv[2], "port": lan.PORT})
 PY
 
 # --delete, because a file removed here must be removed there. Without it the device
@@ -56,8 +78,8 @@ rsync -rlt --delete --chmod=u=rwX,go=rX -e "${SSHC[*]}" \
   --include='data/library/' --include='data/library/reference/' \
   --include='data/library/reference/*.tsv' --include='data/library/reference/*.md' \
   --include='data/state/' --exclude='*' "$HERE/hub/" "$T:~/astral-voice/hub-v2/"
-# Device choices stay on the device. A deployment updates only this Mac's address.
-"${SSHC[@]}" "$T" python3 - "$MAC_IP" <<'PYROUTES'
+# Device choices stay on the device. A deployment updates only this computer's address.
+"${SSHC[@]}" "$T" python3 - "$LAN_ADDR" <<'PYROUTES'
 import json, os, pathlib, sys
 path = pathlib.Path.home() / "astral-voice/hub-v2/data/routes.json"
 cur = json.loads(path.read_text()) if path.exists() else {}
@@ -69,14 +91,15 @@ tmp.write_text(json.dumps(cur, indent=2) + "\n")
 if path.exists():
     tmp.chmod(path.stat().st_mode & 0o777)
 os.replace(tmp, path)
-print("Device routing choices preserved; Mac address refreshed.")
+print("Device routing choices preserved; this computer's address refreshed.")
 PYROUTES
 rsync -lt --chmod=u=rwx,go=rx -e "${SSHC[*]}" "$HERE/deploy/on_device.sh" "$T:~/astral-voice/hub-v2/"
-# The documents and the installer travel too, read-only, so the device can audit its own
-# claims. Without them the honesty suite skipped on the device and RETURNED, taking the
-# wake-phrase checks with it — the machine that actually wakes to those words was the one
-# machine never checking that the README names them. Same for the installer: the rules
-# that put the sound pack on this card could only be read on the machine that sent it.
+# The documents and the installer travel too, read-only, because the hub's own suite reads
+# them on the device: the honesty suite checks README.md's wake phrases and KNOWN-BUGS.md's
+# wake-model figures, and the deployment and voice suites read this installer. Without them
+# the honesty suite skipped on the device and RETURNED, taking the wake-phrase checks with
+# it — the machine that actually wakes to those words was the one machine never checking
+# that the README names them.
 "${SSHC[@]}" "$T" 'mkdir -p ~/astral-voice/deploy'
 rsync -lt --chmod=u=rw,go=r -e "${SSHC[*]}" "$HERE/README.md" "$HERE/KNOWN-BUGS.md" \
   "$T:~/astral-voice/"
@@ -110,7 +133,7 @@ rsync -lt --chmod=u=rwX,go=rX -e "${SSHC[*]}" "$HERE/community/astral/devkit_fun
 # A deploy onto a RUNNING loop restarts it, whether or not --start was given. Without this,
 # every fix made in a day was copied to the card and none of it ran: the service that
 # started at 07:59 was still executing the 07:59 code at 10:30, twenty modules newer on
-# disk, while the suite reported green and the owner kept catching bugs already "fixed".
+# disk, while the suite reported green and bugs already "fixed" kept turning up.
 if "${SSHC[@]}" "$T" 'systemctl --user is-active --quiet astral-hub.service'; then
   echo "astral-hub is running: restarting it so the deployed code is the running code"
   START=1
