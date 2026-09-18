@@ -210,6 +210,27 @@ WantedBy=default.target
 UNIT
 fi
 
+# The home gateway: the one door executors dial in through (the phone, a computer).
+# TLS on :8443 for them, plain loopback :8792 for the hub here. Nothing else on this
+# device listens for them, and nothing on them listens at all.
+cat > ~/.config/systemd/user/astral-gateway.service <<UNIT
+[Unit]
+Description=Astral home gateway (executors dial in; GitHub login; signed tasks)
+After=network-online.target
+
+[Service]
+WorkingDirectory=%h/astral-voice/hub-v2
+Environment=PATH=/usr/local/bin:/usr/bin:/bin
+ExecStart=%h/astral-voice/kws-venv/bin/python3 -m fabric.gateway serve
+Restart=always
+RestartSec=3
+StandardOutput=append:%h/astral-voice/astral-gateway.log
+StandardError=append:%h/astral-voice/astral-gateway.log
+
+[Install]
+WantedBy=default.target
+UNIT
+
 systemctl --user daemon-reload
 
 # Measure this machine. Without a profile every class above the table layer is refused,
@@ -258,6 +279,8 @@ fi
 # Restart even when voice capture is stopped: this service preloads the deployed
 # routing code and must never keep the preceding deployment in memory.
 systemctl --user enable astral-ability.service
+systemctl --user enable astral-gateway.service
+systemctl --user restart astral-gateway.service
 systemctl --user restart astral-ability.service
 $PY ability_server.py --check
 echo "kiosk:      $(systemctl --user is-active openhome-dashboard.service || true)"

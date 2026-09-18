@@ -45,7 +45,7 @@ PY
 # measure_costs.py went unnoticed for a day.
 rsync -rlt --delete --chmod=u=rwX,go=rX -e "${SSHC[*]}" \
   --exclude='data/routes.json' \
-  --include='*.py' --include='kernels/' --include='kernels/*.py' \
+  --include='*.py' --include='kernels/' --include='kernels/*.py' --include='fabric/' --include='fabric/*.py' \
   --include='tests/' --include='tests/*.py' --include='tests/fixtures/' --include='tests/fixtures/*.txt' --include='wake/' --include='wake/*.npz' \
   --include='data/' --include='data/*.json' \
   --include='data/lan.token' --include='data/sounds/' \
