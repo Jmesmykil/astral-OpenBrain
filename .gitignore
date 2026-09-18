@@ -11,6 +11,9 @@ build/
 __pycache__/
 *.zip
 
+# your own ability names for the packaged config.json (see README), never committed
+config.local.json
+
 # internal — kept local, not in the public repo
 hub/
 

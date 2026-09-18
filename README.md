@@ -42,7 +42,7 @@ it is the sample or the population one, because those are different numbers.
 
 `community/astral` is the foreground ability: the platform matches a trigger word, hands over the transcript, and it answers and gives the turn back. `community/astral-daemon` is the background daemon: no trigger word, it sees the whole session, offers each turn to the device first and stays silent when the device has nothing. They share one shim on the device, so there is one engine there, not two.
 
-`sh deploy/build_packages.sh` builds both into `build/`. Set your own `unique_name` in each `config.json` first: ability names are unique across every OpenHome account, so the ones shipped here are already taken.
+`sh deploy/build_packages.sh` builds both into `build/`. Ability names are unique across every OpenHome account, so each shipped `config.json` carries a `CHANGE-ME` placeholder: put your own `unique_name` and `name` in an untracked `config.local.json` beside it, and the build uses them.
 
 `community/astral-skill` is version one, a single self-contained file that answers for any agent with no device and no dependency. It is unchanged from what the community catalog accepted and needs nothing from this section.
 

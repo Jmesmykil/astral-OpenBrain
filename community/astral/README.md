@@ -5,7 +5,7 @@ Astral sends a transcribed request to the DevKit, where the local hub or compile
 neither engine can answer an ordinary request, the ability returns the turn to the agent.
 An absent or failed engine is reported distinctly.
 
-The package passes the creator's OpenHome CLI validator. Authenticated deployment,
+The package passes the OpenHome CLI validator with the DevKit fix below. Authenticated deployment,
 assignment and a spoken platform request are still pending in the current completion
 audit. The 2.2.7 compiled artifact is installed and verified on the device, in both interpreters. Its versioned
 dependency is pinned by SHA-256. The DevKit downloaded that public dependency with pip
@@ -34,8 +34,8 @@ path does not require one.
 
 ## Install and verify
 
-Use the creator's persistent fork of `Jmesmykil/openhome-cli`, which carries the DevKit
-validator fix. From the development checkout:
+Use a build of the OpenHome CLI that carries the DevKit validator fix; the fork
+`Jmesmykil/openhome-cli` has it. From the development checkout:
 
 ```sh
 OPENHOME_NO_UPDATE=1 openhome validate community/astral --json
@@ -58,7 +58,7 @@ OPENHOME_NO_UPDATE=1 openhome deploy "$bundle_dir/astral.zip" \
   --name "$YOUR_UNIQUE_NAME" --category local
 ```
 
-Ability names are unique across every OpenHome account, not only your own. `OpenBrain` is taken, and so is anything else already registered by anyone, so pick your own before deploying. A name that is in use fails with *"already exists in other users account"* even when the account holding it is your own, so that message is not evidence about who owns the name.
+Ability names are unique across every OpenHome account, not only your own, so the shipped `config.json` carries a `CHANGE-ME` placeholder: pick a name nobody has registered and put it in an untracked `config.local.json` beside `config.json`, which `deploy/build_packages.sh` applies to the package it builds. A name that is in use fails with *"already exists in other users account"* even when the account holding it is your own, so that message is not evidence about who owns the name.
 
 That command asks for the description and comma-separated trigger phrases; use the
 values in `community/astral/config.json`. For unattended use, supply `--description`,

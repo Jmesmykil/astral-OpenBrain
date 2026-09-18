@@ -1,6 +1,6 @@
 {
-  "unique_name": "OpenBrain",
-  "name": "OpenBrain",
+  "unique_name": "CHANGE-ME",
+  "name": "CHANGE-ME",
   "description": "Answers time, arithmetic, conversions and other supported requests on the DevKit. With the local hub installed, also uses its definitions, library and notes. OpenHome handles the transcript, speech and agent session.",
   "category": "local",
   "matching_hotwords": [
