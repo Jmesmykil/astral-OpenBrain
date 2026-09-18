@@ -44,7 +44,7 @@ drop-in comment applied, restarted the hub, and rolled back. All original bytes
 and metadata were checked afterward; all 38 runtime checks passed. This exercises
 the hub restart level. Other levels and error paths have controlled unit evidence,
 not equivalent fresh-device or reboot proof. The level record and the version warnings
-came later and are covered by the 26 unit checks only, not by a device run.
+came later and are covered by the 27 unit checks only, not by a device run.
 
     python3 -m unittest -v test_audio_runtime.py
 

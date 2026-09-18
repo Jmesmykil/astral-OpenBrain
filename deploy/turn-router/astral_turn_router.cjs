@@ -4,9 +4,12 @@
 // (openhome) turn is a lease: it ends on playback completion or on a failure — declined,
 // unacknowledged, disconnected, reported failed, or expired — and every failure revokes
 // the browser's ownership so a late result cannot become the answer.
-const http=require("http"),fs=require("fs"),crypto=require("crypto"),path=require("path");
+const http=require("http"),fs=require("fs"),crypto=require("crypto"),path=require("path"),os=require("os");
+// Where the hub's state lives: ASTRAL_HOME, else the running user's home when Astral is installed
+// there, else the stock DevKit user's. The platform runs this as root, whose home has none of it.
+const astralHome=()=>process.env.ASTRAL_HOME||(fs.existsSync(path.join(os.homedir(),"astral-voice"))?os.homedir():"/home/openhome");
 module.exports=function install(wss, options={}) {
- const root=options.root||"/home/openhome/astral-voice/state/turn-router";
+ const root=options.root||path.join(astralHome(),"astral-voice/state/turn-router");
  const leaseMs=options.leaseMs??120000;
  // The stock Node service runs as root; the hub runs as the owner of the state
  // directory. Keep private bridge files readable by that same owner after every

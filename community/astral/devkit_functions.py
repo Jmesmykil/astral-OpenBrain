@@ -16,8 +16,9 @@ import subprocess
 import sys
 import time
 
-# Native sudo calls have HOME=/root. Explicit paths keep hub reads/writes with its owner.
-DEVICE_HOME = os.environ.get("ASTRAL_HOME") or "/home/openhome"
+# ASTRAL_HOME, else this user's home if Astral is there, else the DevKit user's: native sudo calls have HOME=/root.
+_HOME = os.path.expanduser("~")
+DEVICE_HOME = os.environ.get("ASTRAL_HOME") or (_HOME if os.path.isdir(os.path.join(_HOME, "astral-voice")) else "/home/openhome")
 HUB = os.path.join(DEVICE_HOME, "astral-voice/hub-v2")
 HUB_USER = "openhome"
 HUB_PYTHON = os.path.join(DEVICE_HOME, "astral-voice/kws-venv/bin/python3")

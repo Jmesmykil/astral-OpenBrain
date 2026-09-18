@@ -1,7 +1,7 @@
 [
   {
     "name": "astral-aec.service",
-    "dst": "/home/openhome/.config/systemd/user/astral-aec.service",
+    "dst": "~/.config/systemd/user/astral-aec.service",
     "mode": "664",
     "owner": "openhome",
     "level": "aec",
@@ -10,7 +10,7 @@
   },
   {
     "name": "30-graph-timing.conf",
-    "dst": "/home/openhome/.config/systemd/user/astral-aec.service.d/30-graph-timing.conf",
+    "dst": "~/.config/systemd/user/astral-aec.service.d/30-graph-timing.conf",
     "mode": "664",
     "owner": "openhome",
     "level": "aec",
@@ -19,7 +19,7 @@
   },
   {
     "name": "40-aec-block.conf",
-    "dst": "/home/openhome/.config/systemd/user/astral-aec.service.d/40-aec-block.conf",
+    "dst": "~/.config/systemd/user/astral-aec.service.d/40-aec-block.conf",
     "mode": "664",
     "owner": "openhome",
     "level": "aec",
@@ -28,7 +28,7 @@
   },
   {
     "name": "20-single-router.conf",
-    "dst": "/home/openhome/.config/systemd/user/astral-hub.service.d/20-single-router.conf",
+    "dst": "~/.config/systemd/user/astral-hub.service.d/20-single-router.conf",
     "mode": "644",
     "owner": "openhome",
     "level": "hub",
@@ -37,7 +37,7 @@
   },
   {
     "name": "51-astral-voicehat-headroom.conf",
-    "dst": "/home/openhome/.config/wireplumber/wireplumber.conf.d/51-astral-voicehat-headroom.conf",
+    "dst": "~/.config/wireplumber/wireplumber.conf.d/51-astral-voicehat-headroom.conf",
     "mode": "664",
     "owner": "openhome",
     "level": "wireplumber",
@@ -46,7 +46,7 @@
   },
   {
     "name": "52-astral-browser-state.conf",
-    "dst": "/home/openhome/.config/wireplumber/wireplumber.conf.d/52-astral-browser-state.conf",
+    "dst": "~/.config/wireplumber/wireplumber.conf.d/52-astral-browser-state.conf",
     "mode": "664",
     "owner": "openhome",
     "level": "wireplumber",

@@ -392,5 +392,23 @@ class Verify(unittest.TestCase):
         self.assertIn('mute=True', info['info.sink-mute']); self.assertIn('raw=False', info['info.source-mutes'])
 
 
+class Home(unittest.TestCase):
+    def test_astral_home_then_a_home_with_astral_installed_then_the_devkit_user(self):
+        import os
+        import tempfile
+        from unittest import mock
+        with tempfile.TemporaryDirectory() as d:
+            installed, bare = Path(d) / 'installed', Path(d) / 'bare'
+            (installed / 'astral-voice').mkdir(parents=True)
+            bare.mkdir()
+            with mock.patch.dict(os.environ, {'ASTRAL_HOME': '/srv/astral'}):
+                self.assertEqual(ar.astral_home(), '/srv/astral')
+            with mock.patch.dict(os.environ, {'ASTRAL_HOME': ''}):
+                with mock.patch.object(Path, 'home', return_value=installed):
+                    self.assertEqual(ar.astral_home(), str(installed))
+                with mock.patch.object(Path, 'home', return_value=bare):
+                    self.assertEqual(ar.astral_home(), '/home/openhome')
+
+
 if __name__ == '__main__':
     unittest.main(verbosity=1)

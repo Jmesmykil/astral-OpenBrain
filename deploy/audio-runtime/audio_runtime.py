@@ -4,10 +4,20 @@
 No subprocess, no filesystem side effects here: the device runner (install-audio-runtime.py)
 gathers facts and executes the plan; the desk tests drive this module with fakes.
 """
-import hashlib, json
+import hashlib, json, os
 from pathlib import Path
 
-HOME = '/home/openhome'
+
+def astral_home():
+    """ASTRAL_HOME, else the running user's home when Astral is installed there, else the stock
+    DevKit user's home."""
+    if os.environ.get('ASTRAL_HOME'):
+        return os.environ['ASTRAL_HOME']
+    home = Path.home()
+    return str(home) if (home / 'astral-voice').is_dir() else '/home/openhome'
+
+
+HOME = astral_home()
 
 # restart levels, ordered: a higher level includes everything below it
 LEVELS = ['none', 'hub', 'aec', 'wireplumber', 'audio-stack']
