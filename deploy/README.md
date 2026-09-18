@@ -27,4 +27,4 @@ source, which does not match the current private-engine/compiled-dependency boun
 It now exits without modifying a checkout. Do not follow the old instructions in the
 historical `followup-pr-body.md`.
 
-See [HANDOFF.md](../HANDOFF.md) for live state and [RELEASE.md](../RELEASE.md) for packaging.
+See [KNOWN-BUGS.md](../KNOWN-BUGS.md) for the current state and [RELEASE.md](../RELEASE.md) for packaging.

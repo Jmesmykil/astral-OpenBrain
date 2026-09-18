@@ -144,8 +144,8 @@ Acoustic acceptance is not finished: physical interruption still loses words fro
 request while playback stops, and wake-word reliability, audible playback and platform
 spoken routing are not established by automated passes.
 
-[HANDOFF.md](HANDOFF.md) carries the current deployment state and evidence.
-[KNOWN-BUGS.md](KNOWN-BUGS.md) carries open issues and the dated ledger.
+[KNOWN-BUGS.md](KNOWN-BUGS.md) carries the current acceptance state, open issues and the
+dated ledger.
 [V2-CAPABILITIES.md](V2-CAPABILITIES.md) describes what the device does in one page.
 
 ## Licence

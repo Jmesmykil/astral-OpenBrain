@@ -98,8 +98,8 @@ made by the fully local loop.
 The optional background daemon is a separate ability category. It has its own deployment
 and voice-race acceptance requirements; it is not proved by foreground validation.
 
-For the fully local speech path, run the local loop described in
-[HANDOFF.md](../../HANDOFF.md). The kiosk and local loop must not both own the microphone.
+For the fully local speech path, run the local loop that comes with the private hub (see
+[deploy/README.md](../../deploy/README.md)). The kiosk and local loop must not both own the microphone.
 OpenHome owns volume and microphone sensitivity; the loop does not force those settings.
 
 ## License and scope
