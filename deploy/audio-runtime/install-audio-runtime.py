@@ -7,9 +7,10 @@ as openhome from any checkout path.
   apply     install differing targets with a backup, restart only the level the diff requires
   rollback  <backup-dir>: restore the backed-up state, same restart rule
 
-Never unmutes a microphone or the browser, never changes a level except to return it to its
-pre-apply value after a full stack restart. The sink mute is returned to what it was. If nothing
-differs, apply makes no change and no restart.
+Never unmutes a microphone or the browser, never changes a level except, after a full stack
+restart, to return it to the levels recorded on this device when the runtime was installed (the
+first apply records them in the backup root; before that, the pre-apply ones). The sink mute is
+returned to what it was. If nothing differs, apply makes no change and no restart.
 """
 import argparse, fcntl, json, os, pwd, shutil, socket, subprocess, sys, time
 from pathlib import Path
@@ -18,7 +19,7 @@ import audio_runtime as ar
 
 CANDIDATE = Path(__file__).resolve().parent
 DEFAULT_BACKUP_ROOT = Path(ar.HOME) / 'astral-voice/platform-hardening/audio-runtime-backups'
-DEFAULT_ROOM_LOCK = Path(ar.HOME) / 'astral-voice/platform-hardening/single-router-20260912/.acoustic-calibration.lock'
+DEFAULT_ROOM_LOCK = Path(ar.HOME) / 'astral-voice/platform-hardening/.acoustic-calibration.lock'
 
 
 def run(argv, check=True, timeout=60):
@@ -106,6 +107,12 @@ def current_state(manifest):
     return {t['dst']: file_state(t['dst'], t.get('install_via_sudo')) for t in manifest}
 
 
+def read_levels_record(backup_root):
+    """The levels recorded on this device at install, or None before the first apply."""
+    record = Path(backup_root) / ar.LEVELS_RECORD
+    return json.loads(record.read_text()) if record.exists() else None
+
+
 def gather_facts(args):
     env = {}
     envfile = Path(ar.HOME) / '.env'
@@ -149,6 +156,8 @@ def gather_facts(args):
         'env_levels': env,
         'hub_unit_present': (Path(ar.HOME) / '.config/systemd/user/astral-hub.service').exists(),
         'room_test_running': room_running,
+        'recorded_levels': read_levels_record(args.backup_root),
+        'levels_record_path': str(Path(args.backup_root) / ar.LEVELS_RECORD),
         'service_states': {n: {'active': ctl('user', 'is-active', n, check=False).stdout.strip(),
                                'enabled': ctl('user', 'is-enabled', n, check=False).stdout.strip()}
                            for n in ('astral-aec', 'astral-hub', 'openhome-dashboard', 'wireplumber', 'pipewire', 'pipewire-pulse')},
@@ -165,7 +174,7 @@ def links():
     return pairs
 
 
-def observe(d, manifest):
+def observe(d, manifest, recorded_levels=None):
     threads = [l for l in run(['ps', '-eLo', 'pid,tid,user,cls,rtprio,comm']).stdout.splitlines() if 'openhome' in l and 'data-loop' in l]
     rt_comms = []
     for l in threads:
@@ -204,6 +213,7 @@ def observe(d, manifest):
         'aec_start_ts': None if aec_start is None else aec_start + boot_offset, 'aec_dropins_mtime': newest_mtime(dropins),
         'wireplumber_start_wall': start_wall('wireplumber'), 'aec_start_wall': start_wall('astral-aec'),
         'files': {t['dst']: file_state(t['dst'], t.get('install_via_sudo'))['sha'] for t in manifest},
+        'recorded_levels': recorded_levels,
     }
 
 
@@ -254,7 +264,7 @@ def wait_ready(d, level):
     until(75, hub_ready, 'Hub not ready after restart')
 
 
-def do_restart(d, level, before, report):
+def do_restart(d, level, before, report, recorded_levels=None):
     seq = ar.restart_sequence(level)
     report['restart'] = {'level': level, 'sequence': seq}
     if not seq:
@@ -264,7 +274,8 @@ def do_restart(d, level, before, report):
         ctl(*step)
     wait_ready(d, level)
     after = d.levels()
-    ops = ar.audio_restore_ops(before['sink_mute'], level, {'speaker': before['speaker'], 'microphone': before['microphone']},
+    target = (recorded_levels or {}).get('levels') or {'speaker': before['speaker'], 'microphone': before['microphone']}
+    ops = ar.audio_restore_ops(before['sink_mute'], level, target,
                                {'speaker': after['speaker'], 'microphone': after['microphone']})
     report['audio_restore_ops'] = ops
     for op in ops:
@@ -277,7 +288,7 @@ def cmd_plan(args, manifest):
 
 
 def cmd_verify(args, manifest):
-    results = ar.verify(observe(DeviceAudio(), manifest), manifest)
+    results = ar.verify(observe(DeviceAudio(), manifest, read_levels_record(args.backup_root)), manifest)
     ok = all(r[1] for r in results)
     for name, good, detail in results:
         print('%s %s %s' % ('PASS' if good else 'FAIL', name, detail))
@@ -299,9 +310,20 @@ def settle_audio(d, sink_mute_before, report, reason):
         report['audio_final'] = {'error': type(e).__name__ + ': ' + str(e)[:200], 'reason': reason}
 
 
+def warn(warnings):
+    for w in warnings:
+        print('warning: ' + w, file=sys.stderr)
+    return warnings
+
+
 def cmd_apply(args, manifest):
-    facts = gather_facts(args); ar.check_preconditions(facts)
+    facts = gather_facts(args); warnings = warn(ar.check_preconditions(facts))
     d = DeviceAudio()
+    if facts['recorded_levels'] is None:
+        # The first apply on this device records its levels; later runs are held to them.
+        facts['recorded_levels'] = ar.levels_record(facts['env_levels'], d.levels(),
+                                                    time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()))
+        Path(facts['levels_record_path']).write_text(json.dumps(facts['recorded_levels'], indent=2))
     current = current_state(manifest)
     p = ar.plan(manifest, current)
     if not p['changes']:
@@ -321,7 +343,7 @@ def cmd_apply(args, manifest):
     def save_meta():
         (backup / 'meta.json').write_text(json.dumps(meta, indent=2))
     save_meta()
-    report = {'backup': str(backup), 'plan': p, 'installed': []}
+    report = {'backup': str(backup), 'plan': p, 'installed': [], 'warnings': warnings}
     try:
         d.pause()                                    # before the first byte changes; polkit reloads on write
         report['paused_before_write'] = True
@@ -335,12 +357,12 @@ def cmd_apply(args, manifest):
         if bad:
             raise RuntimeError('Installed bytes do not match candidate: %s' % bad)
         if not args.no_restart:
-            do_restart(d, p['level'], before, report)
+            do_restart(d, p['level'], before, report, facts['recorded_levels'])
         else:
             report['restart'] = {'level': p['level'], 'sequence': [], 'deferred': True}
             for op in ar.audio_restore_ops(before['sink_mute'], 'none', None, None):
                 run([a.replace('SINK', d.SINK).replace('RAW', d.RAW) for a in op])
-        report['verify'] = ar.verify(observe(d, manifest), manifest)
+        report['verify'] = ar.verify(observe(d, manifest, facts['recorded_levels']), manifest)
         report['ok'] = all(r[1] for r in report['verify'])
         report['applied'] = True
     except Exception as e:
@@ -352,7 +374,7 @@ def cmd_apply(args, manifest):
 
 
 def cmd_rollback(args, manifest):
-    facts = gather_facts(args); ar.check_preconditions(facts)      # the same guard as apply: no room test, sane host
+    facts = gather_facts(args); warn(ar.check_preconditions(facts))   # the same guard as apply: no room test, sane host
     backup = Path(args.backup)
     meta = json.loads((backup / 'meta.json').read_text())
     state_path = backup / 'rollback-state.json'
@@ -375,7 +397,7 @@ def cmd_rollback(args, manifest):
                 run(['sudo', '-n', 'rm', '--', op['dst']] if op['via_sudo'] else ['rm', '--', op['dst']])
             done.add(op['name']); state_path.write_text(json.dumps({'done': sorted(done)}))
             report['done'].append(op)
-        do_restart(d, rp['level'], before, report)
+        do_restart(d, rp['level'], before, report, facts['recorded_levels'])
         report['restored'] = True
     except Exception as e:
         report['error'] = type(e).__name__ + ': ' + str(e)[:500]; report['restored'] = False

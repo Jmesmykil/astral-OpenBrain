@@ -8,6 +8,12 @@
 set -e
 cd ~/astral-voice/hub-v2
 PY=~/astral-voice/kws-venv/bin/python3
+# Tool directories the services search before the system's (Julia, cargo); systemd expands %h.
+ASTRAL_TOOL_PATH=${ASTRAL_TOOL_PATH:-%h/opt/julia/bin:%h/.cargo/bin}
+# Where the native Slate kernel is installed; its service is set up only when it is there.
+SLATE_KERNEL_DIR=${SLATE_KERNEL_DIR:-$HOME/slate-trim}
+# The exact-arithmetic oracle library, reported at the end (the hub honours the same name).
+SLATE_EXACT_LIB=${SLATE_EXACT_LIB:-$HOME/slate/ada/slate_exact/lib/libslate_exact_c.so}
 if [ -f data/lan.token ]; then chmod 600 data/lan.token; fi
 
 $PY sounds.py make >/dev/null
@@ -50,21 +56,12 @@ $PY library.py index
 # pip or verification failure exits nonzero; set -e stops the deploy before restart.
 $PY install_kernel.py
 
-# The microphone level is OpenHome's: their node server sets it at boot from MIC_SENSITIVITY
-# in ~/.env, and their app has no slider for it. Their default, 30, was measured deaf for the
-# wake ("open brain" at peak 112). The value the wake needs is written ONCE into their
-# configuration, only while it still holds their default, so a number they or the owner
-# choose later is never overwritten; the loop itself never touches the mixer. The speaker is
-# the app's slider (SPEAKER_VOLUME), and nothing here writes it.
-ENVF=~/.env
-if [ -f "$ENVF" ]; then
-  MICNOW=$(grep '^MIC_SENSITIVITY=' "$ENVF" | tail -1 | cut -d= -f2)
-  case "${MICNOW:-none}" in
-    none) echo "MIC_SENSITIVITY=160" >> "$ENVF"; echo "mic:        MIC_SENSITIVITY=160 added to OpenHome's ~/.env (their boot sets it)";;
-    30|30.0|30.00) sed -i 's/^MIC_SENSITIVITY=.*/MIC_SENSITIVITY=160/' "$ENVF"; echo "mic:        MIC_SENSITIVITY 30 -> 160 in OpenHome's ~/.env (their boot sets it)";;
-    *) echo "mic:        MIC_SENSITIVITY=$MICNOW in OpenHome's ~/.env, left as chosen";;
-  esac
-fi
+# The levels are OpenHome's and the device owner's: their node server sets the microphone at
+# boot from MIC_SENSITIVITY in ~/.env, and the app's slider is the speaker (SPEAKER_VOLUME).
+# Nothing here writes either. The deploy reports the microphone setting, and the hub's health
+# line says in the log when the microphone is too quiet for the wake phrase.
+MICNOW=$(grep '^MIC_SENSITIVITY=' ~/.env 2>/dev/null | tail -1 | cut -d= -f2) || true
+echo "mic:        MIC_SENSITIVITY=${MICNOW:-unset} in OpenHome's ~/.env, left as it is"
 CAPS=~/openhome_devkit/local_capabilities
 SHIPPED=~/astral-voice/hub-v2/shipped
 # Check the complete input before changing either installed file. A partial sync
@@ -135,7 +132,7 @@ Description=Astral owner bridge for native ability requests
 
 [Service]
 WorkingDirectory=%h/astral-voice/hub-v2
-Environment=PATH=%h/opt/julia/bin:%h/.cargo/bin:/usr/local/bin:/usr/bin:/bin
+Environment=PATH=$ASTRAL_TOOL_PATH:/usr/local/bin:/usr/bin:/bin
 ExecStart=%h/astral-voice/kws-venv/bin/python3 ability_server.py
 UMask=0077
 Restart=on-failure
@@ -154,7 +151,7 @@ After=pipewire.service
 
 [Service]
 WorkingDirectory=%h/astral-voice/hub-v2
-Environment=PATH=%h/opt/julia/bin:%h/.cargo/bin:/usr/local/bin:/usr/bin:/bin
+Environment=PATH=$ASTRAL_TOOL_PATH:/usr/local/bin:/usr/bin:/bin
 Environment=LD_LIBRARY_PATH=%h/astral-voice/whisper.cpp/build/bin
 ExecStart=%h/astral-voice/kws-venv/bin/python3 live_hub.py
 Restart=always
@@ -193,14 +190,14 @@ fi
 # ability is a fresh process per turn, which is why exact mathematics was being offered
 # away to the cloud on a device that can do it. This service owns it; both callers ask
 # the socket. Started only when the kernel binary is actually here.
-if [ -x ~/slate-trim/slate-kernel-full ] || [ -x ~/slate-trim/slate-kernel ]; then
+if [ -x "$SLATE_KERNEL_DIR/slate-kernel-full" ] || [ -x "$SLATE_KERNEL_DIR/slate-kernel" ]; then
 cat > ~/.config/systemd/user/astral-slate.service <<UNIT
 [Unit]
 Description=Astral Slate kernel, resident and shared (one warm kernel, one socket)
 
 [Service]
 WorkingDirectory=%h/astral-voice/hub-v2
-Environment=PATH=%h/opt/julia/bin:%h/.cargo/bin:/usr/local/bin:/usr/bin:/bin
+Environment=PATH=$ASTRAL_TOOL_PATH:/usr/local/bin:/usr/bin:/bin
 ExecStart=%h/astral-voice/kws-venv/bin/python3 slate_server.py
 Restart=always
 RestartSec=5
@@ -314,7 +311,7 @@ echo "kiosk:      $(systemctl --user is-active openhome-dashboard.service || tru
 echo "model:      $(systemctl --user is-active astral-model.service 2>/dev/null || echo absent)$([ -n "$(ls ~/astral-voice/models/*.gguf 2>/dev/null)" ] && echo " ($(basename $(ls -S ~/astral-voice/models/*.gguf | tail -1)))")"
 echo "slate:      $(systemctl --user is-active astral-slate.service 2>/dev/null || echo absent)"
 echo "astral-hub: $(systemctl --user is-active astral-hub.service || true)"
-echo "oracle:     $(ls ~/slate/ada/slate_exact/lib/libslate_exact_c.so 2>/dev/null || echo absent)"
+echo "oracle:     $(ls "$SLATE_EXACT_LIB" 2>/dev/null || echo absent)"
 echo "wake:       $($PY -c 'import wake_phrase as w; print(", ".join(w.WAKE_PHRASES) + " (phrase recogniser)" if w.available() else "hey mycroft (no phrase model on this machine)")')"
 echo "sounds:     $(ls ~/astral-voice/sounds 2>/dev/null | wc -l | tr -d ' ') files"
 echo "kernel:     $(sudo python3 -c 'import astral_kernel; print("astral-kernel " + astral_kernel.__version__ + " (compiled, system python)")' 2>/dev/null || echo 'not installed — the ability will use the hub, or say it has no engine')"

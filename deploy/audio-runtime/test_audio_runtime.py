@@ -41,12 +41,18 @@ class FakeSystemd:
         return self
 
 
+# Any device's own levels: nothing below depends on particular numbers.
+SAVED = {'SPEAKER_VOLUME': '40', 'MIC_SENSITIVITY': '120'}
+LIVE = {'speaker': '40%', 'microphone': '120%'}
+
+
 def good_facts():
     return {'hostname': 'openhome', 'asound_cards': ' 2 [sndrpigooglevoi]: RPi-simple - snd_rpi_googlevoicehat_soundcar',
             'pipewire_version': '1.4.2', 'wireplumber_version': '0.5.8', 'aec_webrtc_plugin': True,
             'system_active': {'rtkit-daemon': 'active', 'polkit': 'active'}, 'user': 'openhome',
             'sudo_noninteractive': True, 'backup_root_writable': True,
-            'env_levels': {'SPEAKER_VOLUME': '50', 'MIC_SENSITIVITY': '160'}, 'hub_unit_present': True,
+            'env_levels': dict(SAVED), 'recorded_levels': ar.levels_record(SAVED, LIVE, 'fixture'),
+            'levels_record_path': '/backups/' + ar.LEVELS_RECORD, 'hub_unit_present': True,
             'room_test_running': False, 'service_states': {}}
 
 
@@ -64,7 +70,8 @@ def good_obs():
         'hub': {'Requires': 'app.slice basic.target astral-aec.service', 'After': 'astral-aec.service basic.target pipewire.service',
                 'Environment': 'PATH=/x ASTRAL_MIC_SOURCE=astral_echo_cancel ASTRAL_MIC_AEC=1'},
         'captures': [{'binary': 'pacat', 'target': 'astral_echo_cancel'}],
-        'volumes': {'speaker': '50%', 'microphone': '160%'}, 'sink_mute': False, 'raw_mute': True, 'aec_mute': True,
+        'volumes': dict(LIVE), 'recorded_levels': ar.levels_record(SAVED, LIVE, 'fixture'),
+        'sink_mute': False, 'raw_mute': True, 'aec_mute': True,
         'active': {n: 'active' for n in ('astral-aec', 'astral-hub', 'wireplumber', 'pipewire')},
         'wireplumber_start_ts': 200.0, 'wireplumber_rules_mtime': 100.0, 'aec_start_ts': 300.0, 'aec_dropins_mtime': 100.0,
         'files': {t['dst']: t['sha'] for t in MANIFEST},
@@ -159,15 +166,35 @@ class Preconditions(unittest.TestCase):
         self.assertEqual(ar.check_preconditions(good_facts()), [])
 
     def test_each_wrong_fact_aborts(self):
-        for key, value in (('hostname', 'other'), ('asound_cards', ''), ('pipewire_version', '1.2.7'), ('wireplumber_version', '0.4.17'),
+        for key, value in (('asound_cards', ''),
                            ('aec_webrtc_plugin', False), ('user', 'root'), ('sudo_noninteractive', False), ('backup_root_writable', False),
-                           ('env_levels', {'SPEAKER_VOLUME': '70', 'MIC_SENSITIVITY': '160'}), ('hub_unit_present', False), ('room_test_running', True)):
+                           ('env_levels', dict(SAVED, SPEAKER_VOLUME='70')), ('hub_unit_present', False), ('room_test_running', True)):
             f = good_facts(); f[key] = value
             with self.assertRaises(ar.PreconditionError, msg=key):
                 ar.check_preconditions(f)
         f = good_facts(); f['system_active']['rtkit-daemon'] = 'inactive'
         with self.assertRaises(ar.PreconditionError):
             ar.check_preconditions(f)
+
+    def test_what_it_was_verified_on_is_reported_not_refused(self):
+        f = dict(good_facts(), hostname='kitchen', pipewire_version='1.2.7', wireplumber_version='0.4.17')
+        warnings = ar.check_preconditions(f)
+        self.assertEqual(len(warnings), 3, warnings)
+        for word in ('kitchen', '1.2.7', '0.4.17'):
+            self.assertTrue(any(word in w for w in warnings), word)
+
+    def test_levels_are_held_to_this_devices_record_never_to_fixed_numbers(self):
+        for saved in ({'SPEAKER_VOLUME': '14', 'MIC_SENSITIVITY': '30'}, {'SPEAKER_VOLUME': '50', 'MIC_SENSITIVITY': '160'}, {}):
+            f = dict(good_facts(), env_levels=saved, recorded_levels=None)
+            self.assertEqual(ar.check_preconditions(f), [], 'before any record, whatever the device has passes')
+            f['recorded_levels'] = ar.levels_record(saved, {'speaker': '14%', 'microphone': '30%'}, 'fixture')
+            self.assertEqual(ar.check_preconditions(f), [], 'the recorded levels pass')
+        f = dict(good_facts(), env_levels={'SPEAKER_VOLUME': '50', 'MIC_SENSITIVITY': '160'})
+        with self.assertRaises(ar.PreconditionError) as refused:
+            ar.check_preconditions(f)
+        self.assertIn(f['levels_record_path'], str(refused.exception), 'the refusal says how to record anew')
+        record = ar.levels_record(SAVED, dict(LIVE, sink_mute=False), 'at')
+        self.assertEqual(record, {'recorded_at': 'at', 'env_levels': SAVED, 'levels': LIVE})
 
 
 class Rollback(unittest.TestCase):
@@ -339,8 +366,8 @@ class Verify(unittest.TestCase):
         self.assertIn('hub.env-aec-source', broken(lambda o: o['hub'].__setitem__('Environment', 'ASTRAL_MIC_AEC=0')))
         self.assertIn('capture.no-browser-capture', broken(lambda o: o['captures'].append({'binary': 'chromium', 'target': None})))
         self.assertIn('capture.one-hub-capture-on-aec', broken(lambda o: o.__setitem__('captures', [])))
-        self.assertIn('levels.speaker-50', broken(lambda o: o['volumes'].__setitem__('speaker', '70%')))
-        self.assertIn('levels.microphone-160', broken(lambda o: o['volumes'].__setitem__('microphone', '100%')))
+        self.assertIn('levels.speaker-as-installed', broken(lambda o: o['volumes'].__setitem__('speaker', '70%')))
+        self.assertIn('levels.microphone-as-installed', broken(lambda o: o['volumes'].__setitem__('microphone', '100%')))
         self.assertIn('wireplumber.started-after-rules', broken(lambda o: o.__setitem__('wireplumber_start_ts', 50.0)))
         self.assertIn('wireplumber.started-after-rules', broken(lambda o: o.__setitem__('wireplumber_start_ts', 99.9)))    # 0.1 s before the write: not loaded, no slack
         self.assertNotIn('wireplumber.started-after-rules', broken(lambda o: o.__setitem__('wireplumber_start_ts', 100.139)))   # the device's measured 0.139 s after
@@ -349,6 +376,14 @@ class Verify(unittest.TestCase):
         self.assertIn('aec.started-after-dropins', broken(lambda o: o.__setitem__('aec_start_ts', 50.0)))
         self.assertIn('file.49-openhome-rtkit.rules', broken(lambda o: o['files'].__setitem__(BY_NAME['49-openhome-rtkit.rules']['dst'], None)))
         self.assertIn('service.astral-hub.active', broken(lambda o: o['active'].__setitem__('astral-hub', 'failed')))
+
+    def test_levels_are_judged_against_the_record_or_only_reported_before_one(self):
+        o = dict(good_obs(), volumes={'speaker': '50%', 'microphone': '160%'})
+        self.assertEqual(failing(ar.verify(o, MANIFEST)), ['levels.microphone-as-installed', 'levels.speaker-as-installed'])
+        o['recorded_levels'] = None
+        results = ar.verify(o, MANIFEST)
+        self.assertEqual(failing(results), [])
+        self.assertIn('none recorded yet', dict((n, d) for n, _, d in results)['info.levels'])
 
     def test_mute_state_is_reported_not_judged(self):
         o = good_obs(); o['sink_mute'] = True; o['raw_mute'] = False

@@ -12,9 +12,10 @@ state. It verifies the compiled wheel against current build inputs and verifies 
 installed interpreters; a failed build or kernel install stops before restart.
 
 The local loop and OpenHome's kiosk must not both own the microphone. `--start` stops the
-kiosk before starting Astral. OpenHome owns the speaker and microphone levels. The loop
-never adjusts them; the existing installer migration only changes the untouched default
-microphone configuration from 30 to 160, leaving a later chosen value alone.
+kiosk before starting Astral. OpenHome and the device's owner own the speaker and
+microphone levels. Neither the loop nor the installer changes them: the installer reports
+`MIC_SENSITIVITY` from OpenHome's `~/.env`, and the hub's health line says when the
+microphone is too quiet for the wake phrase.
 
 `devkit-config.json` is a historical device-side configuration example. The current
 ability package also has its platform metadata in `community/astral/config.json`.

@@ -31,9 +31,14 @@ TARGETS = [
          dst='/etc/polkit-1/rules.d/49-openhome-rtkit.rules', mode='644', owner='root', level='audio-stack', install_via_sudo=True),
 ]
 
-EXPECTED = dict(hostname='openhome', pipewire='1.4.2', wireplumber='0.5.8', card='snd_rpi_googlevoicehat',
-                speaker_percent='50%', microphone_percent='160%', quantum='960', latency='960/48000',
-                env_levels={'SPEAKER_VOLUME': '50', 'MIC_SENSITIVITY': '160'})
+# What the packaged configuration needs.
+EXPECTED = dict(card='snd_rpi_googlevoicehat', quantum='960', latency='960/48000')
+# What it was captured and verified on (ORIGIN.txt). A difference is reported, not refused:
+# apply backs up every target, verifies the result, and rollback restores the exact bytes.
+VERIFIED_ON = dict(hostname='openhome', pipewire='1.4.2', wireplumber='0.5.8')
+# The first apply on a device records its speaker and microphone levels here, in the backup
+# root. Later runs are held to that record, never to numbers from another device.
+LEVELS_RECORD = 'installed-levels.json'
 
 # The only node properties the verifier reads from pw-dump. Everything else (including any
 # client-supplied strings) is dropped before it reaches a report.
@@ -101,16 +106,19 @@ class PreconditionError(RuntimeError):
 
 
 def check_preconditions(facts):
-    """facts: dict gathered read-only by the runner. Returns [] or raises with every failure listed."""
-    bad = []
-    if facts.get('hostname') != EXPECTED['hostname']:
-        bad.append('hostname is %r, expected %r' % (facts.get('hostname'), EXPECTED['hostname']))
+    """facts: dict gathered read-only by the runner. Returns the warnings, or raises with every
+    failure listed. The saved levels are compared with the ones recorded on this device when
+    the runtime was installed; before any record there is nothing to compare, and apply
+    records them."""
+    bad, warnings = [], []
+    if facts.get('hostname') != VERIFIED_ON['hostname']:
+        warnings.append('hostname is %r; verified on %r' % (facts.get('hostname'), VERIFIED_ON['hostname']))
     if EXPECTED['card'] not in (facts.get('asound_cards') or ''):
         bad.append('VoiceHAT card not present in /proc/asound/cards')
-    if not str(facts.get('pipewire_version', '')).startswith(EXPECTED['pipewire']):
-        bad.append('pipewire version %r, expected %s' % (facts.get('pipewire_version'), EXPECTED['pipewire']))
-    if not str(facts.get('wireplumber_version', '')).startswith(EXPECTED['wireplumber']):
-        bad.append('wireplumber version %r, expected %s' % (facts.get('wireplumber_version'), EXPECTED['wireplumber']))
+    for stack in ('pipewire', 'wireplumber'):
+        found = facts.get(stack + '_version')
+        if not str(found or '').startswith(VERIFIED_ON[stack]):
+            warnings.append('%s version %r; verified on %s' % (stack, found, VERIFIED_ON[stack]))
     if not facts.get('aec_webrtc_plugin'):
         bad.append('libspa-aec-webrtc.so not found')
     for unit in ('rtkit-daemon', 'polkit'):
@@ -122,15 +130,24 @@ def check_preconditions(facts):
         bad.append('sudo -n is required for the root-owned targets')
     if not facts.get('backup_root_writable'):
         bad.append('backup root is not writable')
-    if facts.get('env_levels') != EXPECTED['env_levels']:
-        bad.append('~/.env levels %r, expected %r' % (facts.get('env_levels'), EXPECTED['env_levels']))
+    recorded = facts.get('recorded_levels')
+    if recorded is not None and facts.get('env_levels') != recorded.get('env_levels'):
+        bad.append('~/.env levels %r differ from %r, recorded when the runtime was installed; put them '
+                   'back, or remove %s to record the current ones at the next apply'
+                   % (facts.get('env_levels'), recorded.get('env_levels'), facts.get('levels_record_path', LEVELS_RECORD)))
     if not facts.get('hub_unit_present'):
         bad.append('astral-hub.service base unit missing')
     if facts.get('room_test_running'):
         bad.append('a room test holds the calibration lock')
     if bad:
         raise PreconditionError('; '.join(bad))
-    return []
+    return warnings
+
+
+def levels_record(env_levels, levels, at):
+    """What the first apply on a device records: its saved (~/.env) and live levels."""
+    return {'recorded_at': at, 'env_levels': dict(env_levels or {}),
+            'levels': {'speaker': levels.get('speaker'), 'microphone': levels.get('microphone')}}
 
 
 def plan(manifest, current):
@@ -253,8 +270,9 @@ def rollback_plan(meta, current, done=()):
 
 def audio_restore_ops(sink_mute_before, level, levels_before, levels_after):
     """Only ever preserves: the sink mute returns to what it was, and after a full stack restart
-    the speaker/microphone levels return to what they were before if they drifted. Never unmutes
-    a microphone or the browser, never sets a level other than the pre-apply one."""
+    the speaker/microphone levels return to `levels_before` if they drifted. The runner passes the
+    levels recorded on this device at install, or before any record the pre-apply ones. Never
+    unmutes a microphone or the browser, never sets any other level."""
     ops = []
     if level == 'audio-stack' and levels_before:
         if levels_after.get('speaker') != levels_before.get('speaker'):
@@ -304,8 +322,14 @@ def verify(obs, manifest=None):
     add('capture.one-hub-capture-on-aec', len(hubcap) == 1, '%d hub captures' % len(hubcap))
     add('capture.no-browser-capture', not any(c.get('binary') == 'chromium' for c in caps), 'chromium captures: %d' % sum(1 for c in caps if c.get('binary') == 'chromium'))
     vol = obs.get('volumes', {})
-    add('levels.speaker-50', vol.get('speaker') == EXPECTED['speaker_percent'], 'speaker=%r' % vol.get('speaker'))
-    add('levels.microphone-160', vol.get('microphone') == EXPECTED['microphone_percent'], 'microphone=%r' % vol.get('microphone'))
+    recorded = (obs.get('recorded_levels') or {}).get('levels')
+    if recorded:
+        for which in ('speaker', 'microphone'):
+            add('levels.%s-as-installed' % which, vol.get(which) == recorded.get(which),
+                '%s=%r, recorded at install %r' % (which, vol.get(which), recorded.get(which)))
+    else:
+        add('info.levels', True, 'speaker=%r microphone=%r; none recorded yet (the first apply records them)'
+            % (vol.get('speaker'), vol.get('microphone')))
     for svc in ('astral-aec', 'astral-hub', 'wireplumber', 'pipewire'):
         add('service.%s.active' % svc, obs.get('active', {}).get(svc) == 'active', obs.get('active', {}).get(svc))
     # the running WirePlumber and AEC unit were started no earlier than their config files were written

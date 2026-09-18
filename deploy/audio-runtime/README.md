@@ -12,8 +12,17 @@ Run as openhome on the supported VoiceHAT device, using Python 3:
     python3 install-audio-runtime.py rollback <backup-directory>
 
 Plan exits 3 when changes are needed. Verify exits nonzero for a failed contract.
-Apply checks host, audio versions, privileges, the established 50/160 saved levels,
-and the room-test lock before changing configuration. Microphones and Chromium stay
+Apply refuses to run without the VoiceHAT, the WebRTC echo-cancellation plugin, active
+RTKit and polkit, the openhome user, non-interactive sudo, a writable backup root and the
+hub unit, or while a room test holds its lock (`--room-lock`, default
+`~/astral-voice/platform-hardening/.acoustic-calibration.lock`). A hostname or
+PipeWire/WirePlumber version other than those in ORIGIN.txt is reported as a warning.
+
+The first apply records this device's saved (`~/.env`) and live speaker and microphone
+levels in `installed-levels.json` in the backup root. Later applies and rollbacks refuse
+to run if the saved levels have changed since, verify compares the live levels with the
+record, and after a full audio-stack restart the levels are returned to it. Remove that
+file to record the current levels at the next apply. Microphones and Chromium stay
 muted. The prior global sink mute value is restored, including on errors.
 Use --backup-root or --report-dir before the subcommand to override their locations.
 
@@ -29,16 +38,17 @@ node.link-group cleared, and no Chromium stream property restoration.
 RTKit authorization is scoped to user openhome and retains its RR20 limit/watchdog.
 Noise/transient suppression use their defaults.
 
-Validation: 23 unit checks passed on Mac and Pi. On the live device a no-op apply
-changed nothing and restarted nothing. A fixture differing by one harmless hub
+Validation of the captured configuration: 23 unit checks passed on Mac and Pi. On the
+live device a no-op apply changed nothing and restarted nothing. A fixture differing by one harmless hub
 drop-in comment applied, restarted the hub, and rolled back. All original bytes
 and metadata were checked afterward; all 38 runtime checks passed. This exercises
 the hub restart level. Other levels and error paths have controlled unit evidence,
-not equivalent fresh-device or reboot proof.
+not equivalent fresh-device or reboot proof. The level record and the version warnings
+came later and are covered by the 26 unit checks only, not by a device run.
 
     python3 -m unittest -v test_audio_runtime.py
 
 Physical interruption still sometimes loses the next question through echo
 cancellation. The audio configuration is a verified development state, not acoustic
-release acceptance. See [the current handoff](../../HANDOFF.md).
+release acceptance. See [the known limitations](../../KNOWN-BUGS.md).
 
