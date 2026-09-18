@@ -164,7 +164,7 @@ can answer within rank, it says which machine it would need and asks before send
 
 Sign-in is the owner's choice: approve the device at home with a six-digit code (no account at
 all), or with a GitHub, Google or X account through the device flow. Executors that dial in show
-up in the ranking as "your phone" or "the Mac" for exactly the classes their signed card claims,
+up in the ranking as "your phone" or "the Mac" for the classes their signed card claims and no others,
 while they are present, and disappear when they leave.
 
 To run it yourself: deploy the hub (`deploy/install_v2.sh`), which installs and advertises the
