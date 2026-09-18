@@ -152,3 +152,23 @@ spoken routing are not established by automated passes.
 
 The ability, and everything else in this repository, is MIT — see [LICENSE](LICENSE).
 The compiled `astral-kernel` engine is separately licensed and proprietary.
+
+## Ask your phone, or your computer
+
+The DevKit cannot run every tier, and the machines that can are not always on its network.
+So the hub runs a small gateway on the device: one TLS door on port 8443, self-signed and
+pinned by fingerprint, advertised on the LAN over mDNS. A phone or computer connects OUT to it,
+proves who it belongs to, and then leases signed tasks and returns signed answers. Nothing on the
+executor listens; there is no VPN, no mesh, no relay. When a question is outside what the device
+can answer within rank, it says which machine it would need and asks before sending.
+
+Sign-in is the owner's choice: approve the device at home with a six-digit code (no account at
+all), or with a GitHub, Google or X account through the device flow. Executors that dial in show
+up in the ranking as "your phone" or "the Mac" for exactly the classes their signed card claims,
+while they are present, and disappear when they leave.
+
+To run it yourself: deploy the hub (`deploy/install_v2.sh`), which installs and advertises the
+gateway; on a computer with a copy of the hub, `python3 -m fabric.executor login <gateway-url>
+<fingerprint>` then `python3 -m fabric.executor serve`. The phone side is the Oasis app
+(`fabric/interop/` holds the wire contract and byte-exact test vectors for any client). Tests:
+`python3 -m unittest test_gateway` in `hub/`.
